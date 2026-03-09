@@ -265,7 +265,6 @@ def image_for(category: str) -> str:
 def game_embed(title: str, description: str, category: str = "default", color: int = 0xA67C39):
     em = discord.Embed(title=title, description=description, color=color)
     em.set_image(url=image_for(category))
-    em.set_footer(text="⚔ Chingis Empire RPG • 1200s Strategy Mode")
     return em
 
 
