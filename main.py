@@ -11,13 +11,6 @@ from discord.ext import commands
 # CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
 # discord.py 2.x
 # ============================================================
-# FEATURES
-# - 100+ commands
-# - image embed on every command
-# - economy, army, conquest, clan, rank, admin systems
-# - Mongol Empire 1200s flavor
-# - single-file starter architecture for Railway / Render / VPS
-# ============================================================
 
 TOKEN = os.getenv("TOKEN")
 PREFIX = os.getenv("PREFIX", "S ")
@@ -31,8 +24,6 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # ============================================================
 # IMAGE PACK
-# Replace these with your own AI image URLs later.
-# Every command uses an embed image through category mapping.
 # ============================================================
 IMAGES = {
     "start": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
@@ -48,7 +39,7 @@ IMAGES = {
     "travel": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "craft": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
-    "help" : "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png" ,
+    "help": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
 }
 
 # ============================================================
@@ -90,41 +81,33 @@ RANKS = [
     (190, "Хаадын Хаан"),
     (200, "Их Эзэн Хаан"),
 ]
+
 RANK_IMAGES = {
     "Малчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480460817056141312/AOI_d_-57kQ7hBmAanU8uHHiLC2u9dW9fj8gdROvBdrBLxD303cPRXDp8eaUH_pUiA_hNtMGDCgQkxMfWHkRjLEqfQWMtMZgd-5XqqwTPTBJblkOD7ius1QZabh_tRq9MqIF1qvAqtSOVnaFfK3RuQQWytq3l6fQtAT2fr0Ogjqggtm8sI-zs1024-rj.png",
     "Анчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Галч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Тариачин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Аравтын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Аравтын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Зуутын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Зуутын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Мянгатын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Мянгатын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Түмний Ноён": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Хилийн Харуул": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Орлогч Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Түшмэл": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Их Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Нууц Зөвлөх": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Тата Тунга": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Шихихутаг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
     "Их Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Хаадын Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
-
-    "Их Эзэн Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png"
+    "Их Эзэн Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
 }
+
 CITY_POOL = [
     "Хархорум", "Бухара", "Самарканд", "Бээжин", "Кашгар", "Алтан Ордон",
     "Мерв", "Ургенч", "Баласагун", "Отрар", "Ховд", "Хираат"
@@ -173,7 +156,7 @@ def uid(user_id: int) -> str:
     return str(user_id)
 
 
-def default_player(member: discord.Member | discord.User):
+def default_player(member):
     return {
         "name": member.display_name,
         "money": 1500,
@@ -238,7 +221,7 @@ def add_xp(player: dict, amount: int):
     return leveled
 
 
-def army_power(player: dict) -> tuple[int, int]:
+def army_power(player: dict):
     atk, defense = 0, 0
     for unit_key, count in player["army"].items():
         stat = UNIT_STATS[unit_key]
@@ -249,7 +232,7 @@ def army_power(player: dict) -> tuple[int, int]:
     return atk, defense
 
 
-def cd_ready(player: dict, key: str, seconds: int) -> tuple[bool, int]:
+def cd_ready(player: dict, key: str, seconds: int):
     last = player["cooldowns"].get(key, 0)
     diff = int(now_ts() - last)
     if diff >= seconds:
@@ -273,6 +256,17 @@ def fmt_inventory(player: dict) -> str:
     if not inv:
         return "Хоосон"
     return "\n".join(f"**{k}** x{v}" for k, v in inv.items() if v > 0) or "Хоосон"
+
+
+def parse_amount(text: str, max_amount: int):
+    text = text.lower()
+    if text == "all":
+        return max_amount
+    try:
+        amount = int(text)
+        return max(0, amount)
+    except ValueError:
+        return None
 
 
 def ensure_city_state():
@@ -300,7 +294,7 @@ def image_for(category: str) -> str:
 def game_embed(title, description, category="default", player=None, color=0xA67C39):
     em = discord.Embed(title=title, description=description, color=color)
 
-    if player and player["rank"] in RANK_IMAGES:
+    if player and player.get("rank") in RANK_IMAGES:
         em.set_image(url=RANK_IMAGES[player["rank"]])
     else:
         em.set_image(url=image_for(category))
@@ -308,9 +302,16 @@ def game_embed(title, description, category="default", player=None, color=0xA67C
     return em
 
 
-async def send_embed(ctx, title, description, category="default", color=0xA67C39):
-    await ctx.send(embed=game_embed(title, description, category, color))
-
+async def send_embed(ctx, title, description, category="default", player=None, color=0xA67C39):
+    await ctx.send(
+        embed=game_embed(
+            title,
+            description,
+            category=category,
+            player=player,
+            color=color,
+        )
+    )
 
 # ============================================================
 # CORE EVENTS
@@ -328,6 +329,7 @@ async def on_message(message: discord.Message):
     player = get_player(message.author)
     gain = random.randint(2, 5)
     levels = add_xp(player, gain)
+
     if levels:
         await message.channel.send(
             embed=game_embed(
@@ -335,13 +337,53 @@ async def on_message(message: discord.Message):
                 f"**{message.author.display_name}** шинэ түвшинд хүрлээ!\n"
                 f"**Level:** {player['level']}\n"
                 f"**Цол:** {player['rank']}",
-                "rank",
-                0xE0B84D,
+                category="rank",
+                player=player,
+                color=0xE0B84D,
             )
         )
+
     save_data(data)
     await bot.process_commands(message)
 
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        return
+    if isinstance(error, commands.MissingRequiredArgument):
+        return await send_embed(
+            ctx,
+            "❌ Дутуу комманд",
+            "Коммандын параметр дутуу байна.",
+            "default",
+            color=0xB22222
+        )
+    if isinstance(error, commands.BadArgument):
+        return await send_embed(
+            ctx,
+            "❌ Буруу утга",
+            "Хэрэглэгч эсвэл тоо буруу байна.",
+            "default",
+            color=0xB22222
+        )
+    if isinstance(error, commands.CheckFailure):
+        return await send_embed(
+            ctx,
+            "⛔ Хандах эрхгүй",
+            "Энэ командыг зөвхөн админ хэрэглэнэ.",
+            "admin",
+            color=0xB22222
+        )
+
+    print("Unhandled command error:", repr(error))
+    await send_embed(
+        ctx,
+        "💥 Алдаа",
+        f"Алдаа гарлаа:\n`{error}`",
+        "default",
+        color=0xB22222
+    )
 
 # ============================================================
 # BASIC PLAYER COMMANDS
@@ -359,6 +401,7 @@ async def start_game(ctx):
         f"**Цол:** {p['rank']}\n\n"
         f"Тушаалын эхлэл: `{PREFIX}help`",
         "start",
+        player=p,
     )
 
 
@@ -372,13 +415,14 @@ async def help_command(ctx):
         "🏙 Дайн": "cities, city, conquer, invade, raid, defendcity, siege, march, camp, attack",
         "👑 Овог": "clancreate, claninfo, clanjoin, clanleave, clandonate, clanvault, clanwar",
         "📈 Удирдлага": "leaderboard, topmoney, toplevel, topwar, topcities, topclans",
-            }
+        "🛡 Админ": "adminhelp, give, setmoney, setlevel, addxp, resetplayer, wipecity, announce, settitleadmin, giveunit, takeunit, setcityowner, reloadgame",
+    }
     desc = "\n\n".join(f"**{k}**\n{v}" for k, v in categories.items())
     await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "help")
 
 
 @bot.command(name="profile", aliases=["me"])
-async def profile(ctx, member: discord.Member | None = None):
+async def profile(ctx, member: discord.Member = None):
     member = member or ctx.author
     p = get_player(member)
     atk, df = army_power(p)
@@ -397,7 +441,7 @@ async def profile(ctx, member: discord.Member | None = None):
         f"**Ялалт/Ялагдал:** {p['wins']}/{p['losses']}\n"
         f"**Цол нэр:** {p['title']}"
     )
-    await send_embed(ctx, f"👤 {member.display_name}-ийн Профайл", desc, "profile")
+    await send_embed(ctx, f"👤 {member.display_name}-ийн Профайл", desc, "profile", player=p)
 
 
 @bot.command(name="stats")
@@ -414,7 +458,7 @@ async def stats(ctx):
         f"**Attack:** {atk}\n"
         f"**Defense:** {df}"
     )
-    await send_embed(ctx, "📊 Дэлгэрэнгүй Үзүүлэлт", desc, "profile")
+    await send_embed(ctx, "📊 Дэлгэрэнгүй Үзүүлэлт", desc, "profile", player=p)
 
 
 @bot.command(name="rank")
@@ -425,19 +469,20 @@ async def rank_cmd(ctx):
         "🎖 Цол",
         f"**Одоогийн түвшин:** {p['level']}\n**Одоогийн цол:** {p['rank']}\n**Дараагийн түвшний EXP:** {xp_to_next(p['level'])}",
         "rank",
+        player=p,
     )
 
 
 @bot.command(name="xp")
 async def xp_cmd(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "✨ Туршлага", f"**EXP:** {p['xp']}/{xp_to_next(p['level'])}", "rank")
+    await send_embed(ctx, "✨ Туршлага", f"**EXP:** {p['xp']}/{xp_to_next(p['level'])}", "rank", player=p)
 
 
 @bot.command(name="title")
 async def title_cmd(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "👑 Цол Нэр", f"Одоогийн цол нэр: **{p['title']}**", "rank")
+    await send_embed(ctx, "👑 Цол Нэр", f"Одоогийн цол нэр: **{p['title']}**", "rank", player=p)
 
 
 @bot.command(name="settitle")
@@ -445,19 +490,19 @@ async def settitle(ctx, *, title: str):
     p = get_player(ctx.author)
     p["title"] = title[:50]
     save_data(data)
-    await send_embed(ctx, "✍ Цол Нэр Шинэчлэгдлээ", f"Шинэ нэр: **{p['title']}**", "rank")
+    await send_embed(ctx, "✍ Цол Нэр Шинэчлэгдлээ", f"Шинэ нэр: **{p['title']}**", "rank", player=p)
 
 
 @bot.command(name="inventory", aliases=["bag"])
 async def inventory(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "🎒 Агуулах", fmt_inventory(p), "shop")
+    await send_embed(ctx, "🎒 Агуулах", fmt_inventory(p), "shop", player=p)
 
 
 @bot.command(name="energy")
 async def energy(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "🔋 Тамир", f"Одоогийн энерги: **{p['energy']} / 100**", "profile")
+    await send_embed(ctx, "🔋 Тамир", f"Одоогийн энерги: **{p['energy']} / 100**", "profile", player=p)
 
 
 @bot.command(name="heal")
@@ -465,51 +510,50 @@ async def heal(ctx):
     p = get_player(ctx.author)
     cost = 120
     if p["money"] < cost:
-        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Эмчилгээний үнэ: **{cost}**", "profile", 0xB22222)
+        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Эмчилгээний үнэ: **{cost}**", "profile", player=p, color=0xB22222)
     p["money"] -= cost
     p["hp"] = min(100 + p["level"], 300)
     save_data(data)
-    await send_embed(ctx, "🩹 Эмчлэгдлээ", f"HP сэргээгдэв.\n**Үлдэгдэл мөнгө:** {p['money']}", "profile")
-
+    await send_embed(ctx, "🩹 Эмчлэгдлээ", f"HP сэргээгдэв.\n**Үлдэгдэл мөнгө:** {p['money']}", "profile", player=p)
 
 # ============================================================
 # ECONOMY
 # ============================================================
 @bot.command(name="balance", aliases=["bal", "money"])
-async def balance(ctx, member: discord.Member | None = None):
+async def balance(ctx, member: discord.Member = None):
     member = member or ctx.author
     p = get_player(member)
-    await send_embed(ctx, "💰 Санхүү", f"**Бэлэн мөнгө:** {p['money']}\n**Банк:** {p['bank']}", "economy")
+    await send_embed(ctx, "💰 Санхүү", f"**Бэлэн мөнгө:** {p['money']}\n**Банк:** {p['bank']}", "economy", player=p)
 
 
 @bot.command(name="bank")
 async def bank(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "🏦 Банк", f"**Хадгаламж:** {p['bank']}** мөнгө**", "economy")
+    await send_embed(ctx, "🏦 Банк", f"**Хадгаламж:** {p['bank']} мөнгө", "economy", player=p)
 
 
 @bot.command(name="deposit")
 async def deposit(ctx, amount: str):
     p = get_player(ctx.author)
-    amt = p["money"] if amount == "all" else max(0, int(amount))
-    if amt <= 0 or p["money"] < amt:
-        return await send_embed(ctx, "❌ Алдаа", "Хадгалах мөнгө буруу байна.", "economy", 0xB22222)
+    amt = parse_amount(amount, p["money"])
+    if amt is None or amt <= 0 or p["money"] < amt:
+        return await send_embed(ctx, "❌ Алдаа", "Хадгалах мөнгө буруу байна.", "economy", player=p, color=0xB22222)
     p["money"] -= amt
     p["bank"] += amt
     save_data(data)
-    await send_embed(ctx, "🏦 Банканд Хийв", f"**{amt}** мөнгө хадгаллаа.", "economy")
+    await send_embed(ctx, "🏦 Банканд Хийв", f"**{amt}** мөнгө хадгаллаа.", "economy", player=p)
 
 
 @bot.command(name="withdraw")
 async def withdraw(ctx, amount: str):
     p = get_player(ctx.author)
-    amt = p["bank"] if amount == "all" else max(0, int(amount))
-    if amt <= 0 or p["bank"] < amt:
-        return await send_embed(ctx, "❌ Алдаа", "Татах мөнгө буруу байна.", "economy", 0xB22222)
+    amt = parse_amount(amount, p["bank"])
+    if amt is None or amt <= 0 or p["bank"] < amt:
+        return await send_embed(ctx, "❌ Алдаа", "Татах мөнгө буруу байна.", "economy", player=p, color=0xB22222)
     p["bank"] -= amt
     p["money"] += amt
     save_data(data)
-    await send_embed(ctx, "💸 Банкаас Авлаа", f"**{amt}** мөнгө гаргаж авлаа.", "economy")
+    await send_embed(ctx, "💸 Банкаас Авлаа", f"**{amt}** мөнгө гаргаж авлаа.", "economy", player=p)
 
 
 @bot.command(name="work")
@@ -517,7 +561,8 @@ async def work(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "work", 300)
     if not ok:
-        return await send_embed(ctx, "⏳ Хүлээ", f"Дахин ажиллах хүртэл **{rem} сек**.", "economy", 0xCC8800)
+        return await send_embed(ctx, "⏳ Хүлээ", f"Дахин ажиллах хүртэл **{rem} сек**.", "economy", player=p, color=0xCC8800)
+
     jobs = [
         ("татвар хураав", 120, 15),
         ("тэрэг ачив", 110, 14),
@@ -532,13 +577,13 @@ async def work(ctx):
     save_data(data)
     extra = f"\n🎖 Level up: {', '.join(map(str, levels))}" if levels else ""
     await ctx.send(
-    embed=game_embed(
-        "🛠 Ажил",
-        f"Та **{job}**.\n**+{money} мөнгө**\n**+{xp} EXP**{extra}",
-        "economy",
-        player=p
+        embed=game_embed(
+            "🛠 Ажил",
+            f"Та **{job}**.\n**+{money} мөнгө**\n**+{xp} EXP**{extra}",
+            category="economy",
+            player=p,
+        )
     )
-)
 
 
 @bot.command(name="daily")
@@ -546,14 +591,14 @@ async def daily(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "daily", 86400)
     if not ok:
-        return await send_embed(ctx, "⏳ Daily Бэлэн Биш", f"Үлдсэн хугацаа: **{rem // 3600} цаг**", "economy", 0xCC8800)
+        return await send_embed(ctx, "⏳ Daily Бэлэн Биш", f"Үлдсэн хугацаа: **{rem // 3600} цаг**", "economy", player=p, color=0xCC8800)
     reward = 500 + p["level"] * 12
     p["money"] += reward
     p["influence"] += 3
     add_xp(p, 30)
     set_cd(p, "daily")
     save_data(data)
-    await send_embed(ctx, "🌅 Daily Шагнал", f"**+{reward} мөнгө**\n**+3 нөлөө**\n**+30 EXP**", "economy")
+    await send_embed(ctx, "🌅 Daily Шагнал", f"**+{reward} мөнгө**\n**+3 нөлөө**\n**+30 EXP**", "economy", player=p)
 
 
 @bot.command(name="weekly")
@@ -561,14 +606,14 @@ async def weekly(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "weekly", 604800)
     if not ok:
-        return await send_embed(ctx, "⏳ Weekly Бэлэн Биш", f"Үлдсэн хугацаа: **{rem // 3600} цаг**", "economy", 0xCC8800)
+        return await send_embed(ctx, "⏳ Weekly Бэлэн Биш", f"Үлдсэн хугацаа: **{rem // 3600} цаг**", "economy", player=p, color=0xCC8800)
     reward = 3000 + p["level"] * 25
     p["money"] += reward
     p["influence"] += 10
     add_xp(p, 90)
     set_cd(p, "weekly")
     save_data(data)
-    await send_embed(ctx, "📦 Weekly Шагнал", f"**+{reward} мөнгө**\n**+10 нөлөө**\n**+90 EXP**", "economy")
+    await send_embed(ctx, "📦 Weekly Шагнал", f"**+{reward} мөнгө**\n**+10 нөлөө**\n**+90 EXP**", "economy", player=p)
 
 
 @bot.command(name="mine")
@@ -576,7 +621,7 @@ async def mine(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "mine", 480)
     if not ok:
-        return await send_embed(ctx, "⏳ Уурхай", f"Дахин олборлох хүртэл **{rem} сек**", "craft", 0xCC8800)
+        return await send_embed(ctx, "⏳ Уурхай", f"Дахин олборлох хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
     gain = random.randint(2, 6)
     iron = random.randint(1, 4)
     p["resources"]["чулуу"] += gain
@@ -585,7 +630,7 @@ async def mine(ctx):
     add_xp(p, 18)
     set_cd(p, "mine")
     save_data(data)
-    await send_embed(ctx, "⛏ Уурхай", f"**+{gain} чулуу**\n**+{iron} төмөр**\n**+80 мөнгө**", "craft")
+    await send_embed(ctx, "⛏ Уурхай", f"**+{gain} чулуу**\n**+{iron} төмөр**\n**+80 мөнгө**", "craft", player=p)
 
 
 @bot.command(name="hunt")
@@ -593,7 +638,7 @@ async def hunt(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "hunt", 420)
     if not ok:
-        return await send_embed(ctx, "⏳ Ан", f"Дахин ан хийх хүртэл **{rem} сек**", "craft", 0xCC8800)
+        return await send_embed(ctx, "⏳ Ан", f"Дахин ан хийх хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
     meat = random.randint(1, 4)
     hide = random.randint(1, 3)
     p["resources"]["мах"] += meat
@@ -602,7 +647,7 @@ async def hunt(ctx):
     add_xp(p, 16)
     set_cd(p, "hunt")
     save_data(data)
-    await send_embed(ctx, "🏹 Ан", f"**+{meat} мах**\n**+{hide} арьс**\n**+70 мөнгө**", "craft")
+    await send_embed(ctx, "🏹 Ан", f"**+{meat} мах**\n**+{hide} арьс**\n**+70 мөнгө**", "craft", player=p)
 
 
 @bot.command(name="farm")
@@ -610,14 +655,14 @@ async def farm(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "farm", 360)
     if not ok:
-        return await send_embed(ctx, "⏳ Тариалан", f"Дахин тариалах хүртэл **{rem} сек**", "craft", 0xCC8800)
+        return await send_embed(ctx, "⏳ Тариалан", f"Дахин тариалах хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
     grain = random.randint(2, 7)
     p["resources"]["тариа"] += grain
     p["money"] += 60
     add_xp(p, 14)
     set_cd(p, "farm")
     save_data(data)
-    await send_embed(ctx, "🌾 Тариалан", f"**+{grain} тариа**\n**+60 мөнгө**", "craft")
+    await send_embed(ctx, "🌾 Тариалан", f"**+{grain} тариа**\n**+60 мөнгө**", "craft", player=p)
 
 
 @bot.command(name="fish")
@@ -625,13 +670,13 @@ async def fish(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "fish", 360)
     if not ok:
-        return await send_embed(ctx, "⏳ Загасчлал", f"Дахин загасчлах хүртэл **{rem} сек**", "craft", 0xCC8800)
+        return await send_embed(ctx, "⏳ Загасчлал", f"Дахин загасчлах хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
     money = random.randint(60, 140)
     p["money"] += money
     add_xp(p, 12)
     set_cd(p, "fish")
     save_data(data)
-    await send_embed(ctx, "🎣 Загасчлал", f"**+{money} мөнгө**\n**+12 EXP**", "craft")
+    await send_embed(ctx, "🎣 Загасчлал", f"**+{money} мөнгө**\n**+12 EXP**", "craft", player=p)
 
 
 @bot.command(name="tax")
@@ -639,7 +684,7 @@ async def tax(ctx):
     p = get_player(ctx.author)
     income = sum(data["cities"][c]["tax_base"] for c in p["cities"] if c in data["cities"])
     income = math.floor(income * (p["tax_rate"] / 100))
-    await send_embed(ctx, "📜 Татвар", f"Хотуудаас авах боломжит татвар: **{income}**", "economy")
+    await send_embed(ctx, "📜 Татвар", f"Хотуудаас авах боломжит татвар: **{income}**", "economy", player=p)
 
 
 @bot.command(name="collecttax")
@@ -647,25 +692,25 @@ async def collecttax(ctx):
     p = get_player(ctx.author)
     ok, rem = cd_ready(p, "collecttax", 7200)
     if not ok:
-        return await send_embed(ctx, "⏳ Татвар", f"Дахин татвар авах хүртэл **{rem // 60} мин**", "economy", 0xCC8800)
+        return await send_embed(ctx, "⏳ Татвар", f"Дахин татвар авах хүртэл **{rem // 60} мин**", "economy", player=p, color=0xCC8800)
     income = sum(data["cities"][c]["tax_base"] for c in p["cities"] if c in data["cities"])
     income = math.floor(income * (p["tax_rate"] / 100))
     if income <= 0:
-        return await send_embed(ctx, "🏙 Хот Алга", "Та одоогоор эзэлсэн хотгүй байна.", "economy")
+        return await send_embed(ctx, "🏙 Хот Алга", "Та одоогоор эзэлсэн хотгүй байна.", "economy", player=p)
     p["money"] += income
     p["influence"] += max(1, len(p["cities"]))
     set_cd(p, "collecttax")
     save_data(data)
-    await send_embed(ctx, "💰 Татвар Хураалаа", f"**+{income} мөнгө**\n**+{len(p['cities'])} нөлөө**", "economy")
-
+    await send_embed(ctx, "💰 Татвар Хураалаа", f"**+{income} мөнгө**\n**+{len(p['cities'])} нөлөө**", "economy", player=p)
 
 # ============================================================
 # SHOP / MARKET
 # ============================================================
 @bot.command(name="shop")
 async def shop(ctx):
+    p = get_player(ctx.author)
     lines = [f"**{k}** — {v['price']}" for k, v in SHOP_ITEMS.items()]
-    await send_embed(ctx, "🛒 Их Зах", "\n".join(lines), "shop")
+    await send_embed(ctx, "🛒 Их Зах", "\n".join(lines), "shop", player=p)
 
 
 @bot.command(name="buy")
@@ -673,14 +718,14 @@ async def buy(ctx, item: str, amount: int = 1):
     p = get_player(ctx.author)
     item = item.lower()
     if item not in SHOP_ITEMS or amount <= 0:
-        return await send_embed(ctx, "❌ Алдаа", "Ийм бараа байхгүй.", "shop", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Ийм бараа байхгүй.", "shop", player=p, color=0xB22222)
     cost = SHOP_ITEMS[item]["price"] * amount
     if p["money"] < cost:
-        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Нийт үнэ: **{cost}**", "shop", 0xB22222)
+        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Нийт үнэ: **{cost}**", "shop", player=p, color=0xB22222)
     p["money"] -= cost
     p["inventory"][item] = p["inventory"].get(item, 0) + amount
     save_data(data)
-    await send_embed(ctx, "✅ Худалдаж Авлаа", f"**{item} x{amount}**\n**-{cost} мөнгө**", "shop")
+    await send_embed(ctx, "✅ Худалдаж Авлаа", f"**{item} x{amount}**\n**-{cost} мөнгө**", "shop", player=p)
 
 
 @bot.command(name="sell")
@@ -689,30 +734,33 @@ async def sell(ctx, item: str, amount: int = 1):
     item = item.lower()
     have = p["inventory"].get(item, 0)
     if have < amount or amount <= 0 or item not in SHOP_ITEMS:
-        return await send_embed(ctx, "❌ Алдаа", "Зарах бараа хүрэлцэхгүй байна.", "shop", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Зарах бараа хүрэлцэхгүй байна.", "shop", player=p, color=0xB22222)
     value = int(SHOP_ITEMS[item]["price"] * amount * 0.65)
     p["inventory"][item] -= amount
     p["money"] += value
     save_data(data)
-    await send_embed(ctx, "💸 Зарлаа", f"**{item} x{amount}**\n**+{value} мөнгө**", "shop")
+    await send_embed(ctx, "💸 Зарлаа", f"**{item} x{amount}**\n**+{value} мөнгө**", "shop", player=p)
 
 
 @bot.command(name="market")
 async def market(ctx):
-    await send_embed(ctx, "🏪 Зах Зээл", "Үнэ өдөр бүр хэлбэлзэх боломжтой өргөтгөлтэй суурь систем бэлэн.", "shop")
+    p = get_player(ctx.author)
+    await send_embed(ctx, "🏪 Зах Зээл", "Үнэ өдөр бүр хэлбэлзэх боломжтой өргөтгөлтэй суурь систем бэлэн.", "shop", player=p)
 
 
 @bot.command(name="blackmarket")
 async def blackmarket(ctx):
-    await send_embed(ctx, "🕶 Хар Зах", "Энд ховор бараа, нууц наймаа, тусгай эд зүйлс нэмэх боломжтой.", "shop")
+    p = get_player(ctx.author)
+    await send_embed(ctx, "🕶 Хар Зах", "Энд ховор бараа, нууц наймаа, тусгай эд зүйлс нэмэх боломжтой.", "shop", player=p)
 
 
 @bot.command(name="price")
 async def price(ctx, item: str):
+    p = get_player(ctx.author)
     item = item.lower()
     if item not in SHOP_ITEMS:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр бараа зах дээр алга.", "shop", 0xB22222)
-    await send_embed(ctx, "💲 Үнэ", f"**{item}** үнэ: **{SHOP_ITEMS[item]['price']}**", "shop")
+        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр бараа зах дээр алга.", "shop", player=p, color=0xB22222)
+    await send_embed(ctx, "💲 Үнэ", f"**{item}** үнэ: **{SHOP_ITEMS[item]['price']}**", "shop", player=p)
 
 
 @bot.command(name="craft")
@@ -721,25 +769,25 @@ async def craft(ctx, recipe: str = "sword"):
     recipe = recipe.lower()
     if recipe == "sword":
         if p["resources"]["төмөр"] < 3 or p["resources"]["мод"] < 1:
-            return await send_embed(ctx, "❌ Нөөц Дутуу", "Сэлэм хийхэд 3 төмөр, 1 мод хэрэгтэй.", "craft", 0xB22222)
+            return await send_embed(ctx, "❌ Нөөц Дутуу", "Сэлэм хийхэд 3 төмөр, 1 мод хэрэгтэй.", "craft", player=p, color=0xB22222)
         p["resources"]["төмөр"] -= 3
         p["resources"]["мод"] -= 1
         p["inventory"]["sword"] = p["inventory"].get("sword", 0) + 1
         add_xp(p, 20)
         save_data(data)
-        return await send_embed(ctx, "🗡 Урлалаа", "**sword x1** бүтээв.", "craft")
-    await send_embed(ctx, "🛠 Урлал", "Одоогоор `sword` жор идэвхтэй байна.", "craft")
-
+        return await send_embed(ctx, "🗡 Урлалаа", "**sword x1** бүтээв.", "craft", player=p)
+    await send_embed(ctx, "🛠 Урлал", "Одоогоор `sword` жор идэвхтэй байна.", "craft", player=p)
 
 # ============================================================
 # ARMY
 # ============================================================
 @bot.command(name="units")
 async def units(ctx):
+    p = get_player(ctx.author)
     lines = []
     for key, s in UNIT_STATS.items():
         lines.append(f"**{key}** → {s['name']} | үнэ {s['cost']} | atk {s['power']} | def {s['defense']}")
-    await send_embed(ctx, "🐎 Цэргийн Нэгжүүд", "\n".join(lines), "army")
+    await send_embed(ctx, "🐎 Цэргийн Нэгжүүд", "\n".join(lines), "army", player=p)
 
 
 @bot.command(name="recruit")
@@ -747,24 +795,24 @@ async def recruit(ctx, unit: str, amount: int = 1):
     p = get_player(ctx.author)
     unit = unit.lower()
     if unit not in UNIT_STATS or amount <= 0:
-        return await send_embed(ctx, "❌ Алдаа", "Ийм нэгж байхгүй.", "army", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Ийм нэгж байхгүй.", "army", player=p, color=0xB22222)
     cost = UNIT_STATS[unit]["cost"] * amount
     if p["money"] < cost:
-        return await send_embed(ctx, "❌ Мөнгө Хүрэхгүй", f"Шаардлагатай: **{cost}**", "army", 0xB22222)
+        return await send_embed(ctx, "❌ Мөнгө Хүрэхгүй", f"Шаардлагатай: **{cost}**", "army", player=p, color=0xB22222)
     p["money"] -= cost
     p["army"][unit] += amount
     add_xp(p, max(8, amount * 2))
     save_data(data)
-    await send_embed(ctx, "⚔ Цэрэг Элслээ", f"**{UNIT_STATS[unit]['name']} x{amount}**\n**-{cost} мөнгө**", "army")
+    await send_embed(ctx, "⚔ Цэрэг Элслээ", f"**{UNIT_STATS[unit]['name']} x{amount}**\n**-{cost} мөнгө**", "army", player=p)
 
 
 @bot.command(name="army")
-async def army(ctx, member: discord.Member | None = None):
+async def army(ctx, member: discord.Member = None):
     member = member or ctx.author
     p = get_player(member)
     atk, df = army_power(p)
     desc = f"{fmt_army(p)}\n\n**Нийт Attack:** {atk}\n**Нийт Defense:** {df}"
-    await send_embed(ctx, f"🛡 {member.display_name}-ийн Арми", desc, "army")
+    await send_embed(ctx, f"🛡 {member.display_name}-ийн Арми", desc, "army", player=p)
 
 
 @bot.command(name="disband")
@@ -772,12 +820,12 @@ async def disband(ctx, unit: str, amount: int = 1):
     p = get_player(ctx.author)
     unit = unit.lower()
     if unit not in UNIT_STATS or amount <= 0 or p["army"][unit] < amount:
-        return await send_embed(ctx, "❌ Алдаа", "Тараах цэрэг хүрэлцэхгүй.", "army", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Тараах цэрэг хүрэлцэхгүй.", "army", player=p, color=0xB22222)
     refund = int(UNIT_STATS[unit]["cost"] * amount * 0.35)
     p["army"][unit] -= amount
     p["money"] += refund
     save_data(data)
-    await send_embed(ctx, "📉 Цэрэг Тараалаа", f"**{UNIT_STATS[unit]['name']} x{amount}**\n**+{refund} мөнгө**", "army")
+    await send_embed(ctx, "📉 Цэрэг Тараалаа", f"**{UNIT_STATS[unit]['name']} x{amount}**\n**+{refund} мөнгө**", "army", player=p)
 
 
 @bot.command(name="fortify")
@@ -786,15 +834,16 @@ async def fortify(ctx):
     p["province_power"] += 15
     add_xp(p, 12)
     save_data(data)
-    await send_embed(ctx, "🏰 Бэхлэлт", "Таны хамгаалалтын чадал **+15** нэмэгдлээ.", "army")
+    await send_embed(ctx, "🏰 Бэхлэлт", "Таны хамгаалалтын чадал **+15** нэмэгдлээ.", "army", player=p)
 
 
 @bot.command(name="scout")
 async def scout(ctx):
+    p = get_player(ctx.author)
     city = random.choice(list(data["cities"].keys()))
     c = data["cities"][city]
     owner = c["owner"] or "Төвийг сахисан"
-    await send_embed(ctx, "🕵 Тагнуул", f"**{city}**\nЭзэн: **{owner}**\nХамгаалалт: **{c['defense']}**\nБаялаг: **{c['tax_base']}**", "battle")
+    await send_embed(ctx, "🕵 Тагнуул", f"**{city}**\nЭзэн: **{owner}**\nХамгаалалт: **{c['defense']}**\nБаялаг: **{c['tax_base']}**", "battle", player=p)
 
 
 @bot.command(name="train")
@@ -802,24 +851,24 @@ async def train(ctx):
     p = get_player(ctx.author)
     cost = 200
     if p["money"] < cost:
-        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Сургалтын үнэ: **{cost}**", "army", 0xB22222)
+        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Сургалтын үнэ: **{cost}**", "army", player=p, color=0xB22222)
     p["money"] -= cost
     p["skills"]["warfare"] += 1
     p["skills"]["leadership"] += 1
     add_xp(p, 25)
     save_data(data)
-    await send_embed(ctx, "🏇 Сургуулилт", "**Warfare +1**\n**Leadership +1**", "army")
+    await send_embed(ctx, "🏇 Сургуулилт", "**Warfare +1**\n**Leadership +1**", "army", player=p)
 
 
 @bot.command(name="garrison")
-async def garrison(ctx, city: str):
+async def garrison(ctx, *, city: str):
     p = get_player(ctx.author)
     city = city.title()
     if city not in p["cities"]:
-        return await send_embed(ctx, "❌ Алдаа", "Тэр хот таны мэдэлд алга.", "conquest", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Тэр хот таны мэдэлд алга.", "conquest", player=p, color=0xB22222)
     data["cities"][city]["defense"] += 25
     save_data(data)
-    await send_embed(ctx, "🛡 Хотод Цэрэг Байршууллаа", f"**{city}** хамгаалалт **+25**", "conquest")
+    await send_embed(ctx, "🛡 Хотод Цэрэг Байршууллаа", f"**{city}** хамгаалалт **+25**", "conquest", player=p)
 
 
 @bot.command(name="patrol")
@@ -830,42 +879,46 @@ async def patrol(ctx):
     p["influence"] += 1
     add_xp(p, 14)
     save_data(data)
-    await send_embed(ctx, "🚩 Эргүүл", f"Зам хянаж **+{money} мөнгө**, **+1 нөлөө** авлаа.", "army")
-
+    await send_embed(ctx, "🚩 Эргүүл", f"Зам хянаж **+{money} мөнгө**, **+1 нөлөө** авлаа.", "army", player=p)
 
 # ============================================================
 # CONQUEST / WAR
 # ============================================================
 @bot.command(name="cities")
 async def cities(ctx):
+    p = get_player(ctx.author)
     lines = []
     for city, c in data["cities"].items():
         owner = c["owner"] or "Төвийг сахисан"
         lines.append(f"**{city}** — Эзэн: {owner} | Defense: {c['defense']} | Tax: {c['tax_base']}")
-    await send_embed(ctx, "🏙 Хотууд", "\n".join(lines[:15]), "conquest")
+    await send_embed(ctx, "🏙 Хотууд", "\n".join(lines[:15]), "conquest", player=p)
 
 
 @bot.command(name="city")
 async def city(ctx, *, city_name: str):
+    p = get_player(ctx.author)
     city_name = city_name.title()
     if city_name not in data["cities"]:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр хот бүртгэлгүй байна.", "conquest", 0xB22222)
+        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр хот бүртгэлгүй байна.", "conquest", player=p, color=0xB22222)
     c = data["cities"][city_name]
     owner = c["owner"] or "Төвийг сахисан"
-    await send_embed(ctx, f"🏙 {city_name}", f"**Эзэн:** {owner}\n**Defense:** {c['defense']}\n**Prosperity:** {c['prosperity']}\n**Tax Base:** {c['tax_base']}", "conquest")
+    await send_embed(ctx, f"🏙 {city_name}", f"**Эзэн:** {owner}\n**Defense:** {c['defense']}\n**Prosperity:** {c['prosperity']}\n**Tax Base:** {c['tax_base']}", "conquest", player=p)
 
 
 @bot.command(name="conquer")
 async def conquer(ctx, *, city_name: str):
     city_name = city_name.title()
-    if city_name not in data["cities"]:
-        return await send_embed(ctx, "❌ Хот Олдсонгүй", "Ийм хот байхгүй.", "conquest", 0xB22222)
     p = get_player(ctx.author)
+
+    if city_name not in data["cities"]:
+        return await send_embed(ctx, "❌ Хот Олдсонгүй", "Ийм хот байхгүй.", "conquest", player=p, color=0xB22222)
+
     atk, _ = army_power(p)
     city = data["cities"][city_name]
     need = city["defense"]
     bonus = p["level"] * 2 + p["province_power"]
     total = atk + bonus + random.randint(-80, 120)
+
     if total >= need:
         city["owner"] = ctx.author.display_name
         if city_name not in p["cities"]:
@@ -876,7 +929,8 @@ async def conquer(ctx, *, city_name: str):
         p["influence"] += 8
         add_xp(p, 80)
         save_data(data)
-        return await send_embed(ctx, "🏴 Хот Эзлэгдлээ", f"Та **{city_name}** хотыг эзэллээ!\n**+{city['tax_base']} мөнгө**\n**+8 нөлөө**", "conquest", 0x2E8B57)
+        return await send_embed(ctx, "🏴 Хот Эзлэгдлээ", f"Та **{city_name}** хотыг эзэллээ!\n**+{city['tax_base']} мөнгө**\n**+8 нөлөө**", "conquest", player=p, color=0x2E8B57)
+
     p["losses"] += 1
     losses = {}
     for u in p["army"]:
@@ -886,7 +940,7 @@ async def conquer(ctx, *, city_name: str):
             losses[u] = lost
     save_data(data)
     text = "\n".join(f"{k}: -{v}" for k, v in losses.items()) or "Хохирол бага байв."
-    await send_embed(ctx, "💥 Довтолгоо Амжилтгүй", f"**{city_name}** хамгаалалтыг нэвтэлж чадсангүй.\n\n{text}", "battle", 0xB22222)
+    await send_embed(ctx, "💥 Довтолгоо Амжилтгүй", f"**{city_name}** хамгаалалтыг нэвтэлж чадсангүй.\n\n{text}", "battle", player=p, color=0xB22222)
 
 
 @bot.command(name="invade")
@@ -905,11 +959,11 @@ async def invade(ctx, member: discord.Member):
         defender["losses"] += 1
         add_xp(attacker, 55)
         save_data(data)
-        return await send_embed(ctx, "⚔ Дайралтанд Яллаа", f"**{member.display_name}** дээр ялалт байгууллаа.\n**Олз:** {loot} мөнгө", "battle", 0x2E8B57)
+        return await send_embed(ctx, "⚔ Дайралтанд Яллаа", f"**{member.display_name}** дээр ялалт байгууллаа.\n**Олз:** {loot} мөнгө", "battle", player=attacker, color=0x2E8B57)
     attacker["losses"] += 1
     defender["wins"] += 1
     save_data(data)
-    await send_embed(ctx, "🩸 Дайралт Амжилтгүй", f"**{member.display_name}** таныг няцаалаа.", "battle", 0xB22222)
+    await send_embed(ctx, "🩸 Дайралт Амжилтгүй", f"**{member.display_name}** таныг няцаалаа.", "battle", player=attacker, color=0xB22222)
 
 
 @bot.command(name="raid")
@@ -921,11 +975,11 @@ async def raid(ctx):
         loss = random.randint(50, 120)
         p["money"] = max(0, p["money"] - loss)
         save_data(data)
-        return await send_embed(ctx, "🔥 Дээрэм Бүтэлгүйтэв", f"**-{loss} мөнгө** алдав.", "battle", 0xB22222)
+        return await send_embed(ctx, "🔥 Дээрэм Бүтэлгүйтэв", f"**-{loss} мөнгө** алдав.", "battle", player=p, color=0xB22222)
     p["money"] += money
     add_xp(p, 20)
     save_data(data)
-    await send_embed(ctx, "🔥 Амжилттай Дээрэм", f"**+{money} мөнгө**\n**+20 EXP**", "battle")
+    await send_embed(ctx, "🔥 Амжилттай Дээрэм", f"**+{money} мөнгө**\n**+20 EXP**", "battle", player=p)
 
 
 @bot.command(name="defendcity")
@@ -933,26 +987,28 @@ async def defendcity(ctx, *, city_name: str):
     city_name = city_name.title()
     p = get_player(ctx.author)
     if city_name not in p["cities"]:
-        return await send_embed(ctx, "❌ Алдаа", "Та энэ хотыг эзэмшдэггүй.", "conquest", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Та энэ хотыг эзэмшдэггүй.", "conquest", player=p, color=0xB22222)
     data["cities"][city_name]["defense"] += 40
     save_data(data)
-    await send_embed(ctx, "🛡 Хамгаалалтыг Зузаатгав", f"**{city_name}** defense **+40**", "conquest")
+    await send_embed(ctx, "🛡 Хамгаалалтыг Зузаатгав", f"**{city_name}** defense **+40**", "conquest", player=p)
 
 
 @bot.command(name="siege")
 async def siege(ctx, *, city_name: str):
+    p = get_player(ctx.author)
     city_name = city_name.title()
     if city_name not in data["cities"]:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Ийм хот алга.", "conquest", 0xB22222)
+        return await send_embed(ctx, "❌ Олдсонгүй", "Ийм хот алга.", "conquest", player=p, color=0xB22222)
     reduce = random.randint(15, 45)
     data["cities"][city_name]["defense"] = max(40, data["cities"][city_name]["defense"] - reduce)
     save_data(data)
-    await send_embed(ctx, "🏹 Бүслэлт", f"**{city_name}** хамгаалалт **-{reduce}** буурлаа.", "battle")
+    await send_embed(ctx, "🏹 Бүслэлт", f"**{city_name}** хамгаалалт **-{reduce}** буурлаа.", "battle", player=p)
 
 
 @bot.command(name="march")
 async def march(ctx):
-    await send_embed(ctx, "🐎 Аян", "Арми чинь тал нутгаар хөдөлж, дайнд бэлтгэж байна.", "travel")
+    p = get_player(ctx.author)
+    await send_embed(ctx, "🐎 Аян", "Арми чинь тал нутгаар хөдөлж, дайнд бэлтгэж байна.", "travel", player=p)
 
 
 @bot.command(name="camp")
@@ -960,13 +1016,12 @@ async def camp(ctx):
     p = get_player(ctx.author)
     p["energy"] = min(100, p["energy"] + 30)
     save_data(data)
-    await send_embed(ctx, "⛺ Хээрийн Отог", f"Энерги сэргэв.\n**Energy:** {p['energy']}/100", "travel")
+    await send_embed(ctx, "⛺ Хээрийн Отог", f"Энерги сэргэв.\n**Energy:** {p['energy']}/100", "travel", player=p)
 
 
 @bot.command(name="attack")
 async def attack(ctx, member: discord.Member):
     await invade(ctx, member)
-
 
 # ============================================================
 # CLAN SYSTEM
@@ -975,39 +1030,41 @@ async def attack(ctx, member: discord.Member):
 async def clancreate(ctx, *, name: str):
     p = get_player(ctx.author)
     if p["clan"]:
-        return await send_embed(ctx, "❌ Алдаа", "Та аль хэдийн овогт харьяалагдаж байна.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Та аль хэдийн овогт харьяалагдаж байна.", "clan", player=p, color=0xB22222)
     name = name[:30]
     if name in data["clans"]:
-        return await send_embed(ctx, "❌ Давхцал", "Ийм овог аль хэдийн байна.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Давхцал", "Ийм овог аль хэдийн байна.", "clan", player=p, color=0xB22222)
     data["clans"][name] = {"leader": ctx.author.id, "members": [ctx.author.id], "vault": 0, "power": 0}
     p["clan"] = name
     save_data(data)
-    await send_embed(ctx, "🐺 Овог Байгуулагдлаа", f"Шинэ овог: **{name}**", "clan")
+    await send_embed(ctx, "🐺 Овог Байгуулагдлаа", f"Шинэ овог: **{name}**", "clan", player=p)
 
 
 @bot.command(name="claninfo")
-async def claninfo(ctx, *, name: str | None = None):
+async def claninfo(ctx, *, name: str = None):
     p = get_player(ctx.author)
     target = name or p["clan"]
     if not target or target not in data["clans"]:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Овог олдсонгүй.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Олдсонгүй", "Овог олдсонгүй.", "clan", player=p, color=0xB22222)
     c = data["clans"][target]
     members = len(c["members"])
-    leader_name = ctx.guild.get_member(c["leader"]).display_name if ctx.guild.get_member(c["leader"]) else str(c["leader"])
-    await send_embed(ctx, f"🐺 {target}", f"**Ахлагч:** {leader_name}\n**Гишүүд:** {members}\n**Сан:** {c['vault']}\n**Хүч:** {c['power']}", "clan")
+    leader_member = ctx.guild.get_member(c["leader"]) if ctx.guild else None
+    leader_name = leader_member.display_name if leader_member else str(c["leader"])
+    await send_embed(ctx, f"🐺 {target}", f"**Ахлагч:** {leader_name}\n**Гишүүд:** {members}\n**Сан:** {c['vault']}\n**Хүч:** {c['power']}", "clan", player=p)
 
 
 @bot.command(name="clanjoin")
 async def clanjoin(ctx, *, name: str):
     p = get_player(ctx.author)
     if p["clan"]:
-        return await send_embed(ctx, "❌ Алдаа", "Эхлээд одоогийн овгоосоо гар.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Эхлээд одоогийн овгоосоо гар.", "clan", player=p, color=0xB22222)
     if name not in data["clans"]:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр овог байхгүй.", "clan", 0xB22222)
-    data["clans"][name]["members"].append(ctx.author.id)
+        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр овог байхгүй.", "clan", player=p, color=0xB22222)
+    if ctx.author.id not in data["clans"][name]["members"]:
+        data["clans"][name]["members"].append(ctx.author.id)
     p["clan"] = name
     save_data(data)
-    await send_embed(ctx, "🤝 Овогт Нэгдлээ", f"Та **{name}** овогт орлоо.", "clan")
+    await send_embed(ctx, "🤝 Овогт Нэгдлээ", f"Та **{name}** овогт орлоо.", "clan", player=p)
 
 
 @bot.command(name="clanleave")
@@ -1015,12 +1072,12 @@ async def clanleave(ctx):
     p = get_player(ctx.author)
     clan = p["clan"]
     if not clan or clan not in data["clans"]:
-        return await send_embed(ctx, "❌ Алдаа", "Та овоггүй байна.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Та овоггүй байна.", "clan", player=p, color=0xB22222)
     if ctx.author.id in data["clans"][clan]["members"]:
         data["clans"][clan]["members"].remove(ctx.author.id)
     p["clan"] = None
     save_data(data)
-    await send_embed(ctx, "🚪 Овгоос Гарлаа", f"Та **{clan}** овгоос гарлаа.", "clan")
+    await send_embed(ctx, "🚪 Овгоос Гарлаа", f"Та **{clan}** овгоос гарлаа.", "clan", player=p)
 
 
 @bot.command(name="clandonate")
@@ -1028,14 +1085,14 @@ async def clandonate(ctx, amount: int):
     p = get_player(ctx.author)
     clan = p["clan"]
     if not clan or clan not in data["clans"]:
-        return await send_embed(ctx, "❌ Овоггүй", "Овогт нэгдсэний дараа ашигла.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Овоггүй", "Овогт нэгдсэний дараа ашигла.", "clan", player=p, color=0xB22222)
     if amount <= 0 or p["money"] < amount:
-        return await send_embed(ctx, "❌ Алдаа", "Хандивын хэмжээ буруу.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Хандивын хэмжээ буруу.", "clan", player=p, color=0xB22222)
     p["money"] -= amount
     data["clans"][clan]["vault"] += amount
     data["clans"][clan]["power"] += amount // 50
     save_data(data)
-    await send_embed(ctx, "🏦 Овгийн Санд Хандив", f"**{clan}** санд **{amount}** өглөө.", "clan")
+    await send_embed(ctx, "🏦 Овгийн Санд Хандив", f"**{clan}** санд **{amount}** өглөө.", "clan", player=p)
 
 
 @bot.command(name="clanvault")
@@ -1043,8 +1100,8 @@ async def clanvault(ctx):
     p = get_player(ctx.author)
     clan = p["clan"]
     if not clan or clan not in data["clans"]:
-        return await send_embed(ctx, "❌ Овоггүй", "Та овоггүй байна.", "clan", 0xB22222)
-    await send_embed(ctx, "🏛 Овгийн Сан", f"**{clan}** сан: **{data['clans'][clan]['vault']}**", "clan")
+        return await send_embed(ctx, "❌ Овоггүй", "Та овоггүй байна.", "clan", player=p, color=0xB22222)
+    await send_embed(ctx, "🏛 Овгийн Сан", f"**{clan}** сан: **{data['clans'][clan]['vault']}**", "clan", player=p)
 
 
 @bot.command(name="clanwar")
@@ -1052,26 +1109,26 @@ async def clanwar(ctx, *, enemy: str):
     p = get_player(ctx.author)
     clan = p["clan"]
     if not clan or clan not in data["clans"] or enemy not in data["clans"]:
-        return await send_embed(ctx, "❌ Алдаа", "Хоёр овог хоёулаа бүртгэлтэй байх ёстой.", "clan", 0xB22222)
+        return await send_embed(ctx, "❌ Алдаа", "Хоёр овог хоёулаа бүртгэлтэй байх ёстой.", "clan", player=p, color=0xB22222)
     our = data["clans"][clan]["power"] + random.randint(0, 150)
     their = data["clans"][enemy]["power"] + random.randint(0, 150)
     if our >= their:
         data["clans"][clan]["vault"] += 500
         save_data(data)
-        return await send_embed(ctx, "⚔ Овгийн Дайн", f"**{clan}** овог **{enemy}**-г яллаа!\n**+500 сан**", "clan", 0x2E8B57)
-    await send_embed(ctx, "🩸 Овгийн Дайн", f"**{enemy}** овог энэ удаад давуу байлаа.", "clan", 0xB22222)
-
+        return await send_embed(ctx, "⚔ Овгийн Дайн", f"**{clan}** овог **{enemy}**-г яллаа!\n**+500 сан**", "clan", player=p, color=0x2E8B57)
+    await send_embed(ctx, "🩸 Овгийн Дайн", f"**{enemy}** овог энэ удаад давуу байлаа.", "clan", player=p, color=0xB22222)
 
 # ============================================================
 # LEADERBOARDS
 # ============================================================
 async def board(ctx, key, title, category="rank", reverse=True):
+    p = get_player(ctx.author)
     players = list(data["players"].items())
     players.sort(key=lambda x: x[1].get(key, 0), reverse=reverse)
     lines = []
-    for i, (_, p) in enumerate(players[:10], start=1):
-        lines.append(f"**#{i}** {p['name']} — {p.get(key, 0)}")
-    await send_embed(ctx, title, "\n".join(lines) or "Өгөгдөл алга.", category)
+    for i, (_, pl) in enumerate(players[:10], start=1):
+        lines.append(f"**#{i}** {pl['name']} — {pl.get(key, 0)}")
+    await send_embed(ctx, title, "\n".join(lines) or "Өгөгдөл алга.", category, player=p)
 
 
 @bot.command(name="leaderboard")
@@ -1081,10 +1138,11 @@ async def leaderboard(ctx):
 
 @bot.command(name="topmoney")
 async def topmoney(ctx):
+    p = get_player(ctx.author)
     players = list(data["players"].values())
-    players.sort(key=lambda p: p.get("money", 0) + p.get("bank", 0), reverse=True)
-    lines = [f"**#{i}** {p['name']} — {p['money'] + p['bank']}" for i, p in enumerate(players[:10], 1)]
-    await send_embed(ctx, "💰 Шилдэг Баячууд", "\n".join(lines) or "Өгөгдөл алга.", "economy")
+    players.sort(key=lambda pl: pl.get("money", 0) + pl.get("bank", 0), reverse=True)
+    lines = [f"**#{i}** {pl['name']} — {pl['money'] + pl['bank']}" for i, pl in enumerate(players[:10], 1)]
+    await send_embed(ctx, "💰 Шилдэг Баячууд", "\n".join(lines) or "Өгөгдөл алга.", "economy", player=p)
 
 
 @bot.command(name="toplevel")
@@ -1099,19 +1157,20 @@ async def topwar(ctx):
 
 @bot.command(name="topcities")
 async def topcities(ctx):
+    p = get_player(ctx.author)
     players = list(data["players"].values())
-    players.sort(key=lambda p: len(p.get("cities", [])), reverse=True)
-    lines = [f"**#{i}** {p['name']} — {len(p.get('cities', []))} хот" for i, p in enumerate(players[:10], 1)]
-    await send_embed(ctx, "🏙 Хот Эзэмшигчид", "\n".join(lines) or "Өгөгдөл алга.", "conquest")
+    players.sort(key=lambda pl: len(pl.get("cities", [])), reverse=True)
+    lines = [f"**#{i}** {pl['name']} — {len(pl.get('cities', []))} хот" for i, pl in enumerate(players[:10], 1)]
+    await send_embed(ctx, "🏙 Хот Эзэмшигчид", "\n".join(lines) or "Өгөгдөл алга.", "conquest", player=p)
 
 
 @bot.command(name="topclans")
 async def topclans(ctx):
+    p = get_player(ctx.author)
     clans = list(data["clans"].items())
     clans.sort(key=lambda x: x[1].get("power", 0), reverse=True)
     lines = [f"**#{i}** {name} — хүч {c['power']} | сан {c['vault']}" for i, (name, c) in enumerate(clans[:10], 1)]
-    await send_embed(ctx, "🐺 Шилдэг Овгууд", "\n".join(lines) or "Өгөгдөл алга.", "clan")
-
+    await send_embed(ctx, "🐺 Шилдэг Овгууд", "\n".join(lines) or "Өгөгдөл алга.", "clan", player=p)
 
 # ============================================================
 # ADMIN COMMANDS
@@ -1125,6 +1184,7 @@ def is_admin():
 @bot.command(name="adminhelp")
 @is_admin()
 async def adminhelp(ctx):
+    p = get_player(ctx.author)
     desc = (
         "**give @user amount**\n"
         "**setmoney @user amount**\n"
@@ -1139,135 +1199,154 @@ async def adminhelp(ctx):
         "**setcityowner хот @user**\n"
         "**reloadgame**"
     )
-    await send_embed(ctx, "🛡 Админ Комманд", desc, "admin")
+    await send_embed(ctx, "🛡 Админ Комманд", desc, "admin", player=p)
 
 
 @bot.command(name="give")
 @is_admin()
 async def give(ctx, member: discord.Member, amount: int):
+    admin_p = get_player(ctx.author)
     p = get_player(member)
     p["money"] += max(0, amount)
     save_data(data)
-    await send_embed(ctx, "✅ Мөнгө Олголоо", f"**{member.display_name}** → **+{amount}**", "admin")
+    await send_embed(ctx, "✅ Мөнгө Олголоо", f"**{member.display_name}** → **+{amount}**", "admin", player=admin_p)
 
 
 @bot.command(name="setmoney")
 @is_admin()
 async def setmoney(ctx, member: discord.Member, amount: int):
+    admin_p = get_player(ctx.author)
     p = get_player(member)
     p["money"] = max(0, amount)
     save_data(data)
-    await send_embed(ctx, "💰 Мөнгө Тохирууллаа", f"**{member.display_name}** = **{amount}**", "admin")
+    await send_embed(ctx, "💰 Мөнгө Тохирууллаа", f"**{member.display_name}** = **{amount}**", "admin", player=admin_p)
 
 
 @bot.command(name="setlevel")
 @is_admin()
 async def setlevel(ctx, member: discord.Member, level: int):
+    admin_p = get_player(ctx.author)
     p = get_player(member)
     p["level"] = max(1, min(MAX_LEVEL, level))
     p["rank"] = get_rank(p["level"])
     p["xp"] = 0
+    p["hp"] = min(100 + p["level"], 300)
+    p["energy"] = 100
     save_data(data)
-    await send_embed(ctx, "🎖 Түвшин Тохирууллаа", f"**{member.display_name}** = Level **{p['level']}** ({p['rank']})", "admin")
+    await send_embed(ctx, "🎖 Түвшин Тохирууллаа", f"**{member.display_name}** = Level **{p['level']}** ({p['rank']})", "admin", player=admin_p)
 
 
 @bot.command(name="addxp")
 @is_admin()
 async def addxp_admin(ctx, member: discord.Member, amount: int):
+    admin_p = get_player(ctx.author)
     p = get_player(member)
     add_xp(p, max(0, amount))
     save_data(data)
-    await send_embed(ctx, "✨ EXP Нэмлээ", f"**{member.display_name}** → **+{amount} EXP**", "admin")
+    await send_embed(ctx, "✨ EXP Нэмлээ", f"**{member.display_name}** → **+{amount} EXP**", "admin", player=admin_p)
 
 
 @bot.command(name="resetplayer")
 @is_admin()
 async def resetplayer(ctx, member: discord.Member):
+    admin_p = get_player(ctx.author)
     data["players"][uid(member.id)] = default_player(member)
     save_data(data)
-    await send_embed(ctx, "♻ Тоглогч Шинэчлэгдэв", f"**{member.display_name}** бүрэн reset хийгдлээ.", "admin")
+    await send_embed(ctx, "♻ Тоглогч Шинэчлэгдэв", f"**{member.display_name}** бүрэн reset хийгдлээ.", "admin", player=admin_p)
 
 
 @bot.command(name="wipecity")
 @is_admin()
 async def wipecity(ctx, *, city_name: str):
+    admin_p = get_player(ctx.author)
     city_name = city_name.title()
     if city_name not in data["cities"]:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Ийм хот алга.", "admin", 0xB22222)
+        return await send_embed(ctx, "❌ Олдсонгүй", "Ийм хот алга.", "admin", player=admin_p, color=0xB22222)
     data["cities"][city_name]["owner"] = None
     data["cities"][city_name]["defense"] = random.randint(120, 380)
     save_data(data)
-    await send_embed(ctx, "🏙 Хот Чөлөөлөгдлөө", f"**{city_name}** neutral төлөвт шилжив.", "admin")
+    await send_embed(ctx, "🏙 Хот Чөлөөлөгдлөө", f"**{city_name}** neutral төлөвт шилжив.", "admin", player=admin_p)
 
 
 @bot.command(name="announce")
 @is_admin()
 async def announce(ctx, *, text: str):
-    await ctx.send(embed=game_embed("📣 Эзэнт Гүрний Зарлиг", text, "admin", 0xD4AF37))
+    admin_p = get_player(ctx.author)
+    await ctx.send(
+        embed=game_embed(
+            "📣 Эзэнт Гүрний Зарлиг",
+            text,
+            category="admin",
+            player=admin_p,
+            color=0xD4AF37
+        )
+    )
 
 
 @bot.command(name="settitleadmin")
 @is_admin()
 async def settitleadmin(ctx, member: discord.Member, *, text: str):
+    admin_p = get_player(ctx.author)
     p = get_player(member)
     p["title"] = text[:50]
     save_data(data)
-    await send_embed(ctx, "✍ Админ Цол Нэр", f"**{member.display_name}** → **{p['title']}**", "admin")
+    await send_embed(ctx, "✍ Админ Цол Нэр", f"**{member.display_name}** → **{p['title']}**", "admin", player=admin_p)
 
 
 @bot.command(name="giveunit")
 @is_admin()
 async def giveunit(ctx, member: discord.Member, unit: str, amount: int):
+    admin_p = get_player(ctx.author)
     unit = unit.lower()
     if unit not in UNIT_STATS:
-        return await send_embed(ctx, "❌ Нэгж Олдсонгүй", "Буруу нэгжийн нэр.", "admin", 0xB22222)
+        return await send_embed(ctx, "❌ Нэгж Олдсонгүй", "Буруу нэгжийн нэр.", "admin", player=admin_p, color=0xB22222)
     p = get_player(member)
     p["army"][unit] += max(0, amount)
     save_data(data)
-    await send_embed(ctx, "🐎 Цэрэг Олголоо", f"**{member.display_name}** → **{UNIT_STATS[unit]['name']} x{amount}**", "admin")
+    await send_embed(ctx, "🐎 Цэрэг Олголоо", f"**{member.display_name}** → **{UNIT_STATS[unit]['name']} x{amount}**", "admin", player=admin_p)
 
 
 @bot.command(name="takeunit")
 @is_admin()
 async def takeunit(ctx, member: discord.Member, unit: str, amount: int):
+    admin_p = get_player(ctx.author)
     unit = unit.lower()
     if unit not in UNIT_STATS:
-        return await send_embed(ctx, "❌ Нэгж Олдсонгүй", "Буруу нэгжийн нэр.", "admin", 0xB22222)
+        return await send_embed(ctx, "❌ Нэгж Олдсонгүй", "Буруу нэгжийн нэр.", "admin", player=admin_p, color=0xB22222)
     p = get_player(member)
     p["army"][unit] = max(0, p["army"][unit] - max(0, amount))
     save_data(data)
-    await send_embed(ctx, "📉 Цэрэг Хаслаа", f"**{member.display_name}** → **{UNIT_STATS[unit]['name']} -{amount}**", "admin")
+    await send_embed(ctx, "📉 Цэрэг Хаслаа", f"**{member.display_name}** → **{UNIT_STATS[unit]['name']} -{amount}**", "admin", player=admin_p)
 
 
 @bot.command(name="setcityowner")
 @is_admin()
 async def setcityowner(ctx, city_name: str, member: discord.Member):
+    admin_p = get_player(ctx.author)
     city_name = city_name.title()
     if city_name not in data["cities"]:
-        return await send_embed(ctx, "❌ Хот Алга", "Ийм хот бүртгэлгүй.", "admin", 0xB22222)
+        return await send_embed(ctx, "❌ Хот Алга", "Ийм хот бүртгэлгүй.", "admin", player=admin_p, color=0xB22222)
     p = get_player(member)
     data["cities"][city_name]["owner"] = member.display_name
     if city_name not in p["cities"]:
         p["cities"].append(city_name)
     save_data(data)
-    await send_embed(ctx, "👑 Хот Эзэн Тохирууллаа", f"**{city_name}** → **{member.display_name}**", "admin")
+    await send_embed(ctx, "👑 Хот Эзэн Тохирууллаа", f"**{city_name}** → **{member.display_name}**", "admin", player=admin_p)
 
 
 @bot.command(name="reloadgame")
 @is_admin()
 async def reloadgame(ctx):
     global data
+    admin_p = get_player(ctx.author)
     data = load_data()
     ensure_city_state()
-    await send_embed(ctx, "🔄 Өгөгдөл Дахин Ачааллаа", "Файл дахь мэдээлэл дахин уншигдлаа.", "admin")
-
+    await send_embed(ctx, "🔄 Өгөгдөл Дахин Ачааллаа", "Файл дахь мэдээлэл дахин уншигдлаа.", "admin", player=admin_p)
 
 # ============================================================
-# EXTRA COMMAND PACK (to push total well past 100 commands)
-# These are lightweight but fully working thematic commands.
+# EXTRA COMMAND PACK
 # ============================================================
 EXTRA_COMMANDS = {
-    # economy extras
     "beg": ("economy", "🙏 Өршөөл", "Та замаар өнгөрөгчдөөс багахан хандив авлаа."),
     "gift": ("economy", "🎁 Бэлэг", "Ордноос танд өчүүхэн бэлэг ирэв."),
     "bonus": ("economy", "💎 Урамшуулал", "Таны хүчинд урамшуулал олгов."),
@@ -1278,7 +1357,6 @@ EXTRA_COMMANDS = {
     "quarry": ("craft", "🪨 Чулуу", "Та чулуу олборлов."),
     "smelt": ("craft", "🔥 Хайлуулах", "Төмөр хайлуулах ажлыг эхлүүлэв."),
     "forge": ("craft", "⚒ Дархан", "Дархны газар зэвсэг цутгаж байна."),
-    # military extras
     "stable": ("army", "🐴 Адууны Хашаа", "Морьдын бэлэн байдлыг шалгав."),
     "inspect": ("army", "🧐 Үзлэг", "Армийн эгнээг шалгалаа."),
     "banner": ("army", "🚩 Туг", "Таны тугийн сүр жавхаа өсөв."),
@@ -1289,7 +1367,6 @@ EXTRA_COMMANDS = {
     "horsearcher": ("army", "🏹 Морин Харваач", "Морин харваачдын сургуулилтыг ажиглав."),
     "cavalry": ("army", "🐎 Морин Цэрэг", "Морин цэргийн бэлэн байдал хэвийн байна."),
     "kheshig": ("army", "👑 Хишигтэн", "Хишигтэн хамгаалалт ордныг манаж байна."),
-    # conquest extras
     "province": ("conquest", "🗺 Муж", "Таны хилийн мужуудын байдал."),
     "frontier": ("conquest", "🏔 Хил", "Хилийн байдал тайван байна."),
     "border": ("conquest", "🚧 Хил Хязгаар", "Хилийн харуул нэмэгдэв."),
@@ -1300,7 +1377,6 @@ EXTRA_COMMANDS = {
     "law": ("conquest", "⚖ Их Засаг", "Хууль цаазыг шинээр тунхаглав."),
     "decree": ("conquest", "📜 Зарлиг", "Төрийн зарлиг нийтэд хүрэв."),
     "tribute": ("conquest", "🏺 Алба", "Захирагдсан нутгаас алба ирэв."),
-    # clan / diplomacy extras
     "alliance": ("clan", "🤝 Холбоо", "Холбоотны талаар хэлэлцэв."),
     "diplomacy": ("clan", "🕊 Дипломат", "Элч нарыг илгээв."),
     "treaty": ("clan", "📜 Гэрээ", "Энхийн гэрээний төсөл бэлэн болов."),
@@ -1311,7 +1387,6 @@ EXTRA_COMMANDS = {
     "heir": ("clan", "👶 Залгамжлагч", "Удам залгах асуудлыг хэлэлцэв."),
     "bloodline": ("clan", "🩸 Удам", "Таны угсаа гарлын сүр хүч нэмэгдэв."),
     "oath": ("clan", "🛡 Тангараг", "Тангараг өргөсөн цэргүүд үнэнч байна."),
-    # utility extras
     "ping": ("default", "🏓 Ping", "Ботын хариу хэвийн байна."),
     "about": ("default", "📖 Тухай", "Chingis Empire RPG бол Монгол эзэнт гүрний сэдэвт стратеги бот юм."),
     "version": ("default", "🧩 Version", "Starter mega build v1."),
@@ -1322,7 +1397,6 @@ EXTRA_COMMANDS = {
     "news": ("default", "📰 Мэдээ", "Өнөөдрийн эзэнт гүрний мэдээ ирлээ."),
     "event": ("default", "🎉 Event", "Түр хугацааны арга хэмжээ идэвхжиж болно."),
     "season": ("default", "🍂 Улирал", "Тал нутгийн улирал дайнд нөлөөлнө."),
-    # more extras to comfortably exceed 100
     "horse": ("army", "🐴 Морь", "Таны шилдэг хүлгүүд аянд бэлэн."),
     "caravan": ("economy", "🐪 Жин Тэрэг", "Худалдааны жин ачаагаа хөдөлгөв."),
     "merchant": ("economy", "🧿 Наймаачин", "Наймаачид таны ордонд бараа дэлгэлээ."),
@@ -1377,7 +1451,7 @@ def register_extra_command(cmd_name: str, category: str, title: str, text: str):
         if bonus_xp:
             extra.append(f"**+{bonus_xp} EXP**")
         tail = "\n" + "\n".join(extra) if extra else ""
-        await send_embed(ctx, title, text + tail, category)
+        await send_embed(ctx, title, text + tail, category, player=p)
 
     _cmd.__name__ = f"cmd_{cmd_name}"
     bot.command(name=cmd_name)(_cmd)
@@ -1385,7 +1459,6 @@ def register_extra_command(cmd_name: str, category: str, title: str, text: str):
 
 for _name, (_cat, _title, _text) in EXTRA_COMMANDS.items():
     register_extra_command(_name, _cat, _title, _text)
-
 
 # ============================================================
 # FINAL SAFETY
