@@ -90,7 +90,41 @@ RANKS = [
     (190, "Хаадын Хаан"),
     (200, "Их Эзэн Хаан"),
 ]
+RANK_IMAGES = {
+    "Малчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Анчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Галч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Тариачин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
 
+    "Аравтын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Аравтын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Зуутын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Зуутын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Мянгатын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Мянгатын Захирагч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Түмний Ноён": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Хилийн Харуул": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Орлогч Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Түшмэл": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Их Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Нууц Зөвлөх": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Тата Тунга": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Шихихутаг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Их Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Хаадын Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+
+    "Их Эзэн Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png"
+}
 CITY_POOL = [
     "Хархорум", "Бухара", "Самарканд", "Бээжин", "Кашгар", "Алтан Ордон",
     "Мерв", "Ургенч", "Баласагун", "Отрар", "Ховд", "Хираат"
@@ -263,9 +297,14 @@ def image_for(category: str) -> str:
     return IMAGES.get(category, IMAGES["default"])
 
 
-def game_embed(title: str, description: str, category: str = "default", color: int = 0xA67C39):
+def game_embed(title, description, category="default", player=None, color=0xA67C39):
     em = discord.Embed(title=title, description=description, color=color)
-    em.set_image(url=image_for(category))
+
+    if player and player["rank"] in RANK_IMAGES:
+        em.set_image(url=RANK_IMAGES[player["rank"]])
+    else:
+        em.set_image(url=image_for(category))
+
     return em
 
 
@@ -492,7 +531,14 @@ async def work(ctx):
     set_cd(p, "work")
     save_data(data)
     extra = f"\n🎖 Level up: {', '.join(map(str, levels))}" if levels else ""
-    await send_embed(ctx, "🛠 Ажил", f"Та **{job}**.\n**+{money} мөнгө**\n**+{xp} EXP**{extra}", "economy")
+    await ctx.send(
+    embed=game_embed(
+        "🛠 Ажил",
+        f"Та **{job}**.\n**+{money} мөнгө**\n**+{xp} EXP**{extra}",
+        "economy",
+        player=p
+    )
+)
 
 
 @bot.command(name="daily")
