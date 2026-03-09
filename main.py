@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 TOKEN = os.getenv("TOKEN")  # Railway / Render / hosting дээр env var-аар хийнэ
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
-MAX_LEVEL = 20
+MAX_LEVEL = 200
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,7 +23,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # =========================================================
 IMAGES = {
     "start": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
-    "profile": "https://cdn.discordapp.com/attachments/123456789/123456789/khan.png",
+    "profile": "https://cdn.discordapp.com/attachments/XXXX/khan.png",
     "shop": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "hunt": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "mine": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
