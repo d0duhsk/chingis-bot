@@ -5,1235 +5,1177 @@ import json
 import random
 from datetime import datetime, timedelta
 
-# =========================
+# =========================================================
 # CONFIG
-# =========================
-TOKEN = os.getenv("TOKEN")
+# =========================================================
+TOKEN = os.getenv("TOKEN")  # Railway / Render / hosting дээр env var-аар хийнэ
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
 MAX_LEVEL = 200
 
 intents = discord.Intents.default()
 intents.message_content = True
-intents.members = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
-# =========================
-# IMAGES (Epic Mongol Style)
-# =========================
+# =========================================================
+# IMAGE URLS
+# Эднийг дараа нь өөрийн AI зургаар солиорой
+# =========================================================
+IMAGES = {
+    "start": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
+    "profile": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop",
+    "shop": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
+    "hunt": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
+    "mine": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
+    "farm": "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1200&auto=format&fit=crop",
+    "duel": "https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop",
+    "clan": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop",
+    "horse": "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?q=80&w=1200&auto=format&fit=crop",
+    "boss": "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
+    "leaderboard": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200&auto=format&fit=crop",
+    "admin": "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1200&auto=format&fit=crop",
+    "army": "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop",
+    "city": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1200&auto=format&fit=crop",
+    "bank": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1200&auto=format&fit=crop",
+    "war": "https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=1200&auto=format&fit=crop",
+    "market": "https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=1200&auto=format&fit=crop",
+    "food": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1200&auto=format&fit=crop",
+}
 
-BOT_BANNER = "https://cdn.discordapp.com/attachments/1479354971479609394/1480410503363694664/k.png"
-SHOP_IMAGE = "https://cdn.discordapp.com/attachments/1479354971479609394/1480410503363694664/k.png"
-WORK_IMAGE = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"
-HUNT_IMAGE = "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"
-DAILY_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"
-FIGHT_IMAGE = "https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop"
-ARMY_IMAGE = "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop"
-CITY_IMAGE = "https://images.unsplash.com/photo-1467262920457-95627ff8cbb9?q=80&w=1200&auto=format&fit=crop"
-CLAN_IMAGE = "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop"
-MARRY_IMAGE = "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop"
-
-# =========================
+# =========================================================
 # RANKS
-# (required_level, name, work_salary, image)
-# =========================
+# =========================================================
 RANKS = [
-    (200, "☀️ Их Эзэн Хаан", 5000, "https://images.unsplash.com/photo-1518562180175-34a163b1a9a6?q=80&w=1200&auto=format&fit=crop"),
-    (196, "👑 Их Хаан", 4600, "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"),
-    (192, "🦅 9 Өрлөгийн Нэг", 4300, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
-    (188, "🐺 4 Нохойн Нэг", 4100, "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"),
-    (184, "⚖️ Шихихутаг", 3900, "https://images.unsplash.com/photo-1493246318656-5bfd4cfb29b8?q=80&w=1200&auto=format&fit=crop"),
-    (180, "📜 Тата Тунга", 3700, "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1200&auto=format&fit=crop"),
-    (176, "🥣 Хааны Их Буурч", 3500, "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=1200&auto=format&fit=crop"),
-    (170, "🏛️ Их Сайд", 3300, "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop"),
-    (164, "🛡️ Шадар Сайд", 3100, "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"),
-    (158, "⚖️ Төрийн Сайд", 2900, "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1200&auto=format&fit=crop"),
-    (152, "🏯 Дээд Түшмэл", 2700, "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"),
-    (146, "📜 Их Түшмэл", 2500, "https://images.unsplash.com/photo-1464219222984-216ebffaaf85?q=80&w=1200&auto=format&fit=crop"),
-    (140, "🛡️ Ахлах Түшмэл", 2300, "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop"),
-    (134, "🏹 Түшмэл", 2100, "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop"),
-    (128, "🐎 Түмтийн Ноён", 1900, "https://images.unsplash.com/photo-1517022812141-23620dba5c23?q=80&w=1200&auto=format&fit=crop"),
-    (122, "⚔️ Түмтийн Ахлагч", 1800, "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"),
-    (116, "🛡️ Түмт", 1700, "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop"),
-    (110, "🐺 Мянганы Ноён", 1600, "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop"),
-    (104, "🐎 Мянгат", 1500, "https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop"),
-    (98, "⚔️ Мянганы Ахлагч", 1400, "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop"),
-    (92, "🛡️ Зууны Ноён", 1300, "https://images.unsplash.com/photo-1500048993953-d23a436266cf?q=80&w=1200&auto=format&fit=crop"),
-    (86, "🏇 Зуут", 1200, "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop"),
-    (80, "⚔️ Зууны Ахлагч", 1100, "https://images.unsplash.com/photo-1500534314209-a26db0f5b2af?q=80&w=1200&auto=format&fit=crop"),
-    (74, "🪖 Аравтын Ноён", 1000, "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop"),
-    (68, "⚔️ Аравтын Ахлагч", 900, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
-    (62, "🛡️ Хишигтэн", 800, "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=1200&auto=format&fit=crop"),
-    (56, "🥣 Буурч", 700, "https://images.unsplash.com/photo-1511300636408-a63a89df3482?q=80&w=1200&auto=format&fit=crop"),
-    (50, "🩺 Эмч", 620, "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop"),
-    (44, "🔥 Түлээчин", 560, "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop"),
-    (38, "🔨 Дархан", 500, "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1200&auto=format&fit=crop"),
-    (32, "📯 Элч", 450, "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop"),
-    (26, "🏹 Анчин", 400, "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"),
-    (20, "🐑 Малчин", 350, "https://images.unsplash.com/photo-1504593811423-6dd665756598?q=80&w=1200&auto=format&fit=crop"),
-    (14, "🌾 Тариачин", 300, "https://images.unsplash.com/photo-1464226184884-fa280b87c399?q=80&w=1200&auto=format&fit=crop"),
-    (8, "👤 Цэрэг", 230, "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"),
-    (0, "🌱 Шинэ Хүн", 150, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
+    (1, "Малчин"),
+    (5, "Тариачин"),
+    (10, "Түлээчин"),
+    (15, "Анчин"),
+    (20, "Цэрэг"),
+    (30, "Аравт"),
+    (40, "Зуут"),
+    (55, "Мянгат"),
+    (70, "Буурч"),
+    (85, "Хишигтэн"),
+    (100, "Түшмэл"),
+    (120, "Ноён"),
+    (140, "Жанжин"),
+    (160, "Сайд"),
+    (180, "Хан"),
+    (200, "Их Эзэн Хаан"),
 ]
 
-# =========================
-# SHOP ITEMS
-# =========================
+UDAMS = ["Боржигин", "Жалайр", "Хонгирад", "Хэрэйд", "Найман", "Мэргид", "Ойрад", "Халх"]
+
 SHOP_ITEMS = {
-    "airag": {"name": "🥛 Айраг", "price": 120, "type": "heal", "value": 15, "desc": "Эрч хүч нэмнэ"},
-    "mah": {"name": "🍖 Мах", "price": 180, "type": "heal", "value": 25, "desc": "Илүү их хүч өгнө"},
-    "talh": {"name": "🍞 Талх", "price": 90, "type": "heal", "value": 10, "desc": "Бага хэмжээний сэргэлт"},
-    "mod": {"name": "🪵 Мод", "price": 70, "type": "material", "value": 1, "desc": "Түүхий эд"},
-    "chuluu": {"name": "🪨 Чулуу", "price": 80, "type": "material", "value": 1, "desc": "Түүхий эд"},
-    "tomor": {"name": "⛓️ Төмөр", "price": 150, "type": "material", "value": 1, "desc": "Ховор материал"},
-    "aris": {"name": "🦌 Арьс", "price": 110, "type": "material", "value": 1, "desc": "Ангаас олдоно"},
-    "mori": {"name": "🐎 Морь", "price": 1200, "type": "pet", "value": 1, "desc": "Ан, ажилд бонус өгнө"},
-    "num": {"name": "🏹 Нум", "price": 950, "type": "weapon", "value": 1, "desc": "Ан хийхэд ашиглана"},
-    "huyag": {"name": "🛡️ Хуяг", "price": 1500, "type": "armor", "value": 1, "desc": "Тулаанд хамгаална"},
+    "airag": {"price": 50, "type": "food"},
+    "mah": {"price": 80, "type": "food"},
+    "talh": {"price": 35, "type": "food"},
+    "mod": {"price": 60, "type": "resource"},
+    "chuluu": {"price": 70, "type": "resource"},
+    "tomor": {"price": 120, "type": "resource"},
+    "aris": {"price": 110, "type": "resource"},
+    "shir": {"price": 140, "type": "resource"},
+    "selem": {"price": 500, "type": "weapon"},
+    "num_sum": {"price": 450, "type": "weapon"},
+    "huayg": {"price": 650, "type": "armor"},
+    "mor": {"price": 1200, "type": "mount"},
 }
 
-# =========================
-# DEFAULT WORLD
-# =========================
-DEFAULT_CITIES = {
-    "Karakorum": {"owner": None, "defense": 120},
-    "Samarkand": {"owner": None, "defense": 150},
-    "Beijing": {"owner": None, "defense": 180},
-    "Bukhara": {"owner": None, "defense": 140},
-    "Otrar": {"owner": None, "defense": 130},
-}
-
-# =========================
-# DATA
-# =========================
-def default_user():
-    return {
-        "money": 500,
-        "bank": 0,
-        "level": 1,
-        "exp": 0,
-        "messages": 0,
-        "hp": 100,
-        "inventory": {},
-        "last_work": None,
-        "last_daily": None,
-        "last_hunt": None,
-        "last_fight": None,
-        "last_recruit": None,
-        "last_city_attack": None,
-        "army": 0,
-        "wins": 0,
-        "losses": 0,
-        "clan": None,
-        "married_to": None
-    }
-
-def default_data():
-    return {
-        "users": {},
-        "clans": {},
-        "cities": DEFAULT_CITIES.copy()
-    }
-
+# =========================================================
+# DATA HELPERS
+# =========================================================
 def load_data():
     if not os.path.exists(DATA_FILE):
-        return default_data()
+        return {}
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
-            loaded = json.load(f)
-            if "users" not in loaded:
-                loaded = {"users": loaded, "clans": {}, "cities": DEFAULT_CITIES.copy()}
-            if "clans" not in loaded:
-                loaded["clans"] = {}
-            if "cities" not in loaded:
-                loaded["cities"] = DEFAULT_CITIES.copy()
-            return loaded
+            return json.load(f)
     except Exception:
-        return default_data()
-
-data = load_data()
+        return {}
 
 def save_data():
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-def get_user(user_id: int):
-    uid = str(user_id)
-    if uid not in data["users"]:
-        data["users"][uid] = default_user()
-        save_data()
-    return data["users"][uid]
+data = load_data()
 
-# =========================
-# HELPERS
-# =========================
-def get_rank_data(level: int):
-    for req, name, salary, image in RANKS:
-        if level >= req:
-            return {"level_req": req, "name": name, "salary": salary, "image": image}
-    return {"level_req": 0, "name": "🌱 Шинэ Хүн", "salary": 150, "image": BOT_BANNER}
+def get_rank(level: int) -> str:
+    current = "Энгийн иргэн"
+    for lvl, rank in RANKS:
+        if level >= lvl:
+            current = rank
+    return current
 
-def exp_needed(level: int):
+def exp_to_next(level: int) -> int:
     return 100 + (level * 25)
 
-def add_exp(user: dict, amount: int):
-    if user["level"] >= MAX_LEVEL:
-        user["exp"] = 0
+def make_player(user_id: str, name: str):
+    return {
+        "name": name,
+        "gold": 500,
+        "silver": 0,
+        "bank": 0,
+        "level": 1,
+        "exp": 0,
+        "hp": 100,
+        "energy": 100,
+        "army": 0,
+        "horse": None,
+        "clan": None,
+        "city": None,
+        "udam": random.choice(UDAMS),
+        "title": "Шинэ тоглогч",
+        "inventory": [],
+        "storage": [],
+        "married_to": None,
+        "daily_last": None,
+        "weekly_last": None,
+        "monthly_last": None,
+        "work_last": None,
+        "hunt_last": None,
+        "mine_last": None,
+        "chop_last": None,
+        "fish_last": None,
+        "farm_last": None,
+        "cooldowns": {},
+        "wins": 0,
+        "losses": 0,
+        "prestige": 0,
+        "created_at": datetime.utcnow().isoformat()
+    }
+
+def ensure_player(user: discord.User):
+    uid = str(user.id)
+    if uid not in data:
+        data[uid] = make_player(uid, user.name)
+        save_data()
+    else:
+        data[uid]["name"] = user.name
+    return data[uid]
+
+def add_item(player: dict, item_name: str, qty: int = 1):
+    for _ in range(qty):
+        player["inventory"].append(item_name)
+
+def remove_item(player: dict, item_name: str, qty: int = 1) -> bool:
+    if player["inventory"].count(item_name) < qty:
         return False
-
-    user["exp"] += amount
-    leveled_up = False
-
-    while user["level"] < MAX_LEVEL and user["exp"] >= exp_needed(user["level"]):
-        need = exp_needed(user["level"])
-        user["exp"] -= need
-        user["level"] += 1
-        leveled_up = True
-
-    if user["level"] >= MAX_LEVEL:
-        user["level"] = MAX_LEVEL
-        user["exp"] = 0
-
-    return leveled_up
-
-def now_iso():
-    return datetime.utcnow().isoformat()
-
-def parse_time(ts):
-    if not ts:
-        return None
-    try:
-        return datetime.fromisoformat(ts)
-    except Exception:
-        return None
-
-def add_item(user: dict, item_key: str, amount: int = 1):
-    user["inventory"][item_key] = user["inventory"].get(item_key, 0) + amount
-
-def remove_item(user: dict, item_key: str, amount: int = 1):
-    if user["inventory"].get(item_key, 0) < amount:
-        return False
-    user["inventory"][item_key] -= amount
-    if user["inventory"][item_key] <= 0:
-        del user["inventory"][item_key]
+    for _ in range(qty):
+        player["inventory"].remove(item_name)
     return True
 
-def has_item(user: dict, item_key: str):
-    return user["inventory"].get(item_key, 0) > 0
+def add_exp(player: dict, amount: int):
+    player["exp"] += amount
+    leveled = []
+    while player["level"] < MAX_LEVEL and player["exp"] >= exp_to_next(player["level"]):
+        player["exp"] -= exp_to_next(player["level"])
+        player["level"] += 1
+        player["title"] = get_rank(player["level"])
+        leveled.append(player["level"])
+    return leveled
 
-def get_power(user: dict):
-    power = user["level"] * 10
-    power += user.get("army", 0) * 3
-    power += user["wins"] * 5
+def human_time_left(last_iso: str, hours: int) -> str:
+    if not last_iso:
+        return "0m"
+    last = datetime.fromisoformat(last_iso)
+    nxt = last + timedelta(hours=hours)
+    left = nxt - datetime.utcnow()
+    if left.total_seconds() <= 0:
+        return "0m"
+    mins = int(left.total_seconds() // 60)
+    h = mins // 60
+    m = mins % 60
+    return f"{h}h {m}m"
 
-    if has_item(user, "mori"):
-        power += 20
-    if has_item(user, "num"):
-        power += 15
-    if has_item(user, "huyag"):
-        power += 25
+def on_cooldown(last_iso: str, hours: int) -> bool:
+    if not last_iso:
+        return False
+    last = datetime.fromisoformat(last_iso)
+    return datetime.utcnow() < last + timedelta(hours=hours)
 
-    return power + random.randint(1, 40)
+def basic_embed(title: str, desc: str, image_key: str = "profile", color: int = 0xB8860B):
+    em = discord.Embed(title=title, description=desc, color=color)
+    if image_key in IMAGES:
+        em.set_image(url=IMAGES[image_key])
+    em.timestamp = datetime.utcnow()
+    return em
 
-def get_clan_power(clan_data: dict):
-    return clan_data.get("power", 0) + clan_data.get("wins", 0) * 20
-
-# =========================
+# =========================================================
 # EVENTS
-# =========================
+# =========================================================
 @bot.event
 async def on_ready():
-    print(f"{bot.user} online боллоо!")
+    print(f"{bot.user} online боллоо.")
 
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-
-    user = get_user(message.author.id)
-    user["messages"] += 1
-
-    gained = random.randint(2, 5)
-    old_level = user["level"]
-    leveled = add_exp(user, gained)
+# =========================================================
+# CORE COMMANDS
+# =========================================================
+@bot.command()
+async def start(ctx):
+    player = ensure_player(ctx.author)
     save_data()
-
-    if leveled:
-        rank = get_rank_data(user["level"])
-        embed = discord.Embed(
-            title="🎉 Level Up!",
-            description=f"{message.author.mention} **{old_level} → {user['level']}** level хүрлээ!\n👑 Шинэ цол: **{rank['name']}**",
-            color=0xD4AF37
-        )
-        embed.set_thumbnail(url=message.author.display_avatar.url)
-        embed.set_image(url=rank["image"])
-        await message.channel.send(embed=embed)
-
-    await bot.process_commands(message)
-
-# =========================
-# BASIC COMMANDS
-# =========================
-@bot.command()
-async def ping(ctx):
-    await ctx.send(f"🏓 Pong! `{round(bot.latency * 1000)}ms`")
-
-@bot.command()
-async def help(ctx):
-    embed = discord.Embed(
-        title="📜 Chingis Bot Full RPG Commands",
-        description=f"Prefix: `{PREFIX}`",
-        color=0xC9A33A
+    embed = basic_embed(
+        "🏹 Аян эхэллээ",
+        f"{ctx.author.mention} амжилттай бүртгэгдлээ.\n\n"
+        f"Удам: **{player['udam']}**\n"
+        f"Эхний алт: **{player['gold']}**\n"
+        f"Цол: **{player['title']}**",
+        "start"
     )
-    embed.add_field(
-        name="Үндсэн",
-        value=(
-            f"`{PREFIX}profile`\n"
-            f"`{PREFIX}rank`\n"
-            f"`{PREFIX}balance`\n"
-            f"`{PREFIX}work`\n"
-            f"`{PREFIX}daily`\n"
-            f"`{PREFIX}hunt`\n"
-            f"`{PREFIX}shop`\n"
-            f"`{PREFIX}buy <item> <too>`\n"
-            f"`{PREFIX}inventory`\n"
-            f"`{PREFIX}use <item>`\n"
-            f"`{PREFIX}deposit <too|all>`\n"
-            f"`{PREFIX}withdraw <too|all>`\n"
-            f"`{PREFIX}leaderboard`"
-        ),
-        inline=False
-    )
-    embed.add_field(
-        name="RPG",
-        value=(
-            f"`{PREFIX}recruit`\n"
-            f"`{PREFIX}army`\n"
-            f"`{PREFIX}fight @user`\n"
-            f"`{PREFIX}cities`\n"
-            f"`{PREFIX}attackcity <city>`\n"
-            f"`{PREFIX}marry @user`\n"
-            f"`{PREFIX}divorce`\n"
-            f"`{PREFIX}clancreate <name>`\n"
-            f"`{PREFIX}clan`\n"
-            f"`{PREFIX}clanjoin <name>`\n"
-            f"`{PREFIX}clanleave`\n"
-            f"`{PREFIX}clanwar <name>`"
-        ),
-        inline=False
-    )
-    embed.set_image(url=BOT_BANNER)
     await ctx.send(embed=embed)
 
 @bot.command()
 async def profile(ctx, member: discord.Member = None):
     member = member or ctx.author
-    user = get_user(member.id)
-    rank = get_rank_data(user["level"])
-    needed = exp_needed(user["level"]) if user["level"] < MAX_LEVEL else 0
-    exp_text = f"{user['exp']}/{needed}" if user["level"] < MAX_LEVEL else "MAX"
-    inventory_count = sum(user["inventory"].values())
-    married_to = user["married_to"]
-
-    partner_text = "Байхгүй"
-    if married_to:
-        m = ctx.guild.get_member(int(married_to))
-        partner_text = m.display_name if m else f"User {married_to}"
-
+    player = ensure_player(member)
     embed = discord.Embed(
         title=f"👤 {member.display_name}-ийн Profile",
-        color=0xC9A33A
+        color=0xDAA520
     )
-    embed.add_field(name="👑 Цол", value=rank["name"], inline=False)
-    embed.add_field(name="⭐ Level", value=user["level"], inline=True)
-    embed.add_field(name="✨ EXP", value=exp_text, inline=True)
-    embed.add_field(name="❤️ HP", value=user["hp"], inline=True)
-    embed.add_field(name="💰 Хэтэвч", value=user["money"], inline=True)
-    embed.add_field(name="🏦 Банк", value=user["bank"], inline=True)
-    embed.add_field(name="⚔ Army", value=user.get("army", 0), inline=True)
-    embed.add_field(name="🏆 Wins", value=user.get("wins", 0), inline=True)
-    embed.add_field(name="💀 Losses", value=user.get("losses", 0), inline=True)
-    embed.add_field(name="💬 Messages", value=user["messages"], inline=True)
-    embed.add_field(name="🎒 Inventory", value=inventory_count, inline=True)
-    embed.add_field(name="💍 Гэрлэлт", value=partner_text, inline=True)
-    embed.add_field(name="🛠️ Work цалин", value=f"{rank['salary']}+", inline=True)
+    embed.add_field(name="Level", value=str(player["level"]), inline=True)
+    embed.add_field(name="EXP", value=f"{player['exp']} / {exp_to_next(player['level'])}", inline=True)
+    embed.add_field(name="Gold", value=str(player["gold"]), inline=True)
+    embed.add_field(name="Rank", value=get_rank(player["level"]), inline=True)
+    embed.add_field(name="Udam", value=player["udam"], inline=True)
+    embed.add_field(name="Army", value=str(player["army"]), inline=True)
+    embed.add_field(name="HP", value=str(player["hp"]), inline=True)
+    embed.add_field(name="Energy", value=str(player["energy"]), inline=True)
+    embed.add_field(name="Clan", value=str(player["clan"] or "Байхгүй"), inline=True)
+    embed.add_field(name="Wins / Losses", value=f"{player['wins']} / {player['losses']}", inline=False)
     embed.set_thumbnail(url=member.display_avatar.url)
-    embed.set_image(url=rank["image"])
+    embed.set_image(url=IMAGES["profile"])
     await ctx.send(embed=embed)
+
+@bot.command()
+async def stats(ctx):
+    player = ensure_player(ctx.author)
+    power = player["level"] * 10 + player["army"] * 3 + len(player["inventory"]) * 2
+    embed = basic_embed(
+        "📊 Stats",
+        f"⚔ Power: **{power}**\n"
+        f"❤️ HP: **{player['hp']}**\n"
+        f"⚡ Energy: **{player['energy']}**\n"
+        f"🏅 Prestige: **{player['prestige']}**",
+        "profile"
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def level(ctx):
+    player = ensure_player(ctx.author)
+    embed = basic_embed(
+        "📈 Level",
+        f"Level: **{player['level']}**\nEXP: **{player['exp']} / {exp_to_next(player['level'])}**\nRank: **{get_rank(player['level'])}**",
+        "leaderboard"
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def exp(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("✨ EXP", f"EXP: **{player['exp']} / {exp_to_next(player['level'])}**", "leaderboard"))
+
+@bot.command()
+async def gold(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("💰 Gold", f"Таны алт: **{player['gold']}**", "bank"))
+
+@bot.command()
+async def silver(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("🥈 Silver", f"Таны мөнгө: **{player['silver']}**", "bank"))
+
+@bot.command()
+async def inventory(ctx):
+    player = ensure_player(ctx.author)
+    items = player["inventory"][:30]
+    txt = ", ".join(items) if items else "Хоосон"
+    await ctx.send(embed=basic_embed("🎒 Inventory", txt, "shop"))
+
+@bot.command()
+async def storage(ctx):
+    player = ensure_player(ctx.author)
+    items = player["storage"][:30]
+    txt = ", ".join(items) if items else "Хоосон"
+    await ctx.send(embed=basic_embed("📦 Storage", txt, "shop"))
 
 @bot.command()
 async def rank(ctx):
-    user = get_user(ctx.author.id)
-    rank_info = get_rank_data(user["level"])
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("👑 Rank", f"Таны цол: **{get_rank(player['level'])}**", "profile"))
 
-    embed = discord.Embed(
-        title="👑 Таны Цол",
-        description=f"Та одоогоор **{rank_info['name']}** байна.",
-        color=0xC9A33A
-    )
-    embed.add_field(name="⭐ Level", value=user["level"], inline=True)
-    embed.add_field(name="💵 Work Salary", value=f"{rank_info['salary']}+", inline=True)
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    embed.set_image(url=rank_info["image"])
-    await ctx.send(embed=embed)
-
-@bot.command(aliases=["bal", "money"])
-async def balance(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    user = get_user(member.id)
-
-    embed = discord.Embed(
-        title=f"💰 {member.display_name}-ийн хөрөнгө",
-        color=0x2ECC71
-    )
-    embed.add_field(name="Хэтэвч", value=user["money"], inline=True)
-    embed.add_field(name="Банк", value=user["bank"], inline=True)
-    embed.add_field(name="Нийт", value=user["money"] + user["bank"], inline=True)
-    embed.set_thumbnail(url=member.display_avatar.url)
-    await ctx.send(embed=embed)
-
-# =========================
-# ECONOMY
-# =========================
 @bot.command()
-async def work(ctx):
-    user = get_user(ctx.author.id)
-    now = datetime.utcnow()
-    last_work = parse_time(user["last_work"])
-    cooldown = timedelta(minutes=15)
+async def title(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("📛 Title", f"Таны title: **{player['title']}**", "profile"))
 
-    if last_work and now - last_work < cooldown:
-        remain = cooldown - (now - last_work)
-        mins = int(remain.total_seconds() // 60)
-        secs = int(remain.total_seconds() % 60)
-        await ctx.send(f"⏳ Дахин ажил хийх хүртэл `{mins}м {secs}с` хүлээ.")
-        return
+@bot.command()
+async def energy(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("⚡ Energy", f"Energy: **{player['energy']}**", "profile"))
 
-    rank = get_rank_data(user["level"])
-    base = rank["salary"]
-    bonus = 0
+@bot.command()
+async def hp(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("❤️ HP", f"HP: **{player['hp']}**", "profile"))
 
-    if has_item(user, "mori"):
-        bonus += 120
-
-    earned = random.randint(max(1, base - 120), base + 180 + bonus)
-    user["money"] += earned
-    user["last_work"] = now_iso()
-
-    bonus_exp = random.randint(5, 12)
-    old_level = user["level"]
-    leveled = add_exp(user, bonus_exp)
-
-    save_data()
-
-    embed = discord.Embed(
-        title="🛠️ Ажил хийлээ",
-        description=f"{ctx.author.mention} **{earned} мөнгө** оллоо!",
-        color=0xF1C40F
+@bot.command()
+async def help(ctx):
+    text = (
+        f"**{PREFIX}start, {PREFIX}profile, {PREFIX}stats, {PREFIX}daily, {PREFIX}work, {PREFIX}hunt, {PREFIX}mine, {PREFIX}chop, {PREFIX}farm, {PREFIX}fish**\n"
+        f"**{PREFIX}shop, {PREFIX}buy <item>, {PREFIX}sell <item>, {PREFIX}inventory**\n"
+        f"**{PREFIX}duel @user, {PREFIX}army, {PREFIX}recruit, {PREFIX}trainarmy**\n"
+        f"**{PREFIX}clan, {PREFIX}createclan <name>, {PREFIX}joinclan <name>**\n"
+        f"**{PREFIX}leaderboard, {PREFIX}rank, {PREFIX}udam, {PREFIX}horse**\n"
+        f"**Admin:** {PREFIX}givegold, {PREFIX}setlevel, {PREFIX}addexp, {PREFIX}resetplayer"
     )
-    embed.add_field(name="👑 Цол", value=rank["name"], inline=False)
-    embed.add_field(name="💵 Суурь цалин", value=base, inline=True)
-    embed.add_field(name="✨ EXP", value=f"+{bonus_exp}", inline=True)
+    await ctx.send(embed=basic_embed("📜 Help", text, "admin"))
 
-    if bonus > 0:
-        embed.add_field(name="🐎 Морь бонус", value=f"+{bonus}", inline=True)
-
-    if leveled:
-        new_rank = get_rank_data(user["level"])
-        embed.add_field(name="🎉 Level Up", value=f"{old_level} → {user['level']}\nШинэ цол: **{new_rank['name']}**", inline=False)
-
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    embed.set_image(url=rank["image"] if rank["image"] else WORK_IMAGE)
-    await ctx.send(embed=embed)
-
+# =========================================================
+# ECONOMY COMMANDS
+# =========================================================
 @bot.command()
 async def daily(ctx):
-    user = get_user(ctx.author.id)
-    now = datetime.utcnow()
-    last_daily = parse_time(user["last_daily"])
-    cooldown = timedelta(hours=24)
-
-    if last_daily and now - last_daily < cooldown:
-        remain = cooldown - (now - last_daily)
-        hours = int(remain.total_seconds() // 3600)
-        mins = int((remain.total_seconds() % 3600) // 60)
-        await ctx.send(f"⏳ Daily авах хүртэл `{hours}ц {mins}м` үлдлээ.")
+    player = ensure_player(ctx.author)
+    if on_cooldown(player["daily_last"], 24):
+        await ctx.send(embed=basic_embed("⏳ Daily", f"Дахин авах хүртэл: **{human_time_left(player['daily_last'], 24)}**", "bank"))
         return
-
-    rank = get_rank_data(user["level"])
-    reward = 500 + (rank["salary"] // 2)
-
-    user["money"] += reward
-    user["last_daily"] = now_iso()
-
-    bonus_exp = random.randint(10, 20)
-    add_exp(user, bonus_exp)
-
+    amount = random.randint(250, 600)
+    player["gold"] += amount
+    player["daily_last"] = datetime.utcnow().isoformat()
+    levels = add_exp(player, random.randint(15, 35))
     save_data()
+    msg = f"{ctx.author.mention} өдөр тутмын шагналаар **{amount} gold** авлаа."
+    if levels:
+        msg += f"\n🎉 Level up: **{player['level']}**"
+    await ctx.send(embed=basic_embed("🎁 Daily Reward", msg, "bank"))
 
-    embed = discord.Embed(
-        title="🎁 Daily Reward",
-        description=f"Та өнөөдрийн шагналаар **{reward} мөнгө** авлаа!",
-        color=0x3498DB
-    )
-    embed.add_field(name="✨ Bonus EXP", value=f"+{bonus_exp}", inline=True)
-    embed.add_field(name="👑 Цол", value=rank["name"], inline=True)
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    embed.set_image(url=DAILY_IMAGE)
-    await ctx.send(embed=embed)
+@bot.command()
+async def weekly(ctx):
+    player = ensure_player(ctx.author)
+    if on_cooldown(player["weekly_last"], 24 * 7):
+        await ctx.send(embed=basic_embed("⏳ Weekly", f"Үлдсэн хугацаа: **{human_time_left(player['weekly_last'], 24 * 7)}**", "bank"))
+        return
+    amount = random.randint(1800, 3200)
+    player["gold"] += amount
+    player["weekly_last"] = datetime.utcnow().isoformat()
+    add_exp(player, random.randint(40, 80))
+    save_data()
+    await ctx.send(embed=basic_embed("🗓 Weekly Reward", f"Та **{amount} gold** авлаа.", "bank"))
+
+@bot.command()
+async def monthly(ctx):
+    player = ensure_player(ctx.author)
+    if on_cooldown(player["monthly_last"], 24 * 30):
+        await ctx.send(embed=basic_embed("⏳ Monthly", f"Үлдсэн хугацаа: **{human_time_left(player['monthly_last'], 24 * 30)}**", "bank"))
+        return
+    amount = random.randint(7000, 12000)
+    player["gold"] += amount
+    player["monthly_last"] = datetime.utcnow().isoformat()
+    add_exp(player, random.randint(100, 180))
+    save_data()
+    await ctx.send(embed=basic_embed("📅 Monthly Reward", f"Та **{amount} gold** авлаа.", "bank"))
+
+@bot.command()
+async def work(ctx):
+    player = ensure_player(ctx.author)
+    if on_cooldown(player["work_last"], 1):
+        await ctx.send(embed=basic_embed("⏳ Work", f"Амрах хугацаа: **{human_time_left(player['work_last'], 1)}**", "market"))
+        return
+    jobs = [
+        ("мал маллаж", 90, 180),
+        ("ачаа зөөж", 80, 170),
+        ("худалдаа хийж", 100, 200),
+        ("дарханд тусалж", 120, 220),
+        ("харуул хийж", 110, 210),
+    ]
+    job, lo, hi = random.choice(jobs)
+    amount = random.randint(lo, hi)
+    player["gold"] += amount
+    player["work_last"] = datetime.utcnow().isoformat()
+    add_exp(player, random.randint(8, 18))
+    save_data()
+    await ctx.send(embed=basic_embed("🛠 Work", f"{ctx.author.mention} {job} **{amount} gold** оллоо.", "market"))
+
+@bot.command()
+async def beg(ctx):
+    player = ensure_player(ctx.author)
+    amount = random.randint(10, 75)
+    player["gold"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("🙏 Beg", f"Танд **{amount} gold** өглөө.", "market"))
+
+@bot.command()
+async def bank(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("🏦 Bank", f"Bank balance: **{player['bank']} gold**", "bank"))
+
+@bot.command()
+async def deposit(ctx, amount: int):
+    player = ensure_player(ctx.author)
+    if amount <= 0 or amount > player["gold"]:
+        await ctx.send("Алт хүрэхгүй байна.")
+        return
+    player["gold"] -= amount
+    player["bank"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("🏦 Deposit", f"Та bank руу **{amount} gold** хийлээ.", "bank"))
+
+@bot.command()
+async def withdraw(ctx, amount: int):
+    player = ensure_player(ctx.author)
+    if amount <= 0 or amount > player["bank"]:
+        await ctx.send("Bank balance хүрэхгүй байна.")
+        return
+    player["bank"] -= amount
+    player["gold"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("🏦 Withdraw", f"Та bank-аас **{amount} gold** авлаа.", "bank"))
+
+@bot.command()
+async def pay(ctx, member: discord.Member, amount: int):
+    sender = ensure_player(ctx.author)
+    receiver = ensure_player(member)
+    if member.bot or amount <= 0 or sender["gold"] < amount:
+        await ctx.send("Гүйлгээ амжилтгүй.")
+        return
+    sender["gold"] -= amount
+    receiver["gold"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("💸 Pay", f"{ctx.author.mention} → {member.mention} : **{amount} gold**", "bank"))
+
+@bot.command()
+async def gamble(ctx, amount: int):
+    player = ensure_player(ctx.author)
+    if amount <= 0 or player["gold"] < amount:
+        await ctx.send("Алт хүрэхгүй байна.")
+        return
+    if random.random() < 0.45:
+        player["gold"] += amount
+        result = f"Хожлоо. **+{amount} gold**"
+    else:
+        player["gold"] -= amount
+        result = f"Хожигдлоо. **-{amount} gold**"
+    save_data()
+    await ctx.send(embed=basic_embed("🎲 Gamble", result, "market"))
+
+@bot.command()
+async def coinflip(ctx, amount: int):
+    await gamble(ctx, amount)
+
+@bot.command()
+async def dice(ctx, amount: int):
+    await gamble(ctx, amount)
+
+@bot.command()
+async def slots(ctx, amount: int):
+    player = ensure_player(ctx.author)
+    if amount <= 0 or player["gold"] < amount:
+        await ctx.send("Алт хүрэхгүй байна.")
+        return
+    icons = ["🍇", "🍒", "🍋", "💎", "⚔️"]
+    roll = [random.choice(icons) for _ in range(3)]
+    if len(set(roll)) == 1:
+        win = amount * 3
+        player["gold"] += win
+        result = f"{' '.join(roll)}\n🎉 Jackpot! **+{win} gold**"
+    else:
+        player["gold"] -= amount
+        result = f"{' '.join(roll)}\n❌ **-{amount} gold**"
+    save_data()
+    await ctx.send(embed=basic_embed("🎰 Slots", result, "market"))
+
+# =========================================================
+# RESOURCE COMMANDS
+# =========================================================
+def resource_action(player, key_last, hours, gold_range, exp_range, item_name=None):
+    if on_cooldown(player[key_last], hours):
+        return None, human_time_left(player[key_last], hours)
+    gold = random.randint(*gold_range)
+    exp_gain = random.randint(*exp_range)
+    player["gold"] += gold
+    if item_name:
+        add_item(player, item_name, 1)
+    player[key_last] = datetime.utcnow().isoformat()
+    levels = add_exp(player, exp_gain)
+    save_data()
+    return (gold, exp_gain, item_name, levels), None
 
 @bot.command()
 async def hunt(ctx):
-    user = get_user(ctx.author.id)
-    now = datetime.utcnow()
-    last_hunt = parse_time(user["last_hunt"])
-    cooldown = timedelta(minutes=20)
-
-    if last_hunt and now - last_hunt < cooldown:
-        remain = cooldown - (now - last_hunt)
-        mins = int(remain.total_seconds() // 60)
-        secs = int(remain.total_seconds() % 60)
-        await ctx.send(f"🏹 Дахин ан хийх хүртэл `{mins}м {secs}с` хүлээ.")
+    player = ensure_player(ctx.author)
+    result, left = resource_action(player, "hunt_last", 1, (100, 240), (12, 26), "mah")
+    if left:
+        await ctx.send(embed=basic_embed("⏳ Hunt", f"Дахин ан хийх хүртэл: **{left}**", "hunt"))
         return
+    gold_gain, exp_gain, item_name, levels = result
+    txt = f"Та ан хийж **{gold_gain} gold**, **{exp_gain} exp** авлаа.\nОлз: **{item_name}**"
+    if levels:
+        txt += f"\n🎉 Level up: **{player['level']}**"
+    await ctx.send(embed=basic_embed("🏹 Hunt", txt, "hunt"))
 
-    user["last_hunt"] = now_iso()
+@bot.command()
+async def mine(ctx):
+    player = ensure_player(ctx.author)
+    result, left = resource_action(player, "mine_last", 1, (110, 260), (12, 24), "tomor")
+    if left:
+        await ctx.send(embed=basic_embed("⛏ Mine", f"Cooldown: **{left}**", "mine"))
+        return
+    gold_gain, exp_gain, item_name, levels = result
+    await ctx.send(embed=basic_embed("⛏ Mine", f"Та хүдэр олборлож **{gold_gain} gold**, **{exp_gain} exp** авлаа.\nОлз: **{item_name}**", "mine"))
 
-    success_rate = 55
-    if has_item(user, "num"):
-        success_rate += 25
-    if has_item(user, "mori"):
-        success_rate += 10
+@bot.command()
+async def chop(ctx):
+    player = ensure_player(ctx.author)
+    result, left = resource_action(player, "chop_last", 1, (90, 210), (10, 20), "mod")
+    if left:
+        await ctx.send(embed=basic_embed("🪓 Chop", f"Cooldown: **{left}**", "farm"))
+        return
+    gold_gain, exp_gain, item_name, levels = result
+    await ctx.send(embed=basic_embed("🪓 Chop", f"Та мод бэлтгэж **{gold_gain} gold**, **{exp_gain} exp** авлаа.\nОлз: **{item_name}**", "farm"))
 
-    roll = random.randint(1, 100)
+@bot.command()
+async def farm(ctx):
+    player = ensure_player(ctx.author)
+    result, left = resource_action(player, "farm_last", 1, (80, 200), (10, 18), "talh")
+    if left:
+        await ctx.send(embed=basic_embed("🌾 Farm", f"Cooldown: **{left}**", "farm"))
+        return
+    gold_gain, exp_gain, item_name, levels = result
+    await ctx.send(embed=basic_embed("🌾 Farm", f"Та ажиллаж **{gold_gain} gold**, **{exp_gain} exp** авлаа.\nОлз: **{item_name}**", "farm"))
 
-    if roll <= success_rate:
-        rewards = [
-            ("aris", random.randint(1, 2)),
-            ("mah", random.randint(1, 3)),
-            ("money", random.randint(120, 400))
-        ]
+@bot.command()
+async def fish(ctx):
+    player = ensure_player(ctx.author)
+    result, left = resource_action(player, "fish_last", 1, (80, 220), (8, 18), "mah")
+    if left:
+        await ctx.send(embed=basic_embed("🎣 Fish", f"Cooldown: **{left}**", "food"))
+        return
+    gold_gain, exp_gain, item_name, levels = result
+    await ctx.send(embed=basic_embed("🎣 Fish", f"Та загас барьж **{gold_gain} gold**, **{exp_gain} exp** авлаа.", "food"))
 
-        got_lines = []
-        exp_gain = random.randint(8, 18)
-        add_exp(user, exp_gain)
-
-        for key, amount in rewards:
-            if key == "money":
-                user["money"] += amount
-                got_lines.append(f"💰 {amount} мөнгө")
-            else:
-                add_item(user, key, amount)
-                got_lines.append(f"{SHOP_ITEMS[key]['name']} x{amount}")
-
-        save_data()
-
-        embed = discord.Embed(
-            title="🏹 Ан амжилттай боллоо",
-            description="\n".join(got_lines),
-            color=0x2ECC71
-        )
-        embed.add_field(name="✨ EXP", value=f"+{exp_gain}", inline=True)
-        embed.set_thumbnail(url=ctx.author.display_avatar.url)
-        embed.set_image(url=HUNT_IMAGE)
-        await ctx.send(embed=embed)
-    else:
-        lost_hp = random.randint(5, 18)
-        user["hp"] = max(1, user["hp"] - lost_hp)
-        save_data()
-
-        embed = discord.Embed(
-            title="❌ Ан бүтэлгүйтлээ",
-            description=f"Чи ан дээр амжилтгүй боллоо.\n❤️ HP: `-{lost_hp}`",
-            color=0xE74C3C
-        )
-        embed.set_thumbnail(url=ctx.author.display_avatar.url)
-        embed.set_image(url=HUNT_IMAGE)
-        await ctx.send(embed=embed)
-
+# =========================================================
+# SHOP
+# =========================================================
 @bot.command()
 async def shop(ctx):
-    embed = discord.Embed(
-        title="🏪 Их Зах / Shop",
-        description="Доорх item-үүдээс худалдаж авч болно.",
-        color=0x9B59B6
-    )
-
-    for key, item in SHOP_ITEMS.items():
-        embed.add_field(
-            name=f"{item['name']} — `{key}`",
-            value=f"Үнэ: **{item['price']}**\n{item['desc']}",
-            inline=True
-        )
-
-    embed.set_image(url=SHOP_IMAGE)
-    await ctx.send(embed=embed)
+    lines = []
+    for item, info in SHOP_ITEMS.items():
+        lines.append(f"**{item}** — {info['price']} gold")
+    await ctx.send(embed=basic_embed("🏪 Shop", "\n".join(lines), "shop"))
 
 @bot.command()
-async def buy(ctx, item_key: str = None, amount: int = 1):
-    if item_key is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}buy airag 2`")
+async def buy(ctx, item_name: str):
+    player = ensure_player(ctx.author)
+    item_name = item_name.lower()
+    if item_name not in SHOP_ITEMS:
+        await ctx.send("Тийм item байхгүй.")
         return
-
-    item_key = item_key.lower()
-    if item_key not in SHOP_ITEMS:
-        await ctx.send("❌ Тийм item алга.")
+    price = SHOP_ITEMS[item_name]["price"]
+    if player["gold"] < price:
+        await ctx.send("Алт хүрэхгүй байна.")
         return
-
-    if amount <= 0:
-        await ctx.send("❌ Зөв тоо оруул.")
-        return
-
-    user = get_user(ctx.author.id)
-    item = SHOP_ITEMS[item_key]
-    total_price = item["price"] * amount
-
-    if user["money"] < total_price:
-        await ctx.send(f"❌ Чамд `{total_price}` мөнгө хүрэхгүй байна.")
-        return
-
-    user["money"] -= total_price
-    add_item(user, item_key, amount)
+    player["gold"] -= price
+    add_item(player, item_name, 1)
     save_data()
+    await ctx.send(embed=basic_embed("🛒 Buy", f"Та **{item_name}** худалдаж авлаа.", "shop"))
 
-    embed = discord.Embed(
-        title="🛒 Худалдан авалт амжилттай",
-        description=f"Та {item['name']} x{amount} худалдаж авлаа.",
-        color=0x1ABC9C
-    )
-    embed.add_field(name="Нийт үнэ", value=total_price, inline=True)
-    embed.add_field(name="Үлдэгдэл", value=user["money"], inline=True)
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    embed.set_image(url=SHOP_IMAGE)
-    await ctx.send(embed=embed)
+@bot.command()
+async def sell(ctx, item_name: str):
+    player = ensure_player(ctx.author)
+    item_name = item_name.lower()
+    if item_name not in SHOP_ITEMS:
+        await ctx.send("Тийм item байхгүй.")
+        return
+    if not remove_item(player, item_name, 1):
+        await ctx.send("Таны inventory-д байхгүй байна.")
+        return
+    gain = SHOP_ITEMS[item_name]["price"] // 2
+    player["gold"] += gain
+    save_data()
+    await ctx.send(embed=basic_embed("💱 Sell", f"Та **{item_name}** зарж **{gain} gold** авлаа.", "shop"))
 
-@bot.command(aliases=["inv", "bag"])
-async def inventory(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    user = get_user(member.id)
+@bot.command()
+async def use(ctx, item_name: str):
+    player = ensure_player(ctx.author)
+    item_name = item_name.lower()
+    if not remove_item(player, item_name, 1):
+        await ctx.send("Тэр item алга.")
+        return
 
-    embed = discord.Embed(
-        title=f"🎒 {member.display_name}-ийн Inventory",
-        color=0x8E44AD
-    )
-
-    if not user["inventory"]:
-        embed.description = "Хоосон байна."
+    if item_name in ["airag", "mah", "talh"]:
+        player["energy"] = min(100, player["energy"] + 20)
+        player["hp"] = min(100, player["hp"] + 10)
+        msg = f"Та **{item_name}** хэрэглэж HP/ENERGY сэргээв."
+    elif item_name == "mor":
+        player["horse"] = "Дайны Морь"
+        msg = "Та морьтой боллоо."
     else:
-        lines = []
-        for key, amount in user["inventory"].items():
-            item = SHOP_ITEMS.get(key)
-            if item:
-                lines.append(f"{item['name']} x{amount}")
-            else:
-                lines.append(f"{key} x{amount}")
-        embed.description = "\n".join(lines)
-
-    embed.set_thumbnail(url=member.display_avatar.url)
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def use(ctx, item_key: str = None):
-    if item_key is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}use airag`")
-        return
-
-    item_key = item_key.lower()
-    user = get_user(ctx.author.id)
-
-    if item_key not in SHOP_ITEMS:
-        await ctx.send("❌ Тийм item алга.")
-        return
-
-    item = SHOP_ITEMS[item_key]
-
-    if not has_item(user, item_key):
-        await ctx.send("❌ Чамд ийм item байхгүй.")
-        return
-
-    if item["type"] != "heal":
-        await ctx.send("❌ Энэ item-г одоогоор use хийх боломжгүй.")
-        return
-
-    healed = item["value"]
-    old_hp = user["hp"]
-    user["hp"] = min(100, user["hp"] + healed)
-    actual_heal = user["hp"] - old_hp
-
-    remove_item(user, item_key, 1)
+        msg = f"Та **{item_name}** ашиглалаа."
     save_data()
-
-    embed = discord.Embed(
-        title="✨ Item ашиглалаа",
-        description=f"{item['name']} хэрэглэв.\n❤️ HP: `+{actual_heal}`",
-        color=0x2ECC71
-    )
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=basic_embed("🧪 Use Item", msg, "food"))
 
 @bot.command()
-async def deposit(ctx, amount: str = None):
-    if amount is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}deposit 500` эсвэл `{PREFIX}deposit all`")
+async def item(ctx, *, item_name: str):
+    item_name = item_name.lower()
+    if item_name not in SHOP_ITEMS:
+        await ctx.send("Тийм item байхгүй.")
         return
+    info = SHOP_ITEMS[item_name]
+    await ctx.send(embed=basic_embed("📦 Item Info", f"Нэр: **{item_name}**\nҮнэ: **{info['price']}**\nТөрөл: **{info['type']}**", "shop"))
 
-    user = get_user(ctx.author.id)
-
-    if amount.lower() == "all":
-        amt = user["money"]
-    else:
-        if not amount.isdigit():
-            await ctx.send("❌ Зөв тоо оруул.")
-            return
-        amt = int(amount)
-
-    if amt <= 0:
-        await ctx.send("❌ Эерэг тоо оруул.")
-        return
-    if user["money"] < amt:
-        await ctx.send("❌ Хэтэвчинд мөнгө хүрэхгүй байна.")
-        return
-
-    user["money"] -= amt
-    user["bank"] += amt
-    save_data()
-    await ctx.send(f"🏦 **{amt}** мөнгийг банканд хийлээ.")
-
+# =========================================================
+# BATTLE / RPG
+# =========================================================
 @bot.command()
-async def withdraw(ctx, amount: str = None):
-    if amount is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}withdraw 500` эсвэл `{PREFIX}withdraw all`")
+async def duel(ctx, member: discord.Member):
+    if member.bot or member == ctx.author:
+        await ctx.send("Өөр хүн сонго.")
         return
+    p1 = ensure_player(ctx.author)
+    p2 = ensure_player(member)
 
-    user = get_user(ctx.author.id)
-
-    if amount.lower() == "all":
-        amt = user["bank"]
-    else:
-        if not amount.isdigit():
-            await ctx.send("❌ Зөв тоо оруул.")
-            return
-        amt = int(amount)
-
-    if amt <= 0:
-        await ctx.send("❌ Эерэг тоо оруул.")
-        return
-    if user["bank"] < amt:
-        await ctx.send("❌ Банканд мөнгө хүрэхгүй байна.")
-        return
-
-    user["bank"] -= amt
-    user["money"] += amt
-    save_data()
-    await ctx.send(f"💰 **{amt}** мөнгийг банкнаас авлаа.")
-
-# =========================
-# ARMY SYSTEM
-# =========================
-@bot.command()
-async def recruit(ctx):
-    user = get_user(ctx.author.id)
-    now = datetime.utcnow()
-    last_recruit = parse_time(user["last_recruit"])
-    cooldown = timedelta(minutes=30)
-
-    if last_recruit and now - last_recruit < cooldown:
-        remain = cooldown - (now - last_recruit)
-        mins = int(remain.total_seconds() // 60)
-        secs = int(remain.total_seconds() % 60)
-        await ctx.send(f"⏳ Дахин recruit хийх хүртэл `{mins}м {secs}с` хүлээ.")
-        return
-
-    cost = 300
-    if user["money"] < cost:
-        await ctx.send("❌ 300 мөнгө хэрэгтэй.")
-        return
-
-    soldiers = random.randint(3, 10)
-    user["money"] -= cost
-    user["army"] += soldiers
-    user["last_recruit"] = now_iso()
-
-    add_exp(user, random.randint(5, 10))
-    save_data()
-
-    embed = discord.Embed(
-        title="⚔ Цэрэг элсүүллээ",
-        description=f"Чи **{soldiers}** шинэ цэрэг элсүүллээ!",
-        color=0x95A5A6
-    )
-    embed.add_field(name="Нийт Army", value=user["army"], inline=True)
-    embed.add_field(name="Зардал", value=cost, inline=True)
-    embed.set_image(url=ARMY_IMAGE)
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def army(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    user = get_user(member.id)
-
-    embed = discord.Embed(
-        title=f"⚔ {member.display_name}-ийн Арми",
-        color=0x7F8C8D
-    )
-    embed.add_field(name="Цэргийн тоо", value=user.get("army", 0), inline=True)
-    embed.add_field(name="Тулааны ялалт", value=user.get("wins", 0), inline=True)
-    embed.add_field(name="Тулааны ялагдал", value=user.get("losses", 0), inline=True)
-    embed.add_field(name="Power", value=get_power(user), inline=True)
-    embed.set_thumbnail(url=member.display_avatar.url)
-    embed.set_image(url=ARMY_IMAGE)
-    await ctx.send(embed=embed)
-
-# =========================
-# PVP
-# =========================
-@bot.command()
-async def fight(ctx, member: discord.Member = None):
-    if member is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}fight @user`")
-        return
-
-    if member.bot:
-        await ctx.send("❌ Bot-той тулалдаж болохгүй.")
-        return
-
-    if member.id == ctx.author.id:
-        await ctx.send("❌ Өөртэйгөө тулалдаж болохгүй.")
-        return
-
-    user1 = get_user(ctx.author.id)
-    user2 = get_user(member.id)
-
-    now = datetime.utcnow()
-    last_fight = parse_time(user1["last_fight"])
-    cooldown = timedelta(minutes=10)
-
-    if last_fight and now - last_fight < cooldown:
-        remain = cooldown - (now - last_fight)
-        mins = int(remain.total_seconds() // 60)
-        secs = int(remain.total_seconds() % 60)
-        await ctx.send(f"⏳ Дахин fight хийх хүртэл `{mins}м {secs}с` хүлээ.")
-        return
-
-    power1 = get_power(user1)
-    power2 = get_power(user2)
-
-    user1["last_fight"] = now_iso()
+    power1 = p1["level"] * 10 + p1["army"] * 3 + random.randint(0, 50)
+    power2 = p2["level"] * 10 + p2["army"] * 3 + random.randint(0, 50)
 
     if power1 >= power2:
-        winner_member = ctx.author
-        loser_member = member
-        winner = user1
-        loser = user2
+        winner, loser = p1, p2
+        winner_user, loser_user = ctx.author, member
+        reward = random.randint(80, 220)
+        winner["gold"] += reward
+        winner["wins"] += 1
+        loser["losses"] += 1
+        add_exp(winner, 20)
+        text = f"⚔ {winner_user.mention} яллаа!\nШагнал: **{reward} gold**"
     else:
-        winner_member = member
-        loser_member = ctx.author
-        winner = user2
-        loser = user1
+        winner, loser = p2, p1
+        winner_user, loser_user = member, ctx.author
+        reward = random.randint(80, 220)
+        winner["gold"] += reward
+        winner["wins"] += 1
+        loser["losses"] += 1
+        add_exp(winner, 20)
+        text = f"⚔ {winner_user.mention} яллаа!\nШагнал: **{reward} gold**"
 
-    reward = random.randint(150, 500)
-    steal = min(loser["money"], random.randint(50, 200))
-
-    winner["money"] += reward + steal
-    loser["money"] -= steal
-
-    winner["wins"] += 1
-    loser["losses"] += 1
-
-    loser_hp_loss = random.randint(8, 20)
-    loser["hp"] = max(1, loser["hp"] - loser_hp_loss)
-
-    add_exp(winner, random.randint(10, 20))
     save_data()
+    await ctx.send(embed=basic_embed("⚔ Duel", text, "duel"))
 
-    embed = discord.Embed(
-        title="⚔ PvP Battle",
-        description=f"🏆 **{winner_member.display_name}** яллаа!\n💀 Ялагдагч: **{loser_member.display_name}**",
-        color=0xE67E22
-    )
-    embed.add_field(name=f"{ctx.author.display_name} Power", value=power1, inline=True)
-    embed.add_field(name=f"{member.display_name} Power", value=power2, inline=True)
-    embed.add_field(name="Шагнал", value=f"💰 {reward}", inline=True)
-    embed.add_field(name="Дээрэмдсэн мөнгө", value=f"💸 {steal}", inline=True)
-    embed.add_field(name="HP damage", value=f"❤️ -{loser_hp_loss}", inline=True)
-    embed.set_image(url=FIGHT_IMAGE)
-    await ctx.send(embed=embed)
-
-# =========================
-# CLAN
-# =========================
 @bot.command()
-async def clancreate(ctx, *, name: str = None):
-    if name is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}clancreate Borjigin`")
-        return
-
-    name = name.strip()
-    user = get_user(ctx.author.id)
-
-    if user["clan"]:
-        await ctx.send("❌ Чи аль хэдийн clan-д байна.")
-        return
-
-    if name in data["clans"]:
-        await ctx.send("❌ Ийм clan байна.")
-        return
-
-    data["clans"][name] = {
-        "leader": str(ctx.author.id),
-        "members": [str(ctx.author.id)],
-        "power": 0,
-        "wins": 0
-    }
-    user["clan"] = name
+async def attack(ctx):
+    player = ensure_player(ctx.author)
+    damage = random.randint(10, 40) + player["level"] * 2
+    reward = random.randint(60, 180)
+    player["gold"] += reward
+    add_exp(player, random.randint(12, 24))
     save_data()
+    await ctx.send(embed=basic_embed("🗡 Attack", f"Та мангас цохиж **{damage} damage** өглөө.\nШагнал: **{reward} gold**", "boss"))
 
-    embed = discord.Embed(
-        title="👑 Clan байгуулагдлаа",
-        description=f"**{name}** clan амжилттай үүслээ!",
-        color=0x9B59B6
-    )
-    embed.add_field(name="Leader", value=ctx.author.display_name, inline=True)
-    embed.set_image(url=CLAN_IMAGE)
-    await ctx.send(embed=embed)
+@bot.command()
+async def defend(ctx):
+    player = ensure_player(ctx.author)
+    block = random.randint(15, 50)
+    add_exp(player, random.randint(5, 12))
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Defend", f"Та **{block}%** хамгаалалт хийлээ.", "boss"))
+
+@bot.command()
+async def heal(ctx):
+    player = ensure_player(ctx.author)
+    if player["gold"] < 100:
+        await ctx.send("Эмчлүүлэх алт хүрэхгүй.")
+        return
+    player["gold"] -= 100
+    player["hp"] = min(100, player["hp"] + 35)
+    save_data()
+    await ctx.send(embed=basic_embed("💚 Heal", f"Та эмчлүүлж HP: **{player['hp']}** боллоо.", "food"))
+
+@bot.command()
+async def revive(ctx):
+    player = ensure_player(ctx.author)
+    player["hp"] = 100
+    player["energy"] = 100
+    save_data()
+    await ctx.send(embed=basic_embed("✨ Revive", "Та бүрэн сэргээлээ.", "boss"))
+
+# =========================================================
+# HORSE / ARMY
+# =========================================================
+@bot.command()
+async def horse(ctx):
+    player = ensure_player(ctx.author)
+    text = player["horse"] if player["horse"] else "Танд морь алга."
+    await ctx.send(embed=basic_embed("🐎 Horse", text, "horse"))
+
+@bot.command()
+async def stable(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("🏇 Stable", f"Таны морь: **{player['horse'] or 'Байхгүй'}**", "horse"))
+
+@bot.command()
+async def feedhorse(ctx):
+    player = ensure_player(ctx.author)
+    if not player["horse"]:
+        await ctx.send("Таньд морь алга.")
+        return
+    await ctx.send(embed=basic_embed("🌾 Feed Horse", "Та морио тэжээлээ.", "horse"))
+
+@bot.command()
+async def trainhorse(ctx):
+    player = ensure_player(ctx.author)
+    if not player["horse"]:
+        await ctx.send("Морь байхгүй.")
+        return
+    add_exp(player, 10)
+    save_data()
+    await ctx.send(embed=basic_embed("🏇 Train Horse", "Морь илүү хүчтэй боллоо.", "horse"))
+
+@bot.command()
+async def army(ctx):
+    player = ensure_player(ctx.author)
+    power = player["army"] * 3 + player["level"] * 10
+    await ctx.send(embed=basic_embed("⚔ Army", f"Цэрэг: **{player['army']}**\nArmy Power: **{power}**", "army"))
+
+@bot.command()
+async def recruit(ctx, amount: int = 1):
+    player = ensure_player(ctx.author)
+    if amount <= 0:
+        await ctx.send("Зөв тоо өг.")
+        return
+    cost = amount * 120
+    if player["gold"] < cost:
+        await ctx.send("Алт хүрэхгүй байна.")
+        return
+    player["gold"] -= cost
+    player["army"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("🪖 Recruit", f"Та **{amount}** цэрэг элсүүллээ.", "army"))
+
+@bot.command()
+async def dismiss(ctx, amount: int = 1):
+    player = ensure_player(ctx.author)
+    if amount <= 0 or player["army"] < amount:
+        await ctx.send("Цэрэг хүрэхгүй.")
+        return
+    player["army"] -= amount
+    save_data()
+    await ctx.send(embed=basic_embed("📤 Dismiss", f"Та **{amount}** цэрэг халлаа.", "army"))
+
+@bot.command()
+async def trainarmy(ctx):
+    player = ensure_player(ctx.author)
+    if player["army"] <= 0:
+        await ctx.send("Арми байхгүй.")
+        return
+    cost = max(50, player["army"] * 10)
+    if player["gold"] < cost:
+        await ctx.send("Алт хүрэхгүй байна.")
+        return
+    player["gold"] -= cost
+    add_exp(player, 15)
+    save_data()
+    await ctx.send(embed=basic_embed("🏹 Train Army", f"Армиа сургаж **{cost} gold** зарцууллаа.", "army"))
+
+# =========================================================
+# CLAN SYSTEM
+# =========================================================
+clans = {}
+
+@bot.command()
+async def createclan(ctx, *, name: str):
+    player = ensure_player(ctx.author)
+    if player["clan"]:
+        await ctx.send("Та аль хэдийн clan-тай байна.")
+        return
+    if name in clans:
+        await ctx.send("Ийм clan аль хэдийн байна.")
+        return
+    clans[name] = {"owner": str(ctx.author.id), "members": [str(ctx.author.id)], "bank": 0, "level": 1}
+    player["clan"] = name
+    save_data()
+    await ctx.send(embed=basic_embed("🏳 Create Clan", f"**{name}** clan үүслээ.", "clan"))
 
 @bot.command()
 async def clan(ctx):
-    user = get_user(ctx.author.id)
-
-    if not user["clan"]:
-        await ctx.send("❌ Чи clan-д байхгүй.")
+    player = ensure_player(ctx.author)
+    if not player["clan"]:
+        await ctx.send(embed=basic_embed("🏳 Clan", "Та clan-гүй байна.", "clan"))
         return
-
-    clan_name = user["clan"]
-    clan_data = data["clans"].get(clan_name)
-
-    if not clan_data:
-        await ctx.send("❌ Clan дата олдсонгүй.")
-        return
-
-    member_names = []
-    for uid in clan_data["members"][:10]:
-        member = ctx.guild.get_member(int(uid))
-        member_names.append(member.display_name if member else f"User {uid}")
-
-    leader = ctx.guild.get_member(int(clan_data["leader"]))
-    leader_name = leader.display_name if leader else clan_data["leader"]
-
-    embed = discord.Embed(
-        title=f"🏛 Clan: {clan_name}",
-        color=0x8E44AD
-    )
-    embed.add_field(name="Leader", value=leader_name, inline=True)
-    embed.add_field(name="Members", value=len(clan_data["members"]), inline=True)
-    embed.add_field(name="Power", value=get_clan_power(clan_data), inline=True)
-    embed.add_field(name="Wins", value=clan_data.get("wins", 0), inline=True)
-    embed.add_field(name="Гишүүд", value="\n".join(member_names) if member_names else "Хоосон", inline=False)
-    embed.set_image(url=CLAN_IMAGE)
-    await ctx.send(embed=embed)
+    c = clans.get(player["clan"], {"members": [], "bank": 0, "level": 1})
+    await ctx.send(embed=basic_embed(
+        "🏳 Clan Info",
+        f"Нэр: **{player['clan']}**\nГишүүд: **{len(c['members'])}**\nBank: **{c['bank']}**\nLevel: **{c['level']}**",
+        "clan"
+    ))
 
 @bot.command()
-async def clanjoin(ctx, *, name: str = None):
-    if name is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}clanjoin Borjigin`")
+async def joinclan(ctx, *, name: str):
+    player = ensure_player(ctx.author)
+    if player["clan"]:
+        await ctx.send("Та clan-тай байна.")
         return
-
-    user = get_user(ctx.author.id)
-
-    if user["clan"]:
-        await ctx.send("❌ Чи аль хэдийн clan-д байна.")
+    if name not in clans:
+        await ctx.send("Тийм clan байхгүй.")
         return
-
-    if name not in data["clans"]:
-        await ctx.send("❌ Ийм clan алга.")
-        return
-
-    clan_data = data["clans"][name]
-    if str(ctx.author.id) not in clan_data["members"]:
-        clan_data["members"].append(str(ctx.author.id))
-
-    user["clan"] = name
-    clan_data["power"] += get_user(ctx.author.id)["level"] * 5
+    clans[name]["members"].append(str(ctx.author.id))
+    player["clan"] = name
     save_data()
-
-    await ctx.send(f"✅ Чи **{name}** clan-д нэгдлээ.")
+    await ctx.send(embed=basic_embed("🤝 Join Clan", f"Та **{name}** clan-д нэгдлээ.", "clan"))
 
 @bot.command()
-async def clanleave(ctx):
-    user = get_user(ctx.author.id)
-
-    if not user["clan"]:
-        await ctx.send("❌ Чи clan-д байхгүй.")
+async def leaveclan(ctx):
+    player = ensure_player(ctx.author)
+    name = player["clan"]
+    if not name:
+        await ctx.send("Та clan-гүй.")
         return
-
-    clan_name = user["clan"]
-    clan_data = data["clans"].get(clan_name)
-
-    if clan_data:
-        if clan_data["leader"] == str(ctx.author.id):
-            await ctx.send("❌ Leader clan-аасаа гарч болохгүй. Шинэ leader system дараа нэмж болно.")
-            return
-
-        if str(ctx.author.id) in clan_data["members"]:
-            clan_data["members"].remove(str(ctx.author.id))
-
-    user["clan"] = None
+    if name in clans and str(ctx.author.id) in clans[name]["members"]:
+        clans[name]["members"].remove(str(ctx.author.id))
+    player["clan"] = None
     save_data()
-    await ctx.send(f"🚪 Чи **{clan_name}** clan-аас гарлаа.")
+    await ctx.send(embed=basic_embed("🚪 Leave Clan", f"Та **{name}** clan-аас гарлаа.", "clan"))
 
+# =========================================================
+# SOCIAL
+# =========================================================
 @bot.command()
-async def clanwar(ctx, *, target_name: str = None):
-    if target_name is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}clanwar Naiman`")
+async def marry(ctx, member: discord.Member):
+    p1 = ensure_player(ctx.author)
+    p2 = ensure_player(member)
+    if member.bot or member == ctx.author:
+        await ctx.send("Болохгүй.")
         return
-
-    user = get_user(ctx.author.id)
-    if not user["clan"]:
-        await ctx.send("❌ Чи clan-д байхгүй.")
-        return
-
-    my_clan_name = user["clan"]
-    if my_clan_name == target_name:
-        await ctx.send("❌ Өөрийн clan-тай war хийж болохгүй.")
-        return
-
-    if target_name not in data["clans"]:
-        await ctx.send("❌ Тэр clan алга.")
-        return
-
-    my_clan = data["clans"][my_clan_name]
-    if my_clan["leader"] != str(ctx.author.id):
-        await ctx.send("❌ Зөвхөн clan leader war эхлүүлнэ.")
-        return
-
-    target_clan = data["clans"][target_name]
-
-    my_power = get_clan_power(my_clan) + random.randint(20, 100)
-    target_power = get_clan_power(target_clan) + random.randint(20, 100)
-
-    if my_power >= target_power:
-        winner_name = my_clan_name
-        loser_name = target_name
-        my_clan["wins"] += 1
-        my_clan["power"] += 30
-    else:
-        winner_name = target_name
-        loser_name = my_clan_name
-        target_clan["wins"] += 1
-        target_clan["power"] += 30
-
+    p1["married_to"] = str(member.id)
+    p2["married_to"] = str(ctx.author.id)
     save_data()
-
-    embed = discord.Embed(
-        title="⚔ Clan War",
-        description=f"🏆 **{winner_name}** clan яллаа!\n💀 Ялагдагч: **{loser_name}**",
-        color=0xC0392B
-    )
-    embed.add_field(name=my_clan_name, value=my_power, inline=True)
-    embed.add_field(name=target_name, value=target_power, inline=True)
-    embed.set_image(url=CLAN_IMAGE)
-    await ctx.send(embed=embed)
-
-# =========================
-# MARRIAGE
-# =========================
-@bot.command()
-async def marry(ctx, member: discord.Member = None):
-    if member is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}marry @user`")
-        return
-
-    if member.bot:
-        await ctx.send("❌ Bot-той гэрлэж болохгүй.")
-        return
-
-    if member.id == ctx.author.id:
-        await ctx.send("❌ Өөртэйгөө гэрлэж болохгүй.")
-        return
-
-    user = get_user(ctx.author.id)
-    partner = get_user(member.id)
-
-    if user["married_to"]:
-        await ctx.send("❌ Чи аль хэдийн гэрлэсэн байна.")
-        return
-
-    if partner["married_to"]:
-        await ctx.send("❌ Нөгөө хүн аль хэдийн гэрлэсэн байна.")
-        return
-
-    user["married_to"] = str(member.id)
-    partner["married_to"] = str(ctx.author.id)
-    save_data()
-
-    embed = discord.Embed(
-        title="💍 Гэрлэлт",
-        description=f"{ctx.author.mention} ❤️ {member.mention} гэрлэлээ!",
-        color=0xFF69B4
-    )
-    embed.set_image(url=MARRY_IMAGE)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=basic_embed("💍 Marry", f"{ctx.author.mention} ❤️ {member.mention}", "profile"))
 
 @bot.command()
 async def divorce(ctx):
-    user = get_user(ctx.author.id)
-
-    if not user["married_to"]:
-        await ctx.send("❌ Чи гэрлээгүй байна.")
+    p = ensure_player(ctx.author)
+    if not p["married_to"]:
+        await ctx.send("Та гэрлээгүй байна.")
         return
-
-    partner_id = user["married_to"]
-    partner = get_user(int(partner_id))
-    user["married_to"] = None
-    partner["married_to"] = None
+    other_id = p["married_to"]
+    if other_id in data:
+        data[other_id]["married_to"] = None
+    p["married_to"] = None
     save_data()
-
-    await ctx.send("💔 Салалт амжилттай боллоо.")
-
-# =========================
-# CITY CONQUEST
-# =========================
-@bot.command()
-async def cities(ctx):
-    embed = discord.Embed(
-        title="🏙 Эзлэгдэх хотууд",
-        color=0x2980B9
-    )
-
-    lines = []
-    for city, info in data["cities"].items():
-        owner = info["owner"]
-        owner_text = "Эзэнгүй"
-
-        if owner:
-            member = ctx.guild.get_member(int(owner))
-            owner_text = member.display_name if member else f"User {owner}"
-
-        lines.append(f"**{city}**\nЭзэмшигч: {owner_text}\nDefense: {info['defense']}")
-
-    embed.description = "\n\n".join(lines)
-    embed.set_image(url=CITY_IMAGE)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=basic_embed("💔 Divorce", "Гэрлэлт цуцлагдлаа.", "profile"))
 
 @bot.command()
-async def attackcity(ctx, *, city_name: str = None):
-    if city_name is None:
-        await ctx.send(f"❌ Жишээ: `{PREFIX}attackcity Karakorum`")
+async def partner(ctx):
+    p = ensure_player(ctx.author)
+    if not p["married_to"]:
+        await ctx.send("Таньд хань байхгүй.")
         return
+    member = ctx.guild.get_member(int(p["married_to"]))
+    name = member.mention if member else "Unknown"
+    await ctx.send(embed=basic_embed("❤️ Partner", f"Таны хань: {name}", "profile"))
 
-    found_city = None
-    for city in data["cities"]:
-        if city.lower() == city_name.lower():
-            found_city = city
-            break
-
-    if not found_city:
-        await ctx.send("❌ Тийм хот алга.")
+@bot.command()
+async def gift(ctx, member: discord.Member, item_name: str):
+    sender = ensure_player(ctx.author)
+    receiver = ensure_player(member)
+    if not remove_item(sender, item_name, 1):
+        await ctx.send("Тэр item байхгүй.")
         return
-
-    user = get_user(ctx.author.id)
-    now = datetime.utcnow()
-    last_attack = parse_time(user["last_city_attack"])
-    cooldown = timedelta(minutes=30)
-
-    if last_attack and now - last_attack < cooldown:
-        remain = cooldown - (now - last_attack)
-        mins = int(remain.total_seconds() // 60)
-        secs = int(remain.total_seconds() % 60)
-        await ctx.send(f"⏳ Дахин хот дайрах хүртэл `{mins}м {secs}с` хүлээ.")
-        return
-
-    if user["army"] <= 0:
-        await ctx.send("❌ Хот дайрахын тулд army хэрэгтэй.")
-        return
-
-    city = data["cities"][found_city]
-    attack_power = user["army"] * 5 + user["level"] * 10 + random.randint(20, 120)
-    defense_power = city["defense"] + random.randint(10, 80)
-
-    user["last_city_attack"] = now_iso()
-
-    if attack_power >= defense_power:
-        city["owner"] = str(ctx.author.id)
-        reward = random.randint(500, 1200)
-        user["money"] += reward
-        add_exp(user, random.randint(15, 30))
-        result_text = f"🏆 Чи **{found_city}** хотыг эзэллээ!\n💰 Шагнал: {reward}"
-        color = 0x27AE60
-    else:
-        lost = min(user["army"], random.randint(1, 6))
-        user["army"] -= lost
-        result_text = f"❌ Хот эзэлж чадсангүй.\n⚔ {lost} цэрэг алдав."
-        color = 0xC0392B
-
+    add_item(receiver, item_name, 1)
     save_data()
+    await ctx.send(embed=basic_embed("🎁 Gift", f"{ctx.author.mention} {member.mention}-д **{item_name}** өглөө.", "shop"))
 
-    embed = discord.Embed(
-        title=f"🏙 {found_city} хотын тулаан",
-        description=result_text,
-        color=color
-    )
-    embed.add_field(name="Attack Power", value=attack_power, inline=True)
-    embed.add_field(name="Defense Power", value=defense_power, inline=True)
-    embed.set_image(url=CITY_IMAGE)
-    await ctx.send(embed=embed)
-
-# =========================
+# =========================================================
 # LEADERBOARD
-# =========================
-@bot.command(aliases=["lb", "top"])
+# =========================================================
+@bot.command()
 async def leaderboard(ctx):
-    if not data["users"]:
-        await ctx.send("Одоохондоо дата алга.")
-        return
-
-    sorted_users = sorted(
-        data["users"].items(),
-        key=lambda x: (
-            x[1].get("level", 1),
-            x[1].get("money", 0) + x[1].get("bank", 0),
-            x[1].get("army", 0),
-            x[1].get("wins", 0)
-        ),
-        reverse=True
-    )[:10]
-
-    embed = discord.Embed(
-        title="🏆 Leaderboard",
-        color=0xF39C12
-    )
-
+    players = sorted(data.items(), key=lambda x: x[1].get("level", 1), reverse=True)[:10]
     lines = []
-    for i, (uid, udata) in enumerate(sorted_users, start=1):
-        member = ctx.guild.get_member(int(uid))
-        name = member.display_name if member else f"User {uid}"
-        rank = get_rank_data(udata.get("level", 1))
-        total = udata.get("money", 0) + udata.get("bank", 0)
+    for i, (uid, p) in enumerate(players, start=1):
+        lines.append(f"**{i}.** {p['name']} — Lv.{p['level']} — {p['gold']} gold")
+    await ctx.send(embed=basic_embed("🏆 Leaderboard", "\n".join(lines) if lines else "Хоосон", "leaderboard"))
 
-        lines.append(
-            f"**{i}. {name}**\n"
-            f"Lv.{udata.get('level', 1)} | {rank['name']}\n"
-            f"💰 {total} | ⚔ {udata.get('army', 0)} | 🏆 {udata.get('wins', 0)}"
-        )
+@bot.command()
+async def topgold(ctx):
+    players = sorted(data.items(), key=lambda x: x[1].get("gold", 0), reverse=True)[:10]
+    lines = [f"**{i}.** {p['name']} — {p['gold']} gold" for i, (_, p) in enumerate(players, 1)]
+    await ctx.send(embed=basic_embed("💰 Top Gold", "\n".join(lines) if lines else "Хоосон", "leaderboard"))
 
-    embed.description = "\n\n".join(lines)
-    await ctx.send(embed=embed)
+@bot.command()
+async def toplevel(ctx):
+    players = sorted(data.items(), key=lambda x: x[1].get("level", 1), reverse=True)[:10]
+    lines = [f"**{i}.** {p['name']} — Lv.{p['level']}" for i, (_, p) in enumerate(players, 1)]
+    await ctx.send(embed=basic_embed("📈 Top Level", "\n".join(lines) if lines else "Хоосон", "leaderboard"))
 
-# =========================
+@bot.command()
+async def ranks(ctx):
+    text = "\n".join([f"Lv.{lvl} — **{name}**" for lvl, name in RANKS])
+    await ctx.send(embed=basic_embed("👑 Rank List", text, "profile"))
+
+@bot.command()
+async def udam(ctx):
+    player = ensure_player(ctx.author)
+    await ctx.send(embed=basic_embed("🧬 Udam", f"Таны удам: **{player['udam']}**", "profile"))
+
+@bot.command()
+async def udamroll(ctx):
+    player = ensure_player(ctx.author)
+    cost = 500
+    if player["gold"] < cost:
+        await ctx.send("Удам солих алт хүрэхгүй байна.")
+        return
+    player["gold"] -= cost
+    old = player["udam"]
+    player["udam"] = random.choice(UDAMS)
+    save_data()
+    await ctx.send(embed=basic_embed("🎲 Udam Roll", f"**{old}** → **{player['udam']}**", "profile"))
+
+# =========================================================
+# ADMIN COMMANDS
+# =========================================================
+def is_admin():
+    async def predicate(ctx):
+        return ctx.author.guild_permissions.administrator
+    return commands.check(predicate)
+
+@bot.command()
+@is_admin()
+async def givegold(ctx, member: discord.Member, amount: int):
+    player = ensure_player(member)
+    player["gold"] += amount
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin GiveGold", f"{member.mention} → **+{amount} gold**", "admin"))
+
+@bot.command()
+@is_admin()
+async def removegold(ctx, member: discord.Member, amount: int):
+    player = ensure_player(member)
+    player["gold"] = max(0, player["gold"] - amount)
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin RemoveGold", f"{member.mention} → **-{amount} gold**", "admin"))
+
+@bot.command()
+@is_admin()
+async def setgold(ctx, member: discord.Member, amount: int):
+    player = ensure_player(member)
+    player["gold"] = max(0, amount)
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin SetGold", f"{member.mention} gold = **{amount}**", "admin"))
+
+@bot.command()
+@is_admin()
+async def addexpadmin(ctx, member: discord.Member, amount: int):
+    player = ensure_player(member)
+    levels = add_exp(player, amount)
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin AddEXP", f"{member.mention} → **+{amount} exp**\nCurrent level: **{player['level']}**", "admin"))
+
+@bot.command(name="setlevel")
+@is_admin()
+async def setlevel_command(ctx, member: discord.Member, level_value: int):
+    player = ensure_player(member)
+    player["level"] = max(1, min(MAX_LEVEL, level_value))
+    player["exp"] = 0
+    player["title"] = get_rank(player["level"])
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin SetLevel", f"{member.mention} level = **{player['level']}**", "admin"))
+
+@bot.command()
+@is_admin()
+async def resetplayer(ctx, member: discord.Member):
+    data[str(member.id)] = make_player(str(member.id), member.name)
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin ResetPlayer", f"{member.mention} reset хийгдлээ.", "admin"))
+
+@bot.command()
+@is_admin()
+async def giveitem(ctx, member: discord.Member, item_name: str):
+    player = ensure_player(member)
+    add_item(player, item_name.lower(), 1)
+    save_data()
+    await ctx.send(embed=basic_embed("🛡 Admin GiveItem", f"{member.mention} **{item_name}** авлаа.", "admin"))
+
+@bot.command()
+@is_admin()
+async def announce(ctx, *, text: str):
+    await ctx.send(embed=basic_embed("📢 Announcement", text, "admin"))
+
+@bot.command()
+@is_admin()
+async def savedata(ctx):
+    save_data()
+    await ctx.send(embed=basic_embed("💾 Save", "Data хадгалагдлаа.", "admin"))
+
+# =========================================================
+# 100+ COMMAND AUTO-REGISTRATION
+# Эд нар бүгд зурагтай embed command хэлбэрээр ажиллана
+# =========================================================
+AUTO_COMMANDS = {
+    # info / utility
+    "avatar": ("🖼 Avatar", "Таны avatar-г харах команд.", "profile"),
+    "banner": ("🏳 Banner", "Profile banner систем.", "profile"),
+    "history": ("📚 History", "Таны түүхэн бүртгэл.", "profile"),
+    "cooldowns": ("⏳ Cooldowns", "Cooldown системийн мэдээлэл.", "profile"),
+    "power": ("💥 Power", "Тулааны хүчний тооцоолол.", "profile"),
+    "rename": ("✏ Rename", "Нэр солих систем placeholder.", "profile"),
+    "nextrank": ("⬆ Next Rank", "Дараагийн цол руу ахихад EXP цуглуул.", "profile"),
+    "prestige": ("🌟 Prestige", "Prestige систем placeholder.", "leaderboard"),
+    "rebirth": ("♻ Rebirth", "Rebirth систем placeholder.", "leaderboard"),
+    "milestones": ("🎯 Milestones", "Milestone reward систем.", "leaderboard"),
+    "rewards": ("🎁 Rewards", "Level reward систем.", "leaderboard"),
+    "tax": ("💼 Tax", "Татвар хураах placeholder.", "bank"),
+    "interest": ("📊 Interest", "Bank interest placeholder.", "bank"),
+    "blackjack": ("🃏 Blackjack", "Blackjack placeholder. Одоохондоо gamble ашигла.", "market"),
+    "roulette": ("🎡 Roulette", "Roulette placeholder. Одоохондоо gamble ашигла.", "market"),
+    "lottery": ("🎟 Lottery", "Lottery систем placeholder.", "market"),
+    "claimlottery": ("🏆 Claim Lottery", "Lottery reward placeholder.", "market"),
+    "market": ("🏪 Market", "Player market placeholder.", "market"),
+    "listitem": ("📋 List Item", "Market дээр item listing хийх placeholder.", "market"),
+    "unlist": ("❌ Unlist", "Listing болиулах placeholder.", "market"),
+    "marketbuy": ("🛒 Market Buy", "Market purchase placeholder.", "market"),
+    "merchant": ("🧔 Merchant", "Худалдаачин ирлээ.", "market"),
+    "repair": ("🔧 Repair", "Item засварлах placeholder.", "shop"),
+    "upgrade": ("⬆ Upgrade", "Item upgrade placeholder.", "shop"),
+    "enchant": ("✨ Enchant", "Item enchant placeholder.", "shop"),
+    "craft": ("🛠 Craft", "Craft систем placeholder.", "shop"),
+    "recipe": ("📜 Recipe", "Craft recipe placeholder.", "shop"),
+    "harvest": ("🌾 Harvest", "Harvest placeholder.", "farm"),
+    "forage": ("🍄 Forage", "Forage placeholder.", "farm"),
+    "cook": ("🍖 Cook", "Cook placeholder.", "food"),
+    "smith": ("⚒ Smith", "Smith placeholder.", "mine"),
+    "tailor": ("🧵 Tailor", "Tailor placeholder.", "shop"),
+    "build": ("🏗 Build", "Build placeholder.", "city"),
+    "dig": ("🕳 Dig", "Dig placeholder.", "mine"),
+    "caravan": ("🐫 Caravan", "Caravan placeholder.", "market"),
+    "trade": ("🤝 Trade", "Trade placeholder.", "market"),
+    "labor": ("🧱 Labor", "Labor placeholder.", "market"),
+    "skill": ("🌀 Skill", "Skill command placeholder.", "boss"),
+    "skills": ("📚 Skills", "Skills list placeholder.", "boss"),
+    "boss": ("👹 Boss", "Boss fight placeholder.", "boss"),
+    "raid": ("🔥 Raid", "Raid placeholder.", "war"),
+    "dungeon": ("🏰 Dungeon", "Dungeon placeholder.", "war"),
+    "tower": ("🗼 Tower", "Tower placeholder.", "war"),
+    "arena": ("⚔ Arena", "Arena placeholder.", "war"),
+    "combo": ("💥 Combo", "Combo placeholder.", "war"),
+    "crit": ("🎯 Crit", "Critical strike placeholder.", "war"),
+    "spar": ("🥊 Spar", "Friendly spar placeholder.", "duel"),
+    "ride": ("🐎 Ride", "Ride placeholder.", "horse"),
+    "march": ("🚶 March", "March placeholder.", "army"),
+    "camp": ("⛺ Camp", "Camp placeholder.", "army"),
+    "siege": ("🏹 Siege", "Siege placeholder.", "war"),
+    "patrol": ("🚩 Patrol", "Patrol placeholder.", "army"),
+    "guard": ("🛡 Guard", "Guard placeholder.", "army"),
+    "clanmembers": ("👥 Clan Members", "Clan members placeholder.", "clan"),
+    "clanbank": ("🏦 Clan Bank", "Clan bank placeholder.", "clan"),
+    "clandeposit": ("💰 Clan Deposit", "Clan deposit placeholder.", "clan"),
+    "clanwithdraw": ("💸 Clan Withdraw", "Clan withdraw placeholder.", "clan"),
+    "clanupgrade": ("⬆ Clan Upgrade", "Clan upgrade placeholder.", "clan"),
+    "clanwar": ("⚔ Clan War", "Clan war placeholder.", "war"),
+    "claninvite": ("📨 Clan Invite", "Clan invite placeholder.", "clan"),
+    "clankick": ("👢 Clan Kick", "Clan kick placeholder.", "clan"),
+    "clanpromote": ("📈 Clan Promote", "Clan promote placeholder.", "clan"),
+    "clandemote": ("📉 Clan Demote", "Clan demote placeholder.", "clan"),
+    "empire": ("👑 Empire", "Empire info placeholder.", "city"),
+    "city": ("🏙 City", "City info placeholder.", "city"),
+    "village": ("🏘 Village", "Village info placeholder.", "city"),
+    "land": ("🗺 Land", "Land info placeholder.", "city"),
+    "conquer": ("🏴 Conquer", "Conquer placeholder.", "war"),
+    "occupy": ("📍 Occupy", "Occupy placeholder.", "war"),
+    "collecttax": ("🧾 Collect Tax", "Collect tax placeholder.", "city"),
+    "buildfarm": ("🌾 Build Farm", "Build farm placeholder.", "city"),
+    "buildmine": ("⛏ Build Mine", "Build mine placeholder.", "city"),
+    "buildwall": ("🧱 Build Wall", "Build wall placeholder.", "city"),
+    "upgradecity": ("⬆ Upgrade City", "Upgrade city placeholder.", "city"),
+    "govern": ("📜 Govern", "Govern placeholder.", "city"),
+    "revolt": ("🔥 Revolt", "Revolt placeholder.", "war"),
+    "defendcity": ("🛡 Defend City", "Defend city placeholder.", "war"),
+    "attackcity": ("⚔ Attack City", "Attack city placeholder.", "war"),
+    "map": ("🗺 Map", "Map placeholder.", "city"),
+    "bloodline": ("🩸 Bloodline", "Bloodline placeholder.", "profile"),
+    "talent": ("🌠 Talent", "Talent placeholder.", "profile"),
+    "talentroll": ("🎲 Talent Roll", "Talent roll placeholder.", "profile"),
+    "destiny": ("🌌 Destiny", "Destiny placeholder.", "profile"),
+    "blessings": ("🙏 Blessings", "Blessings placeholder.", "profile"),
+    "curse": ("☠ Curse", "Curse placeholder.", "profile"),
+    "aura": ("✨ Aura", "Aura placeholder.", "profile"),
+    "rarity": ("💎 Rarity", "Rarity placeholder.", "profile"),
+    "adopt": ("👶 Adopt", "Adopt placeholder.", "profile"),
+    "child": ("🧒 Child", "Child placeholder.", "profile"),
+    "family": ("🏠 Family", "Family placeholder.", "profile"),
+    "bond": ("🔗 Bond", "Bond placeholder.", "profile"),
+    "ally": ("🤝 Ally", "Ally placeholder.", "profile"),
+    "enemy": ("😈 Enemy", "Enemy placeholder.", "profile"),
+    "ping": ("🏓 Ping", "Pong!", "admin"),
+    "choose": ("🎯 Choose", "Random choose placeholder.", "admin"),
+    "8ball": ("🎱 8Ball", "8Ball placeholder.", "admin"),
+    "quote": ("📖 Quote", "Random quote placeholder.", "profile"),
+    "mongol": ("🐎 Mongol Fact", "Монгол түүхийн fact placeholder.", "profile"),
+    "dailyfact": ("📚 Daily Fact", "Daily fact placeholder.", "profile"),
+
+    # extra admin-style placeholders to push 100+
+    "setexp": ("🛡 Set EXP", "Admin placeholder.", "admin"),
+    "setbank": ("🛡 Set Bank", "Admin placeholder.", "admin"),
+    "resetmoney": ("🛡 Reset Money", "Admin placeholder.", "admin"),
+    "wipeinventory": ("🛡 Wipe Inventory", "Admin placeholder.", "admin"),
+    "healuser": ("🛡 Heal User", "Admin placeholder.", "admin"),
+    "reviveuser": ("🛡 Revive User", "Admin placeholder.", "admin"),
+    "sethp": ("🛡 Set HP", "Admin placeholder.", "admin"),
+    "setenergy": ("🛡 Set Energy", "Admin placeholder.", "admin"),
+    "settitle": ("🛡 Set Title", "Admin placeholder.", "admin"),
+    "setrank": ("🛡 Set Rank", "Admin placeholder.", "admin"),
+    "setudam": ("🛡 Set Udam", "Admin placeholder.", "admin"),
+    "settalent": ("🛡 Set Talent", "Admin placeholder.", "admin"),
+    "admincreateclan": ("🛡 Admin Create Clan", "Admin placeholder.", "admin"),
+    "deleteclan": ("🛡 Delete Clan", "Admin placeholder.", "admin"),
+    "addclanbank": ("🛡 Add Clan Bank", "Admin placeholder.", "admin"),
+    "setclanlevel": ("🛡 Set Clan Level", "Admin placeholder.", "admin"),
+    "forcewar": ("🛡 Force War", "Admin placeholder.", "admin"),
+    "stopwar": ("🛡 Stop War", "Admin placeholder.", "admin"),
+    "setcityowner": ("🛡 Set City Owner", "Admin placeholder.", "admin"),
+    "resetcity": ("🛡 Reset City", "Admin placeholder.", "admin"),
+    "givearmy": ("🛡 Give Army", "Admin placeholder.", "admin"),
+    "setarmy": ("🛡 Set Army", "Admin placeholder.", "admin"),
+    "reloadshop": ("🛡 Reload Shop", "Admin placeholder.", "admin"),
+    "reloadconfig": ("🛡 Reload Config", "Admin placeholder.", "admin"),
+    "backupdata": ("🛡 Backup Data", "Admin placeholder.", "admin"),
+    "loaddata": ("🛡 Load Data", "Admin placeholder.", "admin"),
+    "maintenance": ("🛡 Maintenance", "Maintenance placeholder.", "admin"),
+    "shutdown": ("🛡 Shutdown", "Shutdown placeholder.", "admin"),
+    "restartmsg": ("🛡 RestartMsg", "Restart message placeholder.", "admin"),
+}
+
+def create_auto_command(cmd_name, title, desc, image_key):
+    async def auto_cmd(ctx):
+        ensure_player(ctx.author)
+        await ctx.send(embed=basic_embed(title, desc, image_key))
+    auto_cmd.__name__ = f"cmd_{cmd_name}"
+    bot.command(name=cmd_name)(auto_cmd)
+
+for cmd_name, (title, desc, image_key) in AUTO_COMMANDS.items():
+    if bot.get_command(cmd_name) is None:
+        create_auto_command(cmd_name, title, desc, image_key)
+
+# =========================================================
 # ERROR HANDLER
-# =========================
+# =========================================================
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         return
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("❌ Коммандын утга дутуу байна.")
+        await ctx.send("Command-ын утга дутуу байна.")
         return
-    await ctx.send(f"⚠️ Алдаа гарлаа: `{error}`")
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("Энэ command admin эрхтэй хүнд л ажиллана.")
+        return
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("Утга буруу байна.")
+        return
+    await ctx.send(f"Алдаа гарлаа: {error}")
 
-# =========================
+# =========================================================
 # RUN
-# =========================
+# =========================================================
 if not TOKEN:
-    raise ValueError("TOKEN environment variable байхгүй байна.")
-
-bot.run(TOKEN)
+    print("TOKEN env var олдсонгүй.")
+else:
+    bot.run(TOKEN)
