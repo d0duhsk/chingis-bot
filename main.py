@@ -19,8 +19,9 @@ intents.members = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # =========================
-# IMAGES
+# IMAGES (Epic Mongol Style)
 # =========================
+
 BOT_BANNER = "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"
 SHOP_IMAGE = "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop"
 WORK_IMAGE = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"
@@ -28,7 +29,7 @@ HUNT_IMAGE = "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&
 DAILY_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"
 FIGHT_IMAGE = "https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1200&auto=format&fit=crop"
 ARMY_IMAGE = "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop"
-CITY_IMAGE = "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=1200&auto=format&fit=crop"
+CITY_IMAGE = "https://images.unsplash.com/photo-1467262920457-95627ff8cbb9?q=80&w=1200&auto=format&fit=crop"
 CLAN_IMAGE = "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop"
 MARRY_IMAGE = "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop"
 
