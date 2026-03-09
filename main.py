@@ -91,7 +91,7 @@ RANKS = [
     (200, "Их Эзэн Хаан"),
 ]
 RANK_IMAGES = {
-    "Малчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480460817056141312/AOI_d_-57kQ7hBmAanU8uHHiLC2u9dW9fj8gdROvBdrBLxD303cPRXDp8eaUH_pUiA_hNtMGDCgQkxMfWHkRjLEqfQWMtMZgd-5XqqwTytq3l6fQtAT2fr0Ogjqggtm8sI-zs1024-rj.png",
+    "Малчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480460817056141312/AOI_d_-57kQ7hBmAanU8uHHiLC2u9dW9fj8gdROvBdrBLxD303cPRXDp8eaUH_pUiA_hNtMGDCgQkxMfWHkRjLEqfQWMtMZgd-5XqqwTPTBJblkOD7ius1QZabh_tRq9MqIF1qvAqtSOVnaFfK3RuQQWytq3l6fQtAT2fr0Ogjqggtm8sI-zs1024-rj.png",
     "Анчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Галч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Тариачин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
