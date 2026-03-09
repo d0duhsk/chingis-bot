@@ -332,10 +332,9 @@ async def help_command(ctx):
         "🏙 Дайн": "cities, city, conquer, invade, raid, defendcity, siege, march, camp, attack",
         "👑 Овог": "clancreate, claninfo, clanjoin, clanleave, clandonate, clanvault, clanwar",
         "📈 Удирдлага": "leaderboard, topmoney, toplevel, topwar, topcities, topclans",
-        "🛡 Админ": "adminhelp, give, setmoney, setlevel, addxp, resetplayer, wipecity, announce",
-    }
+            }
     desc = "\n\n".join(f"**{k}**\n{v}" for k, v in categories.items())
-    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "default")
+    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png")
 
 
 @bot.command(name="profile", aliases=["me"])
