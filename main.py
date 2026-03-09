@@ -101,7 +101,7 @@ RANK_IMAGES = {
     "Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480510109166731284/content.png",
     "Их Сайд": "https://cdn.discordapp.com/attachments/1479354971479609394/1480515205137039440/content.png",
     "Нууц Зөвлөх": "https://cdn.discordapp.com/attachments/1479354971479609394/1480516407115386910/content.png",
-    "Тата Тунга": "https://media.discordapp.net/attachments/1479354971479609394/1480519657852244119/content.png",
+    "Тата Тунга": "https://cdn.discordapp.com/attachments/1479354971479609394/1480519657852244119/content.png",
     "Шихихутаг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480578865012277258/content.png",
     "Их Жанжин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480579663125545223/content.png",
     "Хаадын Хаан": "https://cdn.discordapp.com/attachments/1479354971479609394/1480580903825833985/content.png",
