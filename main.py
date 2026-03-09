@@ -35,7 +35,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # Every command uses an embed image through category mapping.
 # ============================================================
 IMAGES = {
-    "start": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
+    "start": "https://cdn.discordapp.com/attachments/1480410503363694664/mongol_empire_banner.png",
     "profile": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "economy": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "army": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
