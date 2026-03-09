@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 # =========================
 # CONFIG
 # =========================
-TOKEN = "END_DISCORD_BOT_TOKEN"   # <-- Энд өөрийн bot token-оо тавь
+TOKEN = "TOKEN"   
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
 MAX_LEVEL = 200
