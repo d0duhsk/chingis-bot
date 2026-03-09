@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 # =========================
 # CONFIG
 # =========================
-TOKEN = "TOKEN"   
+TOKEN = os.getenv("TOKEN")  
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
 MAX_LEVEL = 200
