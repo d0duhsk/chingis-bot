@@ -334,7 +334,7 @@ async def help_command(ctx):
         "📈 Удирдлага": "leaderboard, topmoney, toplevel, topwar, topcities, topclans",
             }
     desc = "\n\n".join(f"**{k}**\n{v}" for k, v in categories.items())
-    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png")
+    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "default")
 
 
 @bot.command(name="profile", aliases=["me"])
