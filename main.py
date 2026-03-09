@@ -1,3 +1,4 @@
+
 import discord
 from discord.ext import commands
 import os
@@ -18,7 +19,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # =========================
-# IMAGE URLS
+# GLOBAL IMAGES
 # =========================
 BOT_BANNER = "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"
 SHOP_IMAGE = "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop"
@@ -28,35 +29,35 @@ DAILY_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80
 
 # =========================
 # RANK SYSTEM
-# level, name, work salary, image
+# (required_level, rank_name, work_salary, image_url)
 # =========================
 RANKS = [
     (200, "☀️ Их Эзэн Хаан", 5000, "https://images.unsplash.com/photo-1518562180175-34a163b1a9a6?q=80&w=1200&auto=format&fit=crop"),
     (196, "👑 Их Хаан", 4600, "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"),
     (192, "🦅 9 Өрлөгийн Нэг", 4300, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
-    (188, "🐺 4 Нохосын Нэг", 4100, "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"),
-    (184, "⚖ Шихихутаг", 3900, "https://images.unsplash.com/photo-1493246318656-5bfd4cfb29b8?q=80&w=1200&auto=format&fit=crop"),
+    (188, "🐺 4 Нохойн Нэг", 4100, "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"),
+    (184, "⚖️ Шихихутаг", 3900, "https://images.unsplash.com/photo-1493246318656-5bfd4cfb29b8?q=80&w=1200&auto=format&fit=crop"),
     (180, "📜 Тата Тунга", 3700, "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1200&auto=format&fit=crop"),
     (176, "🥣 Хааны Их Буурч", 3500, "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=1200&auto=format&fit=crop"),
-    (170, "🏛 Их Сайд", 3300, "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop"),
-    (164, "🛡 Шадар Сайд", 3100, "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"),
-    (158, "⚖ Төрийн Сайд", 2900, "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1200&auto=format&fit=crop"),
+    (170, "🏛️ Их Сайд", 3300, "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop"),
+    (164, "🛡️ Шадар Сайд", 3100, "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop"),
+    (158, "⚖️ Төрийн Сайд", 2900, "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1200&auto=format&fit=crop"),
     (152, "🏯 Дээд Түшмэл", 2700, "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"),
     (146, "📜 Их Түшмэл", 2500, "https://images.unsplash.com/photo-1464219222984-216ebffaaf85?q=80&w=1200&auto=format&fit=crop"),
-    (140, "🛡 Ахлах Түшмэл", 2300, "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop"),
+    (140, "🛡️ Ахлах Түшмэл", 2300, "https://images.unsplash.com/photo-1508672019048-805c876b67e2?q=80&w=1200&auto=format&fit=crop"),
     (134, "🏹 Түшмэл", 2100, "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop"),
     (128, "🐎 Түмтийн Ноён", 1900, "https://images.unsplash.com/photo-1517022812141-23620dba5c23?q=80&w=1200&auto=format&fit=crop"),
-    (122, "⚔ Түмтийн Ахлагч", 1800, "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"),
-    (116, "🛡 Түмт", 1700, "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop"),
+    (122, "⚔️ Түмтийн Ахлагч", 1800, "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200&auto=format&fit=crop"),
+    (116, "🛡️ Түмт", 1700, "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop"),
     (110, "🐺 Мянганы Ноён", 1600, "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop"),
     (104, "🐎 Мянгат", 1500, "https://images.unsplash.com/photo-1511497584788-876760111969?q=80&w=1200&auto=format&fit=crop"),
-    (98, "⚔ Мянганы Ахлагч", 1400, "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop"),
-    (92, "🛡 Зууны Ноён", 1300, "https://images.unsplash.com/photo-1500048993953-d23a436266cf?q=80&w=1200&auto=format&fit=crop"),
+    (98, "⚔️ Мянганы Ахлагч", 1400, "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop"),
+    (92, "🛡️ Зууны Ноён", 1300, "https://images.unsplash.com/photo-1500048993953-d23a436266cf?q=80&w=1200&auto=format&fit=crop"),
     (86, "🏇 Зуут", 1200, "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1200&auto=format&fit=crop"),
-    (80, "⚔ Зууны Ахлагч", 1100, "https://images.unsplash.com/photo-1500534314209-a26db0f5b2af?q=80&w=1200&auto=format&fit=crop"),
+    (80, "⚔️ Зууны Ахлагч", 1100, "https://images.unsplash.com/photo-1500534314209-a26db0f5b2af?q=80&w=1200&auto=format&fit=crop"),
     (74, "🪖 Аравтын Ноён", 1000, "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=1200&auto=format&fit=crop"),
-    (68, "⚔ Аравтын Ахлагч", 900, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
-    (62, "🛡 Хишигтэн", 800, "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=1200&auto=format&fit=crop"),
+    (68, "⚔️ Аравтын Ахлагч", 900, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"),
+    (62, "🛡️ Хишигтэн", 800, "https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=1200&auto=format&fit=crop"),
     (56, "🥣 Буурч", 700, "https://images.unsplash.com/photo-1511300636408-a63a89df3482?q=80&w=1200&auto=format&fit=crop"),
     (50, "🩺 Эмч", 620, "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200&auto=format&fit=crop"),
     (44, "🔥 Түлээчин", 560, "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=1200&auto=format&fit=crop"),
@@ -109,7 +110,7 @@ SHOP_ITEMS = {
         "desc": "Түүхий эд"
     },
     "tomor": {
-        "name": "⛓ Төмөр",
+        "name": "⛓️ Төмөр",
         "price": 150,
         "type": "material",
         "value": 1,
@@ -136,8 +137,8 @@ SHOP_ITEMS = {
         "value": 1,
         "desc": "Ан хийхэд ашиглана"
     },
-    "huyaг": {
-        "name": "🛡 Хуяг",
+    "huyag": {
+        "name": "🛡️ Хуяг",
         "price": 1500,
         "type": "armor",
         "value": 1,
@@ -275,9 +276,13 @@ async def on_message(message):
         rank = get_rank_data(user["level"])
         embed = discord.Embed(
             title="🎉 Level Up!",
-            description=f"{message.author.mention} **{old_level} → {user['level']}** level хүрлээ!\n👑 Шинэ цол: **{rank['name']}**",
+            description=(
+                f"{message.author.mention} **{old_level} → {user['level']}** level хүрлээ!\n"
+                f"👑 Шинэ цол: **{rank['name']}**"
+            ),
             color=0xD4AF37
         )
+        embed.set_thumbnail(url=message.author.display_avatar.url)
         embed.set_image(url=rank["image"])
         await message.channel.send(embed=embed)
 
@@ -298,7 +303,7 @@ async def help(ctx):
         color=0xC9A33A
     )
     embed.add_field(
-        name="Үндсэн",
+        name="Үндсэн командууд",
         value=(
             f"`{PREFIX}profile`\n"
             f"`{PREFIX}rank`\n"
@@ -327,7 +332,6 @@ async def profile(ctx, member: discord.Member = None):
 
     needed = exp_needed(user["level"]) if user["level"] < MAX_LEVEL else 0
     exp_text = f"{user['exp']}/{needed}" if user["level"] < MAX_LEVEL else "MAX"
-
     inventory_count = sum(user["inventory"].values())
 
     embed = discord.Embed(
@@ -342,7 +346,7 @@ async def profile(ctx, member: discord.Member = None):
     embed.add_field(name="🏦 Банк", value=user["bank"], inline=True)
     embed.add_field(name="💬 Messages", value=user["messages"], inline=True)
     embed.add_field(name="🎒 Inventory", value=inventory_count, inline=True)
-    embed.add_field(name="🛠 Work цалин", value=f"{rank['salary']}+", inline=True)
+    embed.add_field(name="🛠️ Work цалин", value=f"{rank['salary']}+", inline=True)
     embed.set_thumbnail(url=member.display_avatar.url)
     embed.set_image(url=rank["image"])
     await ctx.send(embed=embed)
@@ -359,6 +363,7 @@ async def rank(ctx):
     )
     embed.add_field(name="⭐ Level", value=user["level"], inline=True)
     embed.add_field(name="💵 Work Salary", value=f"{rank_info['salary']}+", inline=True)
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
     embed.set_image(url=rank_info["image"])
     await ctx.send(embed=embed)
 
@@ -374,6 +379,7 @@ async def balance(ctx, member: discord.Member = None):
     embed.add_field(name="Хэтэвч", value=user["money"], inline=True)
     embed.add_field(name="Банк", value=user["bank"], inline=True)
     embed.add_field(name="Нийт", value=user["money"] + user["bank"], inline=True)
+    embed.set_thumbnail(url=member.display_avatar.url)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -408,15 +414,18 @@ async def work(ctx):
     save_data()
 
     embed = discord.Embed(
-        title="🛠 Ажил хийлээ",
+        title="🛠️ Ажил хийлээ",
         description=f"{ctx.author.mention} **{earned} мөнгө** оллоо!",
         color=0xF1C40F
     )
     embed.add_field(name="👑 Цол", value=rank["name"], inline=False)
     embed.add_field(name="💵 Суурь цалин", value=base, inline=True)
     embed.add_field(name="✨ EXP", value=f"+{bonus_exp}", inline=True)
+
     if bonus > 0:
         embed.add_field(name="🐎 Морь бонус", value=f"+{bonus}", inline=True)
+
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
     embed.set_image(url=rank["image"] if rank["image"] else WORK_IMAGE)
 
     if leveled:
@@ -461,6 +470,7 @@ async def daily(ctx):
     )
     embed.add_field(name="✨ Bonus EXP", value=f"+{bonus_exp}", inline=True)
     embed.add_field(name="👑 Цол", value=rank["name"], inline=True)
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
     embed.set_image(url=DAILY_IMAGE)
     await ctx.send(embed=embed)
 
@@ -515,6 +525,7 @@ async def hunt(ctx):
             color=0x2ECC71
         )
         embed.add_field(name="✨ EXP", value=f"+{exp_gain}", inline=True)
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
         embed.set_image(url=HUNT_IMAGE)
         await ctx.send(embed=embed)
     else:
@@ -527,6 +538,7 @@ async def hunt(ctx):
             description=f"Чи ан дээр амжилтгүй боллоо.\n❤️ HP: `-{lost_hp}`",
             color=0xE74C3C
         )
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
         embed.set_image(url=HUNT_IMAGE)
         await ctx.send(embed=embed)
 
@@ -582,6 +594,7 @@ async def buy(ctx, item_key: str = None, amount: int = 1):
     )
     embed.add_field(name="Нийт үнэ", value=total_price, inline=True)
     embed.add_field(name="Үлдэгдэл", value=user["money"], inline=True)
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
     embed.set_image(url=SHOP_IMAGE)
     await ctx.send(embed=embed)
 
@@ -607,6 +620,7 @@ async def inventory(ctx, member: discord.Member = None):
                 lines.append(f"{key} x{amount}")
         embed.description = "\n".join(lines)
 
+    embed.set_thumbnail(url=member.display_avatar.url)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -645,6 +659,7 @@ async def use(ctx, item_key: str = None):
         description=f"{item['name']} хэрэглэв.\n❤️ HP: `+{actual_heal}`",
         color=0x2ECC71
     )
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -730,6 +745,7 @@ async def leaderboard(ctx):
         name = member.display_name if member else f"User {uid}"
         rank = get_rank_data(udata.get("level", 1))
         total = udata.get("money", 0) + udata.get("bank", 0)
+
         lines.append(
             f"**{i}. {name}**\n"
             f"Lv.{udata.get('level', 1)} | {rank['name']}\n"
@@ -749,7 +765,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send("❌ Коммандын утга дутуу байна.")
         return
-    await ctx.send(f"⚠ Алдаа гарлаа: `{error}`")
+    await ctx.send(f"⚠️ Алдаа гарлаа: `{error}`")
 
 # =========================
 # RUN
