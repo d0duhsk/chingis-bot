@@ -22,8 +22,8 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # IMAGES (Epic Mongol Style)
 # =========================
 
-BOT_BANNER = "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"
-SHOP_IMAGE = "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop"
+BOT_BANNER = "https://cdn.discordapp.com/attachments/1479354971479609394/1480410503363694664/k.png"
+SHOP_IMAGE = "https://cdn.discordapp.com/attachments/1479354971479609394/1480410503363694664/k.png"
 WORK_IMAGE = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"
 HUNT_IMAGE = "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"
 DAILY_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"
