@@ -401,7 +401,6 @@ async def start_game(ctx):
         f"**Цол:** {p['rank']}\n\n"
         f"Тушаалын эхлэл: `{PREFIX}help`",
         "start",
-        player=p,
     )
 
 
