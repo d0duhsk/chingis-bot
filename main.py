@@ -3,13 +3,12 @@ from discord.ext import commands
 import os
 import json
 import random
-import asyncio
 from datetime import datetime, timedelta
 
 # =========================
 # CONFIG
 # =========================
-TOKEN = os.getenv("TOKEN")  
+TOKEN = os.getenv("TOKEN")
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
 MAX_LEVEL = 200
@@ -19,8 +18,17 @@ intents.message_content = True
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # =========================
+# IMAGE URLS
+# =========================
+BOT_BANNER = "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop"
+SHOP_IMAGE = "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop"
+WORK_IMAGE = "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"
+HUNT_IMAGE = "https://images.unsplash.com/photo-1500534623283-312aade485b7?q=80&w=1200&auto=format&fit=crop"
+DAILY_IMAGE = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop"
+
+# =========================
 # RANK SYSTEM
-# level, rank_name, work_salary_base, image_url
+# level, name, work salary, image
 # =========================
 RANKS = [
     (200, "☀️ Их Эзэн Хаан", 5000, "https://images.unsplash.com/photo-1518562180175-34a163b1a9a6?q=80&w=1200&auto=format&fit=crop"),
@@ -62,6 +70,82 @@ RANKS = [
 ]
 
 # =========================
+# SHOP ITEMS
+# =========================
+SHOP_ITEMS = {
+    "airag": {
+        "name": "🥛 Айраг",
+        "price": 120,
+        "type": "heal",
+        "value": 15,
+        "desc": "Эрч хүч нэмнэ"
+    },
+    "mah": {
+        "name": "🍖 Мах",
+        "price": 180,
+        "type": "heal",
+        "value": 25,
+        "desc": "Илүү их хүч өгнө"
+    },
+    "talh": {
+        "name": "🍞 Талх",
+        "price": 90,
+        "type": "heal",
+        "value": 10,
+        "desc": "Бага хэмжээний сэргэлт"
+    },
+    "mod": {
+        "name": "🪵 Мод",
+        "price": 70,
+        "type": "material",
+        "value": 1,
+        "desc": "Түүхий эд"
+    },
+    "chuluu": {
+        "name": "🪨 Чулуу",
+        "price": 80,
+        "type": "material",
+        "value": 1,
+        "desc": "Түүхий эд"
+    },
+    "tomor": {
+        "name": "⛓ Төмөр",
+        "price": 150,
+        "type": "material",
+        "value": 1,
+        "desc": "Ховор материал"
+    },
+    "aris": {
+        "name": "🦌 Арьс",
+        "price": 110,
+        "type": "material",
+        "value": 1,
+        "desc": "Ангаас олдоно"
+    },
+    "mori": {
+        "name": "🐎 Морь",
+        "price": 1200,
+        "type": "pet",
+        "value": 1,
+        "desc": "Ан, ажилд бонус өгнө"
+    },
+    "num": {
+        "name": "🏹 Нум",
+        "price": 950,
+        "type": "weapon",
+        "value": 1,
+        "desc": "Ан хийхэд ашиглана"
+    },
+    "huyaг": {
+        "name": "🛡 Хуяг",
+        "price": 1500,
+        "type": "armor",
+        "value": 1,
+        "desc": "Ирээдүйн тулаанд хэрэгтэй"
+    }
+}
+
+# =========================
 # DATA
 # =========================
 def load_data():
@@ -70,41 +154,44 @@ def load_data():
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    except:
+    except Exception:
         return {}
 
-def save_data(data):
+def save_data():
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
 data = load_data()
 
 def default_user():
     return {
-        "money": 0,
+        "money": 500,
         "bank": 0,
         "level": 1,
         "exp": 0,
         "messages": 0,
+        "hp": 100,
+        "inventory": {},
         "last_work": None,
-        "last_daily": None
+        "last_daily": None,
+        "last_hunt": None
     }
 
 def get_user(user_id: int):
     uid = str(user_id)
     if uid not in data:
         data[uid] = default_user()
-        save_data(data)
+        save_data()
     return data[uid]
 
 # =========================
-# RANK / LEVEL
+# HELPERS
 # =========================
 def get_rank_data(level: int):
-    for req_level, name, salary, image in RANKS:
-        if level >= req_level:
+    for req, name, salary, image in RANKS:
+        if level >= req:
             return {
-                "level_req": req_level,
+                "level_req": req,
                 "name": name,
                 "salary": salary,
                 "image": image
@@ -113,13 +200,13 @@ def get_rank_data(level: int):
         "level_req": 0,
         "name": "🌱 Шинэ Хүн",
         "salary": 150,
-        "image": ""
+        "image": BOT_BANNER
     }
 
 def exp_needed(level: int):
     return 100 + (level * 25)
 
-def add_exp(user, amount: int):
+def add_exp(user: dict, amount: int):
     if user["level"] >= MAX_LEVEL:
         user["exp"] = 0
         return False
@@ -128,7 +215,8 @@ def add_exp(user, amount: int):
     leveled_up = False
 
     while user["level"] < MAX_LEVEL and user["exp"] >= exp_needed(user["level"]):
-        user["exp"] -= exp_needed(user["level"])
+        need = exp_needed(user["level"])
+        user["exp"] -= need
         user["level"] += 1
         leveled_up = True
 
@@ -138,10 +226,7 @@ def add_exp(user, amount: int):
 
     return leveled_up
 
-# =========================
-# TIME HELPERS
-# =========================
-def now_str():
+def now_iso():
     return datetime.utcnow().isoformat()
 
 def parse_time(ts):
@@ -149,8 +234,22 @@ def parse_time(ts):
         return None
     try:
         return datetime.fromisoformat(ts)
-    except:
+    except Exception:
         return None
+
+def add_item(user: dict, item_key: str, amount: int = 1):
+    user["inventory"][item_key] = user["inventory"].get(item_key, 0) + amount
+
+def remove_item(user: dict, item_key: str, amount: int = 1):
+    if user["inventory"].get(item_key, 0) < amount:
+        return False
+    user["inventory"][item_key] -= amount
+    if user["inventory"][item_key] <= 0:
+        del user["inventory"][item_key]
+    return True
+
+def has_item(user: dict, item_key: str):
+    return user["inventory"].get(item_key, 0) > 0
 
 # =========================
 # EVENTS
@@ -167,20 +266,16 @@ async def on_message(message):
     user = get_user(message.author.id)
     user["messages"] += 1
 
-    # chat бүрээс exp авна
     gained = random.randint(2, 5)
     old_level = user["level"]
     leveled = add_exp(user, gained)
-    save_data(data)
+    save_data()
 
     if leveled:
         rank = get_rank_data(user["level"])
         embed = discord.Embed(
             title="🎉 Level Up!",
-            description=(
-                f"{message.author.mention} **{old_level} → {user['level']}** level хүрлээ!\n"
-                f"👑 Шинэ цол: **{rank['name']}**"
-            ),
+            description=f"{message.author.mention} **{old_level} → {user['level']}** level хүрлээ!\n👑 Шинэ цол: **{rank['name']}**",
             color=0xD4AF37
         )
         embed.set_image(url=rank["image"])
@@ -205,17 +300,23 @@ async def help(ctx):
     embed.add_field(
         name="Үндсэн",
         value=(
-            f"`{PREFIX}profile` - Профайл\n"
-            f"`{PREFIX}rank` - Одоогийн цол\n"
-            f"`{PREFIX}balance` - Мөнгө\n"
-            f"`{PREFIX}work` - Ажил хийж мөнгө олох\n"
-            f"`{PREFIX}daily` - Өдрийн шагнал\n"
-            f"`{PREFIX}deposit <дүн>` - Банканд хийх\n"
-            f"`{PREFIX}withdraw <дүн>` - Банкнаас авах\n"
-            f"`{PREFIX}leaderboard` - Хамгийн өндөр level"
+            f"`{PREFIX}profile`\n"
+            f"`{PREFIX}rank`\n"
+            f"`{PREFIX}balance`\n"
+            f"`{PREFIX}work`\n"
+            f"`{PREFIX}daily`\n"
+            f"`{PREFIX}hunt`\n"
+            f"`{PREFIX}shop`\n"
+            f"`{PREFIX}buy <item> <too>`\n"
+            f"`{PREFIX}inventory`\n"
+            f"`{PREFIX}use <item>`\n"
+            f"`{PREFIX}deposit <too|all>`\n"
+            f"`{PREFIX}withdraw <too|all>`\n"
+            f"`{PREFIX}leaderboard`"
         ),
         inline=False
     )
+    embed.set_image(url=BOT_BANNER)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -224,8 +325,10 @@ async def profile(ctx, member: discord.Member = None):
     user = get_user(member.id)
     rank = get_rank_data(user["level"])
 
-    current_exp = user["exp"]
     needed = exp_needed(user["level"]) if user["level"] < MAX_LEVEL else 0
+    exp_text = f"{user['exp']}/{needed}" if user["level"] < MAX_LEVEL else "MAX"
+
+    inventory_count = sum(user["inventory"].values())
 
     embed = discord.Embed(
         title=f"👤 {member.display_name}-ийн Profile",
@@ -233,10 +336,12 @@ async def profile(ctx, member: discord.Member = None):
     )
     embed.add_field(name="👑 Цол", value=rank["name"], inline=False)
     embed.add_field(name="⭐ Level", value=user["level"], inline=True)
-    embed.add_field(name="✨ EXP", value=f"{current_exp}/{needed}" if user["level"] < MAX_LEVEL else "MAX", inline=True)
-    embed.add_field(name="💰 Хэтэвч", value=f"{user['money']}", inline=True)
-    embed.add_field(name="🏦 Банк", value=f"{user['bank']}", inline=True)
-    embed.add_field(name="💬 Messages", value=f"{user['messages']}", inline=True)
+    embed.add_field(name="✨ EXP", value=exp_text, inline=True)
+    embed.add_field(name="❤️ HP", value=user["hp"], inline=True)
+    embed.add_field(name="💰 Хэтэвч", value=user["money"], inline=True)
+    embed.add_field(name="🏦 Банк", value=user["bank"], inline=True)
+    embed.add_field(name="💬 Messages", value=user["messages"], inline=True)
+    embed.add_field(name="🎒 Inventory", value=inventory_count, inline=True)
     embed.add_field(name="🛠 Work цалин", value=f"{rank['salary']}+", inline=True)
     embed.set_thumbnail(url=member.display_avatar.url)
     embed.set_image(url=rank["image"])
@@ -245,16 +350,16 @@ async def profile(ctx, member: discord.Member = None):
 @bot.command()
 async def rank(ctx):
     user = get_user(ctx.author.id)
-    rank = get_rank_data(user["level"])
+    rank_info = get_rank_data(user["level"])
 
     embed = discord.Embed(
         title="👑 Таны Цол",
-        description=f"Та одоогоор **{rank['name']}** байна.",
+        description=f"Та одоогоор **{rank_info['name']}** байна.",
         color=0xC9A33A
     )
-    embed.add_field(name="⭐ Level", value=str(user["level"]), inline=True)
-    embed.add_field(name="💰 Work Salary", value=f"{rank['salary']}+", inline=True)
-    embed.set_image(url=rank["image"])
+    embed.add_field(name="⭐ Level", value=user["level"], inline=True)
+    embed.add_field(name="💵 Work Salary", value=f"{rank_info['salary']}+", inline=True)
+    embed.set_image(url=rank_info["image"])
     await ctx.send(embed=embed)
 
 @bot.command(aliases=["bal", "money"])
@@ -266,9 +371,9 @@ async def balance(ctx, member: discord.Member = None):
         title=f"💰 {member.display_name}-ийн хөрөнгө",
         color=0x2ECC71
     )
-    embed.add_field(name="Хэтэвч", value=str(user["money"]), inline=True)
-    embed.add_field(name="Банк", value=str(user["bank"]), inline=True)
-    embed.add_field(name="Нийт", value=str(user["money"] + user["bank"]), inline=True)
+    embed.add_field(name="Хэтэвч", value=user["money"], inline=True)
+    embed.add_field(name="Банк", value=user["bank"], inline=True)
+    embed.add_field(name="Нийт", value=user["money"] + user["bank"], inline=True)
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -276,27 +381,31 @@ async def work(ctx):
     user = get_user(ctx.author.id)
     now = datetime.utcnow()
     last_work = parse_time(user["last_work"])
-
     cooldown = timedelta(minutes=15)
+
     if last_work and now - last_work < cooldown:
         remain = cooldown - (now - last_work)
-        minutes = int(remain.total_seconds() // 60)
-        seconds = int(remain.total_seconds() % 60)
-        await ctx.send(f"⏳ Дахин ажил хийх хүртэл `{minutes}м {seconds}с` хүлээ.")
+        mins = int(remain.total_seconds() // 60)
+        secs = int(remain.total_seconds() % 60)
+        await ctx.send(f"⏳ Дахин ажил хийх хүртэл `{mins}м {secs}с` хүлээ.")
         return
 
     rank = get_rank_data(user["level"])
-    salary_base = rank["salary"]
-    earned = random.randint(max(1, salary_base - 120), salary_base + 180)
+    base = rank["salary"]
 
+    bonus = 0
+    if has_item(user, "mori"):
+        bonus += 120
+
+    earned = random.randint(max(1, base - 120), base + 180 + bonus)
     user["money"] += earned
-    user["last_work"] = now_str()
+    user["last_work"] = now_iso()
 
     bonus_exp = random.randint(5, 12)
     old_level = user["level"]
     leveled = add_exp(user, bonus_exp)
 
-    save_data(data)
+    save_data()
 
     embed = discord.Embed(
         title="🛠 Ажил хийлээ",
@@ -304,9 +413,11 @@ async def work(ctx):
         color=0xF1C40F
     )
     embed.add_field(name="👑 Цол", value=rank["name"], inline=False)
-    embed.add_field(name="💵 Суурь цалин", value=str(salary_base), inline=True)
+    embed.add_field(name="💵 Суурь цалин", value=base, inline=True)
     embed.add_field(name="✨ EXP", value=f"+{bonus_exp}", inline=True)
-    embed.set_image(url=rank["image"])
+    if bonus > 0:
+        embed.add_field(name="🐎 Морь бонус", value=f"+{bonus}", inline=True)
+    embed.set_image(url=rank["image"] if rank["image"] else WORK_IMAGE)
 
     if leveled:
         new_rank = get_rank_data(user["level"])
@@ -323,25 +434,25 @@ async def daily(ctx):
     user = get_user(ctx.author.id)
     now = datetime.utcnow()
     last_daily = parse_time(user["last_daily"])
-
     cooldown = timedelta(hours=24)
+
     if last_daily and now - last_daily < cooldown:
         remain = cooldown - (now - last_daily)
         hours = int(remain.total_seconds() // 3600)
-        minutes = int((remain.total_seconds() % 3600) // 60)
-        await ctx.send(f"⏳ Daily авах хүртэл `{hours}ц {minutes}м` үлдлээ.")
+        mins = int((remain.total_seconds() % 3600) // 60)
+        await ctx.send(f"⏳ Daily авах хүртэл `{hours}ц {mins}м` үлдлээ.")
         return
 
     rank = get_rank_data(user["level"])
     reward = 500 + (rank["salary"] // 2)
 
     user["money"] += reward
-    user["last_daily"] = now_str()
+    user["last_daily"] = now_iso()
 
     bonus_exp = random.randint(10, 20)
     add_exp(user, bonus_exp)
 
-    save_data(data)
+    save_data()
 
     embed = discord.Embed(
         title="🎁 Daily Reward",
@@ -350,18 +461,205 @@ async def daily(ctx):
     )
     embed.add_field(name="✨ Bonus EXP", value=f"+{bonus_exp}", inline=True)
     embed.add_field(name="👑 Цол", value=rank["name"], inline=True)
-    embed.set_image(url=rank["image"])
+    embed.set_image(url=DAILY_IMAGE)
     await ctx.send(embed=embed)
 
 @bot.command()
-async def deposit(ctx, amount: str):
+async def hunt(ctx):
+    user = get_user(ctx.author.id)
+    now = datetime.utcnow()
+    last_hunt = parse_time(user["last_hunt"])
+    cooldown = timedelta(minutes=20)
+
+    if last_hunt and now - last_hunt < cooldown:
+        remain = cooldown - (now - last_hunt)
+        mins = int(remain.total_seconds() // 60)
+        secs = int(remain.total_seconds() % 60)
+        await ctx.send(f"🏹 Дахин ан хийх хүртэл `{mins}м {secs}с` хүлээ.")
+        return
+
+    user["last_hunt"] = now_iso()
+
+    success_rate = 55
+    if has_item(user, "num"):
+        success_rate += 25
+    if has_item(user, "mori"):
+        success_rate += 10
+
+    roll = random.randint(1, 100)
+
+    if roll <= success_rate:
+        rewards = [
+            ("aris", random.randint(1, 2)),
+            ("mah", random.randint(1, 3)),
+            ("money", random.randint(120, 400))
+        ]
+
+        got_lines = []
+        exp_gain = random.randint(8, 18)
+        add_exp(user, exp_gain)
+
+        for key, amount in rewards:
+            if key == "money":
+                user["money"] += amount
+                got_lines.append(f"💰 {amount} мөнгө")
+            else:
+                add_item(user, key, amount)
+                got_lines.append(f"{SHOP_ITEMS[key]['name']} x{amount}")
+
+        save_data()
+
+        embed = discord.Embed(
+            title="🏹 Ан амжилттай боллоо",
+            description="\n".join(got_lines),
+            color=0x2ECC71
+        )
+        embed.add_field(name="✨ EXP", value=f"+{exp_gain}", inline=True)
+        embed.set_image(url=HUNT_IMAGE)
+        await ctx.send(embed=embed)
+    else:
+        lost_hp = random.randint(5, 18)
+        user["hp"] = max(1, user["hp"] - lost_hp)
+        save_data()
+
+        embed = discord.Embed(
+            title="❌ Ан бүтэлгүйтлээ",
+            description=f"Чи ан дээр амжилтгүй боллоо.\n❤️ HP: `-{lost_hp}`",
+            color=0xE74C3C
+        )
+        embed.set_image(url=HUNT_IMAGE)
+        await ctx.send(embed=embed)
+
+@bot.command()
+async def shop(ctx):
+    embed = discord.Embed(
+        title="🏪 Их Зах / Shop",
+        description="Доорх item-үүдээс худалдаж авч болно.",
+        color=0x9B59B6
+    )
+
+    for key, item in SHOP_ITEMS.items():
+        embed.add_field(
+            name=f"{item['name']} — `{key}`",
+            value=f"Үнэ: **{item['price']}**\n{item['desc']}",
+            inline=True
+        )
+
+    embed.set_image(url=SHOP_IMAGE)
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def buy(ctx, item_key: str = None, amount: int = 1):
+    if item_key is None:
+        await ctx.send(f"❌ Жишээ: `{PREFIX}buy airag 2`")
+        return
+
+    item_key = item_key.lower()
+    if item_key not in SHOP_ITEMS:
+        await ctx.send("❌ Тийм item алга.")
+        return
+
+    if amount <= 0:
+        await ctx.send("❌ Зөв тоо оруул.")
+        return
+
+    user = get_user(ctx.author.id)
+    item = SHOP_ITEMS[item_key]
+    total_price = item["price"] * amount
+
+    if user["money"] < total_price:
+        await ctx.send(f"❌ Чамд `{total_price}` мөнгө хүрэхгүй байна.")
+        return
+
+    user["money"] -= total_price
+    add_item(user, item_key, amount)
+    save_data()
+
+    embed = discord.Embed(
+        title="🛒 Худалдан авалт амжилттай",
+        description=f"Та {item['name']} x{amount} худалдаж авлаа.",
+        color=0x1ABC9C
+    )
+    embed.add_field(name="Нийт үнэ", value=total_price, inline=True)
+    embed.add_field(name="Үлдэгдэл", value=user["money"], inline=True)
+    embed.set_image(url=SHOP_IMAGE)
+    await ctx.send(embed=embed)
+
+@bot.command(aliases=["inv", "bag"])
+async def inventory(ctx, member: discord.Member = None):
+    member = member or ctx.author
+    user = get_user(member.id)
+
+    embed = discord.Embed(
+        title=f"🎒 {member.display_name}-ийн Inventory",
+        color=0x8E44AD
+    )
+
+    if not user["inventory"]:
+        embed.description = "Хоосон байна."
+    else:
+        lines = []
+        for key, amount in user["inventory"].items():
+            item = SHOP_ITEMS.get(key)
+            if item:
+                lines.append(f"{item['name']} x{amount}")
+            else:
+                lines.append(f"{key} x{amount}")
+        embed.description = "\n".join(lines)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def use(ctx, item_key: str = None):
+    if item_key is None:
+        await ctx.send(f"❌ Жишээ: `{PREFIX}use airag`")
+        return
+
+    item_key = item_key.lower()
+    user = get_user(ctx.author.id)
+
+    if item_key not in SHOP_ITEMS:
+        await ctx.send("❌ Тийм item алга.")
+        return
+
+    item = SHOP_ITEMS[item_key]
+
+    if not has_item(user, item_key):
+        await ctx.send("❌ Чамд ийм item байхгүй.")
+        return
+
+    if item["type"] != "heal":
+        await ctx.send("❌ Энэ item-г одоогоор use хийх боломжгүй.")
+        return
+
+    healed = item["value"]
+    old_hp = user["hp"]
+    user["hp"] = min(100, user["hp"] + healed)
+    actual_heal = user["hp"] - old_hp
+
+    remove_item(user, item_key, 1)
+    save_data()
+
+    embed = discord.Embed(
+        title="✨ Item ашиглалаа",
+        description=f"{item['name']} хэрэглэв.\n❤️ HP: `+{actual_heal}`",
+        color=0x2ECC71
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def deposit(ctx, amount: str = None):
+    if amount is None:
+        await ctx.send(f"❌ Жишээ: `{PREFIX}deposit 500` эсвэл `{PREFIX}deposit all`")
+        return
+
     user = get_user(ctx.author.id)
 
     if amount.lower() == "all":
         amt = user["money"]
     else:
         if not amount.isdigit():
-            await ctx.send("❌ Зөв тоо оруул. Жишээ: `S deposit 500` эсвэл `S deposit all`")
+            await ctx.send("❌ Зөв тоо оруул.")
             return
         amt = int(amount)
 
@@ -369,23 +667,27 @@ async def deposit(ctx, amount: str):
         await ctx.send("❌ Эерэг тоо оруул.")
         return
     if user["money"] < amt:
-        await ctx.send("❌ Хэтэвчинд чинь хүрэлцэхгүй мөнгө байна.")
+        await ctx.send("❌ Хэтэвчинд мөнгө хүрэхгүй байна.")
         return
 
     user["money"] -= amt
     user["bank"] += amt
-    save_data(data)
+    save_data()
     await ctx.send(f"🏦 **{amt}** мөнгийг банканд хийлээ.")
 
 @bot.command()
-async def withdraw(ctx, amount: str):
+async def withdraw(ctx, amount: str = None):
+    if amount is None:
+        await ctx.send(f"❌ Жишээ: `{PREFIX}withdraw 500` эсвэл `{PREFIX}withdraw all`")
+        return
+
     user = get_user(ctx.author.id)
 
     if amount.lower() == "all":
         amt = user["bank"]
     else:
         if not amount.isdigit():
-            await ctx.send("❌ Зөв тоо оруул. Жишээ: `S withdraw 500` эсвэл `S withdraw all`")
+            await ctx.send("❌ Зөв тоо оруул.")
             return
         amt = int(amount)
 
@@ -393,12 +695,12 @@ async def withdraw(ctx, amount: str):
         await ctx.send("❌ Эерэг тоо оруул.")
         return
     if user["bank"] < amt:
-        await ctx.send("❌ Банканд хүрэлцэхгүй мөнгө байна.")
+        await ctx.send("❌ Банканд мөнгө хүрэхгүй байна.")
         return
 
     user["bank"] -= amt
     user["money"] += amt
-    save_data(data)
+    save_data()
     await ctx.send(f"💰 **{amt}** мөнгийг банкнаас авлаа.")
 
 @bot.command(aliases=["lb", "top"])
@@ -409,23 +711,32 @@ async def leaderboard(ctx):
 
     sorted_users = sorted(
         data.items(),
-        key=lambda x: (x[1].get("level", 1), x[1].get("money", 0) + x[1].get("bank", 0)),
+        key=lambda x: (
+            x[1].get("level", 1),
+            x[1].get("money", 0) + x[1].get("bank", 0),
+            x[1].get("messages", 0)
+        ),
         reverse=True
     )[:10]
 
     embed = discord.Embed(
-        title="🏆 Level Leaderboard",
-        color=0x9B59B6
+        title="🏆 Leaderboard",
+        color=0xF39C12
     )
 
-    desc = ""
+    lines = []
     for i, (uid, udata) in enumerate(sorted_users, start=1):
         member = ctx.guild.get_member(int(uid))
         name = member.display_name if member else f"User {uid}"
         rank = get_rank_data(udata.get("level", 1))
-        desc += f"**{i}. {name}** — Lv.{udata.get('level', 1)} | {rank['name']}\n"
+        total = udata.get("money", 0) + udata.get("bank", 0)
+        lines.append(
+            f"**{i}. {name}**\n"
+            f"Lv.{udata.get('level', 1)} | {rank['name']}\n"
+            f"💰 {total}"
+        )
 
-    embed.description = desc if desc else "Мэдээлэл алга."
+    embed.description = "\n\n".join(lines)
     await ctx.send(embed=embed)
 
 # =========================
@@ -443,4 +754,7 @@ async def on_command_error(ctx, error):
 # =========================
 # RUN
 # =========================
+if not TOKEN:
+    raise ValueError("TOKEN environment variable байхгүй байна.")
+
 bot.run(TOKEN)
