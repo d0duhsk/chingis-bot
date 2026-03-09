@@ -47,7 +47,7 @@ IMAGES = {
     "rank": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "travel": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "craft": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
-    "default": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
+    "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
 }
 
 # ============================================================
