@@ -23,7 +23,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # =========================================================
 IMAGES = {
     "start": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
-    "profile": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?q=80&w=1200&auto=format&fit=crop",
+    "profile": "https://tinyurl.com/mongol-khaan",
     "shop": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "hunt": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "mine": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
