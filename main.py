@@ -26,7 +26,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # IMAGE PACK
 # ============================================================
 IMAGES = {
-    "start": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "start": "https://media.discordapp.net/attachments/1479354971479609394/1480437374709141584/content.png",
     "profile": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "economy": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "army": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
