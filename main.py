@@ -48,6 +48,7 @@ IMAGES = {
     "travel": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "craft": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
+    "help" : "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png" ,
 }
 
 # ============================================================
@@ -334,7 +335,7 @@ async def help_command(ctx):
         "📈 Удирдлага": "leaderboard, topmoney, toplevel, topwar, topcities, topclans",
             }
     desc = "\n\n".join(f"**{k}**\n{v}" for k, v in categories.items())
-    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "default")
+    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "help")
 
 
 @bot.command(name="profile", aliases=["me"])
