@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 TOKEN = os.getenv("TOKEN")  # Railway / Render / hosting дээр env var-аар хийнэ
 PREFIX = "S "
 DATA_FILE = "hunnu_data.json"
-MAX_LEVEL = 200
+MAX_LEVEL = 20
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,7 +23,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 # =========================================================
 IMAGES = {
     "start": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
-    "profile": ""profile": "https://cdn.discordapp.com/attachments/1479354971479609394/1480421130853417072/AOI_d_8CI9T977wMQxu2t3QvxysBQEH3bK-M6VKgZ8fPTfZR6zGmDrO4nkVAPSe4PKNdCfA94v5q19iXGzXTFIfOH387obyBkLEJA-m79eANGFfV1Lk85wYsaJFf0OJqXgV7Q8GAkiWgZXkYpkbebvGrn1qVtXmlvfEW1P7L6DA4TFLMGEnKFAs1024-rj.png"",
+    "profile": "https://cdn.discordapp.com/attachments/123456789/123456789/khan.png",
     "shop": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "hunt": "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1200&auto=format&fit=crop",
     "mine": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
