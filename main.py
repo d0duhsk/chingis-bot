@@ -84,7 +84,7 @@ RANKS = [
 
 RANK_IMAGES = {
     "Малчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480460817056141312/AOI_d_-57kQ7hBmAanU8uHHiLC2u9dW9fj8gdROvBdrBLxD303cPRXDp8eaUH_pUiA_hNtMGDCgQkxMfWHkRjLEqfQWMtMZgd-5XqqwTPTBJblkOD7ius1QZabh_tRq9MqIF1qvAqtSOVnaFfK3RuQQWytq3l6fQtAT2fr0Ogjqggtm8sI-zs1024-rj.png",
-    "Анчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
+    "Анчин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480482573640794172/AOI_d__6OJzMT6er2QHVV2EFH8AZ6viRjaKEwDSgGPg7NvFTMSQnWbiN68OtuCyTgYb5yzCnBCm7fOfKKMr4qCuZRZJnMUjxAQdqswOTlyGzYJYevVv2GdXUInbPIUfVDriAxigYrtum6fzzIreohRntmxCIIWhUXfxtAu46N-AakwRl6zyAs1024-rj.png",
     "Галч": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Тариачин": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
     "Аравтын Цэрэг": "https://cdn.discordapp.com/attachments/1479354971479609394/1480437374709141584/content.png",
