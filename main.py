@@ -19,14 +19,25 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 def load_data():
     if not os.path.exists(DATA_FILE):
         return {}
-    with open(DATA_FILE) as f:
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def save_data():
-    with open(DATA_FILE,"w") as f:
-        json.dump(data,f,indent=4)
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 data = load_data()
+
+def check_user(user_id):
+    return str(user_id) in data
+
+# ----------------
+# READY
+# ----------------
+
+@bot.event
+async def on_ready():
+    print(f"{bot.user} online боллоо!")
 
 # ----------------
 # START
@@ -34,24 +45,22 @@ data = load_data()
 
 @bot.command()
 async def start(ctx):
-
-    user=str(ctx.author.id)
+    user = str(ctx.author.id)
 
     if user in data:
-        await ctx.send("⚔ Чи аль хэдийн эхэлсэн.")
+        await ctx.send("⚔ Чи аль хэдийн эхэлсэн байна.")
         return
 
-    data[user]={
-        "level":1,
-        "exp":0,
-        "gold":100,
-        "army":10,
-        "udam":None,
-        "inventory":[]
+    data[user] = {
+        "level": 1,
+        "exp": 0,
+        "gold": 100,
+        "army": 10,
+        "udam": None,
+        "inventory": []
     }
 
     save_data()
-
     await ctx.send("🐎 Чи Монголын дайчин боллоо!")
 
 # ----------------
@@ -60,16 +69,15 @@ async def start(ctx):
 
 @bot.command()
 async def profile(ctx):
-
-    user=str(ctx.author.id)
+    user = str(ctx.author.id)
 
     if user not in data:
-        await ctx.send("S start гэж бич.")
+        await ctx.send("Эхлээд `S start` гэж бич.")
         return
 
-    p=data[user]
+    p = data[user]
 
-    msg=f"""
+    msg = f"""
 👤 {ctx.author.name}
 
 🏆 Level: {p['level']}
@@ -77,8 +85,8 @@ async def profile(ctx):
 💰 Gold: {p['gold']}
 🐎 Army: {p['army']}
 🏹 Udam: {p['udam']}
+🎒 Inventory: {len(p['inventory'])} item
 """
-
     await ctx.send(msg)
 
 # ----------------
@@ -87,44 +95,48 @@ async def profile(ctx):
 
 @bot.command()
 async def work(ctx):
+    user = str(ctx.author.id)
 
-    user=str(ctx.author.id)
+    if user not in data:
+        await ctx.send("Эхлээд `S start` гэж бич.")
+        return
 
-    gold=random.randint(20,60)
-
-    data[user]["gold"]+=gold
+    gold = random.randint(20, 60)
+    data[user]["gold"] += gold
+    data[user]["exp"] += 10
 
     save_data()
-
-    await ctx.send(f"⛏ Чи {gold} алт оллоо")
+    await ctx.send(f"⛏ Чи {gold} алт олж, 10 exp авлаа!")
 
 # ----------------
 # ROLL UDAM
 # ----------------
 
-udam=[
-("Боржигин",1),
-("Халх",15),
-("Ойрад",30),
-("Найман",30),
-("Керейт",24)
+udam = [
+    ("Боржигин", 1),
+    ("Халх", 15),
+    ("Ойрад", 30),
+    ("Найман", 30),
+    ("Керейт", 24)
 ]
 
 @bot.command()
 async def roll(ctx):
+    user = str(ctx.author.id)
 
-    user=str(ctx.author.id)
+    if user not in data:
+        await ctx.send("Эхлээд `S start` гэж бич.")
+        return
 
-    r=random.randint(1,100)
+    r = random.randint(1, 100)
+    total = 0
 
-    total=0
-
-    for name,chance in udam:
-        total+=chance
-        if r<=total:
-            data[user]["udam"]=name
+    for name, chance in udam:
+        total += chance
+        if r <= total:
+            data[user]["udam"] = name
             save_data()
-            await ctx.send(f"🎲 Чи **{name}** удмыг авлаа")
+            await ctx.send(f"🎲 Чи **{name}** удмыг авлаа!")
             return
 
 # ----------------
@@ -133,17 +145,21 @@ async def roll(ctx):
 
 @bot.command()
 async def battle(ctx):
+    user = str(ctx.author.id)
 
-    user=str(ctx.author.id)
+    if user not in data:
+        await ctx.send("Эхлээд `S start` гэж бич.")
+        return
 
-    win=random.choice([True,False])
+    win = random.choice([True, False])
 
     if win:
-        reward=random.randint(50,150)
-        data[user]["gold"]+=reward
-        await ctx.send(f"⚔ Яллаа! {reward} алт")
+        reward = random.randint(50, 150)
+        data[user]["gold"] += reward
+        data[user]["exp"] += 20
+        await ctx.send(f"⚔ Чи яллаа! {reward} алт, 20 exp авлаа!")
     else:
-        await ctx.send("💀 Чи ялагдлаа")
+        await ctx.send("💀 Чи ялагдлаа!")
 
     save_data()
 
