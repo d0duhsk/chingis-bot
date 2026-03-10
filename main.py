@@ -9,7 +9,7 @@ from discord.ext import commands
 
 # ============================================================
 # CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
-# FINAL MERGED VERSION - NO ENERGY + IMPROVED UI
+# FINAL MERGED VERSION - NO ENERGY + IMPROVED UI + BUILDINGS
 # discord.py 2.x
 # ============================================================
 
@@ -143,6 +143,100 @@ CITY_POOL = [
 RESOURCE_TYPES = ["алт", "мод", "чулуу", "төмөр", "арьс", "морь", "тариа", "мах"]
 
 # ============================================================
+# BUILDINGS
+# ============================================================
+BUILDINGS = {
+    "ger": {
+        "name": "Гэр",
+        "price": 300,
+        "desc": "Иргэдийн амьдрах байр. Хүн ам өсөх суурь.",
+        "income": 10,
+        "power": 0,
+        "defense": 0,
+        "limit": 500,
+        "emoji": "⛺",
+        "build_time": 0
+    },
+    "farm_building": {
+        "name": "Ферм",
+        "price": 700,
+        "desc": "Хүнс үйлдвэрлэнэ. Орлого нэмэгдэнэ.",
+        "income": 35,
+        "power": 0,
+        "defense": 0,
+        "limit": 350,
+        "emoji": "🌾",
+        "build_time": 3
+    },
+    "stable_building": {
+        "name": "Морин Хашаа",
+        "price": 1200,
+        "desc": "Морь, цэргийн хүчийг нэмэгдүүлнэ.",
+        "income": 15,
+        "power": 20,
+        "defense": 5,
+        "limit": 250,
+        "emoji": "🐎",
+        "build_time": 4
+    },
+    "forge_building": {
+        "name": "Дархны Газар",
+        "price": 1800,
+        "desc": "Зэвсэг, хуяг үйлдвэрлэнэ. Mine bonus өгнө.",
+        "income": 20,
+        "power": 35,
+        "defense": 10,
+        "limit": 200,
+        "emoji": "⚒️",
+        "build_time": 5
+    },
+    "wall": {
+        "name": "Хэрэм",
+        "price": 2500,
+        "desc": "Хотын хамгаалалтыг ихэсгэнэ.",
+        "income": 0,
+        "power": 0,
+        "defense": 40,
+        "limit": 300,
+        "emoji": "🧱",
+        "build_time": 6
+    },
+    "market_building": {
+        "name": "Зах",
+        "price": 2200,
+        "desc": "Арилжаа, наймааг хөгжүүлнэ.",
+        "income": 60,
+        "power": 0,
+        "defense": 0,
+        "limit": 180,
+        "emoji": "🏪",
+        "build_time": 4
+    },
+    "temple": {
+        "name": "Сүм",
+        "price": 3200,
+        "desc": "Эзэнт гүрний нэр хүнд, хамгаалалтыг өсгөнө.",
+        "income": 25,
+        "power": 10,
+        "defense": 20,
+        "limit": 100,
+        "emoji": "🏯",
+        "build_time": 6
+    }
+}
+
+# alias for easier build commands
+BUILDING_ALIASES = {
+    "ger": "ger",
+    "farm": "farm_building",
+    "stable": "stable_building",
+    "forge": "forge_building",
+    "wall": "wall",
+    "market": "market_building",
+    "temple": "temple",
+}
+
+# ============================================================
 # STORAGE
 # ============================================================
 def now_ts() -> float:
@@ -150,15 +244,30 @@ def now_ts() -> float:
 
 
 def load_data():
+    default_data = {"players": {}, "clans": {}, "cities": {}, "wars": [], "settings": {}}
+
     if not os.path.exists(DATA_FILE):
-        return {"players": {}, "clans": {}, "cities": {}, "wars": [], "settings": {}}
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        return default_data
+
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            loaded = json.load(f)
+            if not isinstance(loaded, dict):
+                return default_data
+
+            loaded.setdefault("players", {})
+            loaded.setdefault("clans", {})
+            loaded.setdefault("cities", {})
+            loaded.setdefault("wars", [])
+            loaded.setdefault("settings", {})
+            return loaded
+    except Exception:
+        return default_data
 
 
 def save_data(data_obj):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data_obj, f, ensure_ascii=False, indent=2) 
+        json.dump(data_obj, f, ensure_ascii=False, indent=2)
 
 
 data = load_data()
@@ -312,6 +421,9 @@ def default_player(member):
         "market_discount": 0.0,
         "shop_stats": {"bought": 0, "sold": 0},
         "blackmarket_refresh": 0,
+        "buildings": {k: 0 for k in BUILDINGS.keys()},
+        "building_queue": [],
+        "last_income_claim": 0,
     }
 
 
@@ -373,6 +485,16 @@ def ensure_player_upgrades(player: dict):
     player["tech"].setdefault("military", 0)
     player["tech"].setdefault("trade", 0)
     player["tech"].setdefault("logistics", 0)
+
+    player.setdefault("buildings", {})
+    for b in BUILDINGS.keys():
+        player["buildings"].setdefault(b, 0)
+
+    player.setdefault("building_queue", [])
+    if not isinstance(player["building_queue"], list):
+        player["building_queue"] = []
+
+    player.setdefault("last_income_claim", 0)
 
     player.pop("energy", None)
 
@@ -471,7 +593,23 @@ def fmt_inventory(player: dict) -> str:
 
 def ensure_city_state():
     if data["cities"]:
+        changed = False
+        for city_name, city_data in data["cities"].items():
+            if not isinstance(city_data, dict):
+                continue
+            city_data.setdefault("owner", None)
+            city_data.setdefault("defense", random.randint(120, 380))
+            city_data.setdefault("prosperity", random.randint(50, 100))
+            city_data.setdefault("tax_base", random.randint(150, 500))
+
+            if city_data.get("owner") is not None and not isinstance(city_data.get("owner"), int):
+                city_data["owner"] = None
+                changed = True
+
+        if changed:
+            save_data(data)
         return
+
     for c in CITY_POOL:
         data["cities"][c] = {
             "owner": None,
@@ -483,97 +621,6 @@ def ensure_city_state():
 
 
 ensure_city_state()
-
-# ============================================================
-# BUILDINGS (BIG EMPIRE BALANCE)
-# ============================================================
-
-BUILDINGS = {
-
-    "ger": {
-        "name": "Гэр",
-        "price": 300,
-        "desc": "Иргэдийн амьдрах байр. Хүн ам өсөх суурь.",
-        "income": 10,
-        "power": 0,
-        "defense": 0,
-        "limit": 500,
-        "emoji": "⛺",
-        "build_time": 0
-    },
-
-    "farm": {
-        "name": "Ферм",
-        "price": 700,
-        "desc": "Хүнс үйлдвэрлэнэ. Орлого нэмэгдэнэ.",
-        "income": 35,
-        "power": 0,
-        "defense": 0,
-        "limit": 350,
-        "emoji": "🌾",
-        "build_time": 3
-    },
-
-    "stable": {
-        "name": "Морин Хашаа",
-        "price": 1200,
-        "desc": "Морь, цэргийн хүчийг нэмэгдүүлнэ.",
-        "income": 15,
-        "power": 20,
-        "defense": 5,
-        "limit": 250,
-        "emoji": "🐎",
-        "build_time": 4
-    },
-
-    "forge": {
-        "name": "Дархны Газар",
-        "price": 1800,
-        "desc": "Зэвсэг, хуяг үйлдвэрлэнэ. Mine bonus өгнө.",
-        "income": 20,
-        "power": 35,
-        "defense": 10,
-        "limit": 200,
-        "emoji": "⚒️",
-        "build_time": 5
-    },
-
-    "wall": {
-        "name": "Хэрэм",
-        "price": 2500,
-        "desc": "Хотын хамгаалалтыг ихэсгэнэ.",
-        "income": 0,
-        "power": 0,
-        "defense": 40,
-        "limit": 300,
-        "emoji": "🧱",
-        "build_time": 6
-    },
-
-    "market": {
-        "name": "Зах",
-        "price": 2200,
-        "desc": "Арилжаа, наймааг хөгжүүлнэ.",
-        "income": 60,
-        "power": 0,
-        "defense": 0,
-        "limit": 180,
-        "emoji": "🏪",
-        "build_time": 4
-    },
-
-    "temple": {
-        "name": "Сүм",
-        "price": 3200,
-        "desc": "Эзэнт гүрний нэр хүнд, хамгаалалтыг өсгөнө.",
-        "income": 25,
-        "power": 10,
-        "defense": 20,
-        "limit": 100,
-        "emoji": "🏯",
-        "build_time": 6
-    }
-}
 
 # ============================================================
 # OLD SAVE DATA CLEANUP
@@ -712,6 +759,84 @@ def update_work_streak(player: dict):
     else:
         player["work_streak"] = 1
         player["last_work_day"] = today.strftime("%Y-%m-%d")
+
+
+def get_member_name_from_id(guild, user_id):
+    if not user_id:
+        return "Төвийг сахисан"
+
+    if guild:
+        member = guild.get_member(user_id)
+        if member:
+            return member.display_name
+
+    player_data = data.get("players", {}).get(str(user_id))
+    if player_data:
+        return player_data.get("name", f"User {user_id}")
+
+    return f"User {user_id}"
+
+
+def get_city_owner_name(guild, city_obj: dict):
+    owner_id = city_obj.get("owner")
+    return get_member_name_from_id(guild, owner_id)
+
+
+def process_building_queue(player: dict):
+    ensure_player_upgrades(player)
+    now = now_ts()
+    finished = []
+
+    for item in player["building_queue"][:]:
+        if now >= item.get("finish_at", now + 1):
+            bkey = item.get("key")
+            amount = int(item.get("amount", 1))
+            if bkey in BUILDINGS and amount > 0:
+                player["buildings"][bkey] = player["buildings"].get(bkey, 0) + amount
+                finished.append((bkey, amount))
+            player["building_queue"].remove(item)
+
+    return finished
+
+
+def building_stats(player: dict):
+    ensure_player_upgrades(player)
+    income = 0
+    power = 0
+    defense = 0
+
+    for bkey, count in player["buildings"].items():
+        if bkey not in BUILDINGS:
+            continue
+        meta = BUILDINGS[bkey]
+        income += meta["income"] * count
+        power += meta["power"] * count
+        defense += meta["defense"] * count
+
+    return income, power, defense
+
+
+def format_building_queue(player: dict):
+    ensure_player_upgrades(player)
+    if not player["building_queue"]:
+        return "🏗 Одоогоор баригдаж буй барилга алга."
+
+    lines = []
+    current = now_ts()
+
+    for item in player["building_queue"][:10]:
+        bkey = item.get("key")
+        amount = item.get("amount", 1)
+        finish_at = item.get("finish_at", current)
+        remain = max(0, int(finish_at - current))
+        meta = BUILDINGS.get(bkey)
+
+        if meta:
+            lines.append(
+                f"{meta['emoji']} **{meta['name']} x{amount}** — дуусахад **{remain} сек**"
+            )
+
+    return "\n".join(lines) if lines else "🏗 Одоогоор баригдаж буй барилга алга."
 
 # ============================================================
 # EMBEDS
@@ -933,6 +1058,15 @@ async def help_command(ctx):
     )
 
     em.add_field(
+        name="🏗 Барилга",
+        value=(
+            "`buildings`, `mybuildings`, `build`, `collectincome`\n"
+            "`build farm 2`, `build wall 1`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
         name="🐺 Овог",
         value=(
             "`clancreate`, `claninfo`, `clanjoin`\n"
@@ -1052,7 +1186,17 @@ async def guide_command(ctx):
     )
 
     em.add_field(
-        name="6️⃣ Овог",
+        name="6️⃣ Барилга",
+        value=(
+            f"`{PREFIX}buildings` → барилга харах\n"
+            f"`{PREFIX}build farm 2` → барилга эхлүүлэх\n"
+            f"`{PREFIX}collectincome` → орлого авах"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="7️⃣ Овог",
         value=(
             f"`{PREFIX}clancreate BlueWolf` → овог байгуулах\n"
             f"`{PREFIX}clandonate 500` → сан нэмэх\n"
@@ -1063,7 +1207,7 @@ async def guide_command(ctx):
 
     em.add_field(
         name="💡 Зөвлөгөө",
-        value="Эхэндээ `work` + `daily` + `recruit` дээр төвлөрвөл хурдан өснө.",
+        value="Эхэндээ `work` + `daily` + `recruit` + `build farm 1` дээр төвлөрвөл хурдан өснө.",
         inline=False
     )
 
@@ -1145,7 +1289,10 @@ async def extras_command(ctx):
 async def profile(ctx, member: discord.Member = None):
     member = member or ctx.author
     p = get_player(member)
+    process_building_queue(p)
+
     atk, df = army_power(p)
+    b_income, b_power, b_def = building_stats(p)
 
     desc = (
         f"**Нэр:** {member.display_name}\n"
@@ -1159,8 +1306,12 @@ async def profile(ctx, member: discord.Member = None):
         f"**Clan:** {p['clan'] or 'Байхгүй'}\n"
         f"**Cities:** {len(p['cities'])}\n"
         f"**Wins / Losses:** {p['wins']} / {p['losses']}\n"
-        f"**Attack / Defense:** {atk} / {df}"
+        f"**Attack / Defense:** {atk} / {df}\n"
+        f"**Building Income:** {b_income}\n"
+        f"**Building Power / Defense:** {b_power} / {b_def}"
     )
+
+    save_data(data)
 
     await send_embed(
         ctx,
@@ -1382,8 +1533,14 @@ async def mine(ctx):
     ok, rem = cd_ready(p, "mine", 480)
     if not ok:
         return await send_embed(ctx, "⏳ Уурхай", f"Дахин олборлох хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
+
     gain = random.randint(2, 6)
     iron = random.randint(1, 4)
+
+    b_income, b_power, b_def = building_stats(p)
+    forge_bonus = p["buildings"].get("forge_building", 0)
+    iron += min(6, forge_bonus // 8)
+
     p["resources"]["чулуу"] += gain
     p["resources"]["төмөр"] += iron
     p["money"] += 80
@@ -1416,7 +1573,11 @@ async def farm(ctx):
     ok, rem = cd_ready(p, "farm", 360)
     if not ok:
         return await send_embed(ctx, "⏳ Тариалан", f"Дахин тариалах хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
+
     grain = random.randint(2, 7)
+    farm_bonus = p["buildings"].get("farm_building", 0)
+    grain += min(8, farm_bonus // 10)
+
     p["resources"]["тариа"] += grain
     p["money"] += 60
     add_xp(p, 14)
@@ -1841,6 +2002,222 @@ async def craft(ctx, recipe: str = "sword"):
     await send_embed(ctx, "🛠 Урлал", "Одоогоор `sword` жор идэвхтэй байна.", "craft", player=p)
 
 # ============================================================
+# BUILDING SYSTEM
+# ============================================================
+@bot.command(name="buildings")
+async def buildings(ctx):
+    p = get_player(ctx.author)
+
+    lines = []
+    for alias, real_key in BUILDING_ALIASES.items():
+        meta = BUILDINGS[real_key]
+        lines.append(
+            f"{meta['emoji']} **{alias}** — {meta['name']}\n"
+            f"Үнэ: **{meta['price']}** | Орлого: **{meta['income']}** | "
+            f"Power: **{meta['power']}** | Defense: **{meta['defense']}** | "
+            f"Limit: **{meta['limit']}** | Build: **{meta['build_time']} сек**\n"
+            f"{meta['desc']}"
+        )
+
+    await send_embed(
+        ctx,
+        "🏗 Барилгын Жагсаалт",
+        "\n\n".join(lines),
+        "conquest",
+        player=p
+    )
+
+
+@bot.command(name="mybuildings")
+async def mybuildings(ctx):
+    p = get_player(ctx.author)
+    finished = process_building_queue(p)
+    if finished:
+        save_data(data)
+
+    income, power, defense = building_stats(p)
+
+    built_lines = []
+    for bkey, count in p["buildings"].items():
+        if count > 0 and bkey in BUILDINGS:
+            meta = BUILDINGS[bkey]
+            built_lines.append(f"{meta['emoji']} **{meta['name']}** x **{count}**")
+
+    built_text = "\n".join(built_lines) if built_lines else "Одоогоор барьсан барилга алга."
+
+    if finished:
+        done_text = "\n".join(
+            f"{BUILDINGS[b]['emoji']} **{BUILDINGS[b]['name']} x{amt}**"
+            for b, amt in finished
+        )
+        done_text = f"\n\n✅ **Шинээр дууссан:**\n{done_text}"
+    else:
+        done_text = ""
+
+    desc = (
+        f"**Барьсан барилгууд**\n{built_text}\n\n"
+        f"**Нийт building income:** {income}\n"
+        f"**Нийт building power:** {power}\n"
+        f"**Нийт building defense:** {defense}\n\n"
+        f"**Баригдаж буй**\n{format_building_queue(p)}"
+        f"{done_text}"
+    )
+
+    await send_embed(ctx, "🏛 Миний Барилгууд", desc, "conquest", player=p)
+
+
+@bot.command(name="build")
+async def build(ctx, building_key: str = None, amount: int = 1):
+    p = get_player(ctx.author)
+    process_building_queue(p)
+
+    if not building_key:
+        return await send_embed(
+            ctx,
+            "❌ Ашиглалт",
+            f"`{PREFIX}build ger 1` эсвэл `{PREFIX}build farm 2`",
+            "conquest",
+            player=p,
+            color=0xB22222
+        )
+
+    building_key = building_key.lower()
+    real_key = BUILDING_ALIASES.get(building_key)
+
+    if real_key not in BUILDINGS:
+        return await send_embed(ctx, "❌ Алдаа", "Ийм барилга байхгүй.", "conquest", player=p, color=0xB22222)
+
+    if amount <= 0:
+        return await send_embed(ctx, "❌ Алдаа", "Тоо хэмжээ буруу байна.", "conquest", player=p, color=0xB22222)
+
+    meta = BUILDINGS[real_key]
+    current_count = p["buildings"].get(real_key, 0)
+    queued_count = sum(int(item.get("amount", 0)) for item in p["building_queue"] if item.get("key") == real_key)
+
+    if current_count + queued_count + amount > meta["limit"]:
+        return await send_embed(
+            ctx,
+            "⚠ Limit Давлаа",
+            f"**{meta['name']}** хамгийн ихдээ **{meta['limit']}** байж болно.\n"
+            f"Одоо байгаа + queue: **{current_count + queued_count}**",
+            "conquest",
+            player=p,
+            color=0xB22222
+        )
+
+    total_cost = meta["price"] * amount
+    if p["money"] < total_cost:
+        return await send_embed(
+            ctx,
+            "❌ Мөнгө Хүрэлцэхгүй",
+            f"**{meta['name']} x{amount}** барихад **{total_cost}** мөнгө хэрэгтэй.",
+            "conquest",
+            player=p,
+            color=0xB22222
+        )
+
+    p["money"] -= total_cost
+
+    build_seconds = meta["build_time"] * amount
+    logistics_bonus = p["tech"].get("logistics", 0) * 2
+    final_build_time = max(0, build_seconds - logistics_bonus)
+
+    if final_build_time <= 0:
+        p["buildings"][real_key] = p["buildings"].get(real_key, 0) + amount
+        add_xp(p, 10 + amount * 3)
+        save_data(data)
+
+        return await send_embed(
+            ctx,
+            "🏗 Барилга Шууд Дууслаа",
+            f"{meta['emoji']} **{meta['name']} x{amount}**\n"
+            f"**-{total_cost} мөнгө**\n"
+            f"Орлого: **+{meta['income'] * amount}**",
+            "conquest",
+            player=p,
+            color=0x2E8B57
+        )
+
+    p["building_queue"].append({
+        "key": real_key,
+        "amount": amount,
+        "finish_at": now_ts() + final_build_time
+    })
+
+    add_xp(p, 6 + amount * 2)
+    save_data(data)
+
+    await send_embed(
+        ctx,
+        "🏗 Барилга Эхэллээ",
+        f"{meta['emoji']} **{meta['name']} x{amount}**\n"
+        f"**Үнэ:** -{total_cost}\n"
+        f"**Дуусах хугацаа:** {final_build_time} сек",
+        "conquest",
+        player=p,
+        color=0xC89B3C
+    )
+
+
+@bot.command(name="collectincome")
+async def collectincome(ctx):
+    p = get_player(ctx.author)
+    finished = process_building_queue(p)
+
+    income, power, defense = building_stats(p)
+    if income <= 0:
+        if finished:
+            save_data(data)
+        return await send_embed(
+            ctx,
+            "🏛 Орлого Алга",
+            "Танд орлого өгдөг барилга алга.",
+            "conquest",
+            player=p
+        )
+
+    ok, rem = cd_ready(p, "collectincome", 3600)
+    if not ok:
+        if finished:
+            save_data(data)
+        return await send_embed(
+            ctx,
+            "⏳ Орлого Бэлэн Биш",
+            f"Дахин авах хүртэл **{rem // 60} мин**",
+            "conquest",
+            player=p,
+            color=0xCC8800
+        )
+
+    bonus = 1 + (p["tech"].get("economy", 0) * 0.03)
+    total_income = int(income * bonus)
+
+    p["money"] += total_income
+    p["influence"] += max(1, total_income // 300)
+    add_xp(p, 20)
+    set_cd(p, "collectincome")
+    save_data(data)
+
+    finished_text = ""
+    if finished:
+        finished_text = "\n\n✅ **Дууссан барилга:**\n" + "\n".join(
+            f"{BUILDINGS[b]['emoji']} {BUILDINGS[b]['name']} x{amt}" for b, amt in finished
+        )
+
+    await send_embed(
+        ctx,
+        "💰 Барилгын Орлого Хураалаа",
+        f"**+{total_income} мөнгө**\n"
+        f"**+{max(1, total_income // 300)} нөлөө**\n"
+        f"**Суурь орлого:** {income}\n"
+        f"**Economy bonus:** x{bonus:.2f}"
+        f"{finished_text}",
+        "conquest",
+        player=p,
+        color=0x2E8B57
+    )
+
+# ============================================================
 # ARMY
 # ============================================================
 @bot.command(name="units")
@@ -1904,8 +2281,14 @@ async def scout(ctx):
     p = get_player(ctx.author)
     city = random.choice(list(data["cities"].keys()))
     c = data["cities"][city]
-    owner = c["owner"] or "Төвийг сахисан"
-    await send_embed(ctx, "🕵 Тагнуул", f"**{city}**\nЭзэн: **{owner}**\nХамгаалалт: **{c['defense']}**\nБаялаг: **{c['tax_base']}**", "battle", player=p)
+    owner = get_city_owner_name(ctx.guild, c)
+    await send_embed(
+        ctx,
+        "🕵 Тагнуул",
+        f"**{city}**\nЭзэн: **{owner}**\nХамгаалалт: **{c['defense']}**\nБаялаг: **{c['tax_base']}**",
+        "battle",
+        player=p
+    )
 
 
 @bot.command(name="train")
@@ -1951,7 +2334,7 @@ async def cities(ctx):
     p = get_player(ctx.author)
     lines = []
     for city, c in data["cities"].items():
-        owner = c["owner"] or "Төвийг сахисан"
+        owner = get_city_owner_name(ctx.guild, c)
         lines.append(f"**{city}** — Эзэн: {owner} | Defense: {c['defense']} | Tax: {c['tax_base']}")
     await send_embed(ctx, "🏙 Хотууд", "\n".join(lines[:15]), "conquest", player=p)
 
@@ -1962,9 +2345,17 @@ async def city(ctx, *, city_name: str):
     city_name = city_name.title()
     if city_name not in data["cities"]:
         return await send_embed(ctx, "❌ Олдсонгүй", "Тэр хот бүртгэлгүй байна.", "conquest", player=p, color=0xB22222)
+
     c = data["cities"][city_name]
-    owner = c["owner"] or "Төвийг сахисан"
-    await send_embed(ctx, f"🏙 {city_name}", f"**Эзэн:** {owner}\n**Defense:** {c['defense']}\n**Prosperity:** {c['prosperity']}\n**Tax Base:** {c['tax_base']}", "conquest", player=p)
+    owner = get_city_owner_name(ctx.guild, c)
+
+    await send_embed(
+        ctx,
+        f"🏙 {city_name}",
+        f"**Эзэн:** {owner}\n**Defense:** {c['defense']}\n**Prosperity:** {c['prosperity']}\n**Tax Base:** {c['tax_base']}",
+        "conquest",
+        player=p
+    )
 
 
 @bot.command(name="conquer")
@@ -1976,20 +2367,24 @@ async def conquer(ctx, *, city_name: str):
         return await send_embed(ctx, "❌ Хот Олдсонгүй", "Ийм хот байхгүй.", "conquest", player=p, color=0xB22222)
 
     atk, _ = army_power(p)
+    b_income, b_power, b_def = building_stats(p)
+
     city = data["cities"][city_name]
     need = city["defense"]
-    bonus = p["level"] * 2 + p["province_power"]
+    bonus = p["level"] * 2 + p["province_power"] + (b_power // 5)
     total = atk + bonus + random.randint(-80, 120)
 
     if total >= need:
-        old_owner = city["owner"]
-        city["owner"] = ctx.author.display_name
+        old_owner_id = city["owner"]
+        city["owner"] = ctx.author.id
 
-        if old_owner and old_owner != ctx.author.display_name:
-            for _, other_player in data["players"].items():
-                if other_player.get("name") == old_owner and city_name in other_player.get("cities", []):
+        if old_owner_id and old_owner_id != ctx.author.id:
+            other_key = str(old_owner_id)
+            if other_key in data["players"]:
+                other_player = data["players"][other_key]
+                ensure_player_upgrades(other_player)
+                if city_name in other_player.get("cities", []):
                     other_player["cities"].remove(city_name)
-                    break
 
         if city_name not in p["cities"]:
             p["cities"].append(city_name)
@@ -2162,10 +2557,21 @@ async def clanjoin(ctx, *, name: str):
 async def clanleave(ctx):
     p = get_player(ctx.author)
     clan = p["clan"]
+
     if not clan or clan not in data["clans"]:
         return await send_embed(ctx, "❌ Алдаа", "Та овоггүй байна.", "clan", player=p, color=0xB22222)
-    if ctx.author.id in data["clans"][clan]["members"]:
-        data["clans"][clan]["members"].remove(ctx.author.id)
+
+    clan_data = data["clans"][clan]
+
+    if ctx.author.id in clan_data["members"]:
+        clan_data["members"].remove(ctx.author.id)
+
+    if clan_data["leader"] == ctx.author.id:
+        if clan_data["members"]:
+            clan_data["leader"] = clan_data["members"][0]
+        else:
+            del data["clans"][clan]
+
     p["clan"] = None
     save_data(data)
     await send_embed(ctx, "🚪 Овгоос Гарлаа", f"Та **{clan}** овгоос гарлаа.", "clan", player=p)
@@ -2346,6 +2752,16 @@ async def wipecity(ctx, *, city_name: str):
     city_name = city_name.title()
     if city_name not in data["cities"]:
         return await send_embed(ctx, "❌ Олдсонгүй", "Ийм хот алга.", "admin", player=admin_p, color=0xB22222)
+
+    old_owner_id = data["cities"][city_name].get("owner")
+    if old_owner_id:
+        other_key = str(old_owner_id)
+        if other_key in data["players"]:
+            other_player = data["players"][other_key]
+            ensure_player_upgrades(other_player)
+            if city_name in other_player.get("cities", []):
+                other_player["cities"].remove(city_name)
+
     data["cities"][city_name]["owner"] = None
     data["cities"][city_name]["defense"] = random.randint(120, 380)
     save_data(data)
@@ -2412,16 +2828,18 @@ async def setcityowner(ctx, city_name: str, member: discord.Member):
     if city_name not in data["cities"]:
         return await send_embed(ctx, "❌ Хот Алга", "Ийм хот бүртгэлгүй.", "admin", player=admin_p, color=0xB22222)
 
-    old_owner = data["cities"][city_name]["owner"]
+    old_owner_id = data["cities"][city_name].get("owner")
 
-    if old_owner and old_owner != member.display_name:
-        for _, other_player in data["players"].items():
-            if other_player.get("name") == old_owner and city_name in other_player.get("cities", []):
+    if old_owner_id and old_owner_id != member.id:
+        other_key = str(old_owner_id)
+        if other_key in data["players"]:
+            other_player = data["players"][other_key]
+            ensure_player_upgrades(other_player)
+            if city_name in other_player.get("cities", []):
                 other_player["cities"].remove(city_name)
-                break
 
     p = get_player(member)
-    data["cities"][city_name]["owner"] = member.display_name
+    data["cities"][city_name]["owner"] = member.id
 
     if city_name not in p["cities"]:
         p["cities"].append(city_name)
