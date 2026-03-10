@@ -770,23 +770,170 @@ async def start_game(ctx):
     )
 
 
-@bot.command(name="help")
+@bot.command(name="help", aliases=["commands", "cmd", "menu"])
 async def help_command(ctx):
-    categories = {
-        "👤 Суурь Комманд": "`start`, `profile`, `stats`, `rank`, `xp`, `title`, `settitle`, `inventory`, `heal`",
-        "💰 Эдийн Засаг": "`balance`, `bank`, `deposit`, `withdraw`, `work`, `daily`, `weekly`, `mine`, `hunt`, `farm`, `fish`, `tax`, `collecttax`",
-        "🛒 Дэлгүүр / Зах": "`shop`, `buy`, `sell`, `market`, `blackmarket`, `price`, `craft`",
-        "⚔ Цэрэг / Арми": "`recruit`, `army`, `disband`, `units`, `fortify`, `scout`, `train`, `garrison`, `patrol`",
-        "🏙 Хот / Дайн": "`cities`, `city`, `conquer`, `invade`, `raid`, `defendcity`, `siege`, `march`, `camp`, `attack`",
-        "🐺 Овог": "`clancreate`, `claninfo`, `clanjoin`, `clanleave`, `clandonate`, `clanvault`, `clanwar`",
-        "🏆 Leaderboard": "`leaderboard`, `topmoney`, `toplevel`, `topwar`, `topcities`, `topclans`",
-        "🛡 Админ": "`adminhelp`, `give`, `setmoney`, `setlevel`, `addxp`, `resetplayer`, `wipecity`, `announce`, `settitleadmin`, `giveunit`, `takeunit`, `setcityowner`, `reloadgame`",
-    }
+    p = get_player(ctx.author)
+    atk, df = army_power(p)
 
-    desc = "\n\n".join([f"**{k}**\n{v}" for k, v in categories.items()])
-    desc += f"\n\n**⚡ Эхлэх дараалал:** `{PREFIX}start` → `{PREFIX}work` → `{PREFIX}shop` → `{PREFIX}recruit` → `{PREFIX}conquer`"
+    em = discord.Embed(
+        title="📜 CHINGIS EMPIRE • ИХ ТУШААЛЫН ТӨВ",
+        description=(
+            f"**{ctx.author.display_name}**, эзэнт гүрнээ тэлэх бүх тушаал энд байна.\n\n"
+            f"🪙 Эхлээд баяж\n"
+            f"⚔ Дараа нь арми босго\n"
+            f"🏙 Хот эзэл\n"
+            f"🐺 Овгоо хүчирхэг болго\n"
+            f"👑 Эцэст нь домог бол"
+        ),
+        color=0xD4AF37,
+        timestamp=datetime.utcnow()
+    )
 
-    await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "help")
+    em.add_field(
+        name="👤 Суурь Комманд",
+        value=(
+            "`start`, `profile`, `me`, `stats`, `rank`, `xp`\n"
+            "`title`, `settitle`, `inventory`, `bag`, `heal`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="💰 Эдийн Засаг / Орлого",
+        value=(
+            "`balance`, `bal`, `money`, `bank`\n"
+            "`deposit`, `withdraw`, `work`, `daily`, `weekly`\n"
+            "`mine`, `hunt`, `farm`, `fish`, `woodcut`, `quarry`\n"
+            "`resources`, `tax`, `collecttax`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="🛒 Дэлгүүр / Зах",
+        value=(
+            "`shop`, `price`, `buy`, `sell`\n"
+            "`market`, `blackmarket`, `craft`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="⚔ Арми / Цэрэг",
+        value=(
+            "`units`, `recruit`, `army`, `disband`\n"
+            "`fortify`, `scout`, `train`, `garrison`, `patrol`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="🏙 Хот / Дайн / Аян",
+        value=(
+            "`cities`, `city`, `conquer`, `invade`, `raid`\n"
+            "`defendcity`, `siege`, `march`, `camp`, `attack`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="🐺 Овог / Холбоо",
+        value=(
+            "`clancreate`, `claninfo`, `clanjoin`\n"
+            "`clanleave`, `clandonate`, `clanvault`, `clanwar`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="🏆 Шилдгүүд",
+        value=(
+            "`leaderboard`, `topmoney`, `toplevel`\n"
+            "`topwar`, `topcities`, `topclans`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="✨ Нэмэлт Комманд",
+        value=(
+            "`beg`, `gift`, `bonus`, `salary`, `warehouse`\n"
+            "`smelt`, `forge`, `stable`, `inspect`, `banner`, `drill`\n"
+            "`tactics`, `supply`, `medic`, `horsearcher`, `cavalry`, `kheshig`\n"
+            "`province`, `frontier`, `border`, `expand`, `govern`, `prosperity`, `census`\n"
+            "`law`, `decree`, `tribute`, `alliance`, `diplomacy`, `treaty`, `envoy`\n"
+            "`respect`, `feast`, `marry`, `heir`, `bloodline`, `oath`\n"
+            "`ping`, `about`, `version`, `server`, `rules`, `guide`, `faq`, `news`, `event`, `season`\n"
+            "`horse`, `caravan`, `merchant`, `bazaar`, `coin`, `treasury`\n"
+            "`crown`, `throne`, `palace`, `council`, `minister`, `judge`, `scribe`\n"
+            "`messenger`, `road`, `campfire`, `steppe`, `weather`, `oracle`, `legend`, `story`\n"
+            "`honor`, `glory`, `destiny`, `bannerup`, `horn`, `charge`, `retreat`, `ambush`, `duel`, `bannerlord`, `empire`, `homeland`"
+        ),
+        inline=False
+    )
+
+    if ctx.author.guild_permissions.administrator:
+        em.add_field(
+            name="🛡 Админ Комманд",
+            value=(
+                "`adminhelp`, `give`, `setmoney`, `setlevel`\n"
+                "`addxp`, `resetplayer`, `wipecity`, `announce`\n"
+                "`settitleadmin`, `giveunit`, `takeunit`, `setcityowner`, `reloadgame`"
+            ),
+            inline=False
+        )
+
+    em.add_field(
+        name="⚡ Шинэ Тоглогчийн Эхлэх Дараалал",
+        value=(
+            f"`{PREFIX}start` → бүртгүүлэх\n"
+            f"`{PREFIX}work` → мөнгө олох\n"
+            f"`{PREFIX}shop` → барааны үнэ харах\n"
+            f"`{PREFIX}buy sword 1` → анхны зэвсэг авах\n"
+            f"`{PREFIX}recruit ywgan 5` → цэрэг элсүүлэх\n"
+            f"`{PREFIX}cities` → бай эзэмшил харах\n"
+            f"`{PREFIX}conquer Хархорум` → хот эзлэх"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="💡 Түргэн Жишээнүүд",
+        value=(
+            f"`{PREFIX}profile`\n"
+            f"`{PREFIX}deposit 500`\n"
+            f"`{PREFIX}sell mah all`\n"
+            f"`{PREFIX}army`\n"
+            f"`{PREFIX}clancreate BlueWolf`\n"
+            f"`{PREFIX}blackmarket`"
+        ),
+        inline=False
+    )
+
+    em.add_field(
+        name="👑 Таны Одоогийн Байдал",
+        value=(
+            f"**🎖 Level:** {p['level']}\n"
+            f"**👑 Цол:** {p['rank']}\n"
+            f"**💰 Мөнгө:** {p['money']}\n"
+            f"**🏦 Банк:** {p['bank']}\n"
+            f"**🏙 Хот:** {len(p['cities'])}\n"
+            f"**🐺 Овог:** {p['clan'] or 'Байхгүй'}\n"
+            f"**⚔ Attack:** {atk}\n"
+            f"**🛡 Defense:** {df}"
+        ),
+        inline=False
+    )
+
+    if p.get("rank") in RANK_IMAGES:
+        em.set_image(url=RANK_IMAGES[p["rank"]])
+    else:
+        em.set_image(url=image_for("help"))
+
+    em.set_thumbnail(url=ctx.author.display_avatar.url)
+    em.set_footer(text="🐎 Chingis Empire RPG • Монгол Эзэнт Гүрний Тушаалын Төв")
+
+    await ctx.send(embed=em)
 
 
 @bot.command(name="profile", aliases=["me"])
