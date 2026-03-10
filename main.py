@@ -9,6 +9,7 @@ from discord.ext import commands
 
 # ============================================================
 # CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
+# FINAL MERGED VERSION - NO ENERGY
 # discord.py 2.x
 # ============================================================
 
@@ -115,21 +116,6 @@ CITY_POOL = [
 
 RESOURCE_TYPES = ["алт", "мод", "чулуу", "төмөр", "арьс", "морь", "тариа", "мах"]
 
-SHOP_ITEMS = {
-    "airag": {"price": 80, "type": "food"},
-    "mah": {"price": 100, "type": "food"},
-    "tarag": {"price": 70, "type": "food"},
-    "guril": {"price": 90, "type": "food"},
-    "mod": {"price": 140, "type": "material"},
-    "chuluu": {"price": 180, "type": "material"},
-    "tomor": {"price": 260, "type": "material"},
-    "aris": {"price": 160, "type": "material"},
-    "mori": {"price": 500, "type": "mount"},
-    "banner": {"price": 1500, "type": "cosmetic"},
-    "sword": {"price": 800, "type": "weapon"},
-    "armor": {"price": 1200, "type": "armor"},
-}
-
 # ============================================================
 # STORAGE
 # ============================================================
@@ -144,12 +130,125 @@ def load_data():
         return json.load(f)
 
 
-def save_data(data):
+def save_data(data_obj):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(data_obj, f, ensure_ascii=False, indent=2)
 
 
 data = load_data()
+
+# ============================================================
+# WORK / SHOP SYSTEM UPGRADE
+# FINAL SAFETY PATCH - NO ENERGY VERSION
+# ============================================================
+for old_cmd in ["work", "shop", "buy", "sell", "market", "blackmarket", "price", "energy"]:
+    try:
+        bot.remove_command(old_cmd)
+    except Exception:
+        pass
+
+ITEM_NAMES = {
+    "airag": "Айраг",
+    "mah": "Мах",
+    "tarag": "Тараг",
+    "guril": "Гурил",
+    "mod": "Мод",
+    "chuluu": "Чулуу",
+    "tomor": "Төмөр",
+    "aris": "Арьс",
+    "mori": "Морь",
+    "banner": "Туг",
+    "sword": "Сэлэм",
+    "armor": "Хуяг",
+    "royal_banner": "Хааны Туг",
+    "elite_armor": "Элит Хуяг",
+    "war_horse": "Дайны Морь",
+    "steel_blade": "Ган Сэлэм",
+}
+
+SHOP_CATEGORIES = {
+    "food": "🍖 Хүнс",
+    "material": "🪵 Материал",
+    "mount": "🐎 Хүлэг",
+    "cosmetic": "🎌 Гоёл",
+    "weapon": "🗡 Зэвсэг",
+    "armor": "🛡 Хуяг",
+}
+
+SHOP_ITEMS = {
+    "airag": {"price": 55, "type": "food"},
+    "mah": {"price": 80, "type": "food"},
+    "tarag": {"price": 60, "type": "food"},
+    "guril": {"price": 75, "type": "food"},
+    "mod": {"price": 95, "type": "material"},
+    "chuluu": {"price": 110, "type": "material"},
+    "tomor": {"price": 180, "type": "material"},
+    "aris": {"price": 140, "type": "material"},
+    "mori": {"price": 1200, "type": "mount"},
+    "banner": {"price": 850, "type": "cosmetic"},
+    "sword": {"price": 1600, "type": "weapon"},
+    "armor": {"price": 2100, "type": "armor"},
+}
+
+WORK_TIERS = [
+    {
+        "min_level": 1,
+        "name": "Энгийн хөдөлмөр",
+        "jobs": [
+            ("тэрэг түрж ачаа зөөлөө", 90, 12),
+            ("малын хашаа заслаа", 100, 13),
+            ("галын түлээ бэлтгэлээ", 95, 12),
+            ("жингийн замд туслав", 110, 14),
+        ]
+    },
+    {
+        "min_level": 10,
+        "name": "Туршлагатай ажил",
+        "jobs": [
+            ("татварын бүртгэл хийлээ", 150, 18),
+            ("ангийн отряд зохион байгууллаа", 170, 20),
+            ("агуулах хамгаалж орлого оллоо", 165, 19),
+            ("морь сургаж ноёдод нийлүүллээ", 180, 22),
+        ]
+    },
+    {
+        "min_level": 30,
+        "name": "Захирагчийн ажил",
+        "jobs": [
+            ("жижиг мужийн татвар хураалаа", 240, 28),
+            ("хилийн цэргийн хангалтыг зохицуулав", 260, 30),
+            ("худалдааны гэрээ байгууллаа", 280, 31),
+            ("цэргийн бэлтгэлийг хянаж урамшуулал авлаа", 300, 33),
+        ]
+    },
+    {
+        "min_level": 60,
+        "name": "Ноёдын түвшний ажил",
+        "jobs": [
+            ("мужийн орлого захирч ашиг хүртлээ", 420, 42),
+            ("цэргийн хангамжийн том гэрээ байгууллаа", 460, 45),
+            ("алс нутгийн худалдааны замыг хамгаалав", 500, 48),
+            ("ордны тусгай даалгавар биелүүлэв", 540, 50),
+        ]
+    },
+    {
+        "min_level": 100,
+        "name": "Жанжны түвшний ажил",
+        "jobs": [
+            ("эзэнт гүрний стратегийн албанд ажиллав", 700, 65),
+            ("чухал мужийн санхүүг удирдав", 760, 70),
+            ("дайны бэлтгэл хангасан тул шагнуулав", 820, 76),
+            ("хааны нууц үүрэг гүйцэтгэв", 900, 82),
+        ]
+    },
+]
+
+BLACKMARKET_ITEMS = {
+    "royal_banner": {"price": 3500, "type": "cosmetic", "name": "Хааны Туг"},
+    "elite_armor": {"price": 4200, "type": "armor", "name": "Элит Хуяг"},
+    "war_horse": {"price": 3000, "type": "mount", "name": "Дайны Морь"},
+    "steel_blade": {"price": 2800, "type": "weapon", "name": "Ган Сэлэм"},
+}
 
 
 def uid(user_id: int) -> str:
@@ -165,7 +264,6 @@ def default_player(member):
         "level": 1,
         "rank": "Малчин",
         "hp": 100,
-        "energy": 100,
         "influence": 0,
         "clan": None,
         "spouse": None,
@@ -183,8 +281,83 @@ def default_player(member):
         "businesses": [],
         "tech": {"economy": 0, "military": 0, "trade": 0, "logistics": 0},
         "skills": {"leadership": 0, "warfare": 0, "trade": 0, "charisma": 0},
-        "created_at": now_ts(),
+        "created_at": int(now_ts()),
+        "work_streak": 0,
+        "last_work_day": None,
+        "market_discount": 0.0,
+        "shop_stats": {"bought": 0, "sold": 0},
+        "blackmarket_refresh": 0,
     }
+
+
+def parse_amount(raw, max_amount: int):
+    if raw is None:
+        return 1
+
+    text = str(raw).strip().lower()
+    if text in ["all", "max", "bugd", "бүгд"]:
+        return max_amount
+
+    try:
+        value = int(text)
+        return value
+    except Exception:
+        return None
+
+
+def ensure_player_upgrades(player: dict):
+    player.setdefault("name", "player")
+    player.setdefault("created_at", int(datetime.utcnow().timestamp()))
+    player.setdefault("money", 0)
+    player.setdefault("bank", 0)
+    player.setdefault("xp", 0)
+    player.setdefault("level", 1)
+    player.setdefault("rank", "Малчин")
+    player.setdefault("hp", 100)
+    player.setdefault("influence", 0)
+    player.setdefault("clan", None)
+    player.setdefault("spouse", None)
+    player.setdefault("title", "Эзэнт гүрний шинэ иргэн")
+    player.setdefault("wanted", 0)
+    player.setdefault("wins", 0)
+    player.setdefault("losses", 0)
+    player.setdefault("cities", [])
+    player.setdefault("province_power", 0)
+    player.setdefault("tax_rate", 5)
+    player.setdefault("inventory", {})
+    player.setdefault("resources", {r: 0 for r in RESOURCE_TYPES})
+    player.setdefault("army", {k: 0 for k in UNIT_STATS.keys()})
+    player.setdefault("cooldowns", {})
+    player.setdefault("businesses", [])
+    player.setdefault("skills", {})
+    player.setdefault("tech", {})
+    player.setdefault("work_streak", 0)
+    player.setdefault("last_work_day", None)
+    player.setdefault("market_discount", 0.0)
+    player.setdefault("shop_stats", {})
+    player["shop_stats"].setdefault("bought", 0)
+    player["shop_stats"].setdefault("sold", 0)
+    player.setdefault("blackmarket_refresh", 0)
+
+    player["skills"].setdefault("leadership", 0)
+    player["skills"].setdefault("warfare", 0)
+    player["skills"].setdefault("trade", 0)
+    player["skills"].setdefault("charisma", 0)
+
+    player["tech"].setdefault("economy", 0)
+    player["tech"].setdefault("military", 0)
+    player["tech"].setdefault("trade", 0)
+    player["tech"].setdefault("logistics", 0)
+
+    player.pop("energy", None)
+
+    player["money"] = max(0, int(player.get("money", 0)))
+    player["bank"] = max(0, int(player.get("bank", 0)))
+    player["xp"] = max(0, int(player.get("xp", 0)))
+    player["level"] = max(1, int(player.get("level", 1)))
+    player["wanted"] = max(0, int(player.get("wanted", 0)))
+    player["influence"] = max(0, int(player.get("influence", 0)))
+    player["market_discount"] = max(0.0, min(0.15, float(player.get("market_discount", 0.0))))
 
 
 def get_player(member):
@@ -192,7 +365,9 @@ def get_player(member):
     if key not in data["players"]:
         data["players"][key] = default_player(member)
         save_data(data)
+
     data["players"][key]["name"] = member.display_name
+    ensure_player_upgrades(data["players"][key])
     return data["players"][key]
 
 
@@ -209,6 +384,7 @@ def xp_to_next(level: int) -> int:
 
 
 def add_xp(player: dict, amount: int):
+    ensure_player_upgrades(player)
     player["xp"] += amount
     leveled = []
     while player["level"] < MAX_LEVEL and player["xp"] >= xp_to_next(player["level"]):
@@ -216,7 +392,6 @@ def add_xp(player: dict, amount: int):
         player["level"] += 1
         player["rank"] = get_rank(player["level"])
         player["hp"] = min(100 + player["level"], 300)
-        player["energy"] = 100
         leveled.append(player["level"])
     return leveled
 
@@ -244,6 +419,12 @@ def set_cd(player: dict, key: str):
     player["cooldowns"][key] = now_ts()
 
 
+def get_item_display(item_key: str):
+    if item_key in BLACKMARKET_ITEMS:
+        return BLACKMARKET_ITEMS[item_key].get("name", item_key)
+    return ITEM_NAMES.get(item_key, item_key)
+
+
 def fmt_army(player: dict) -> str:
     lines = []
     for k, stat in UNIT_STATS.items():
@@ -255,18 +436,12 @@ def fmt_inventory(player: dict) -> str:
     inv = player.get("inventory", {})
     if not inv:
         return "Хоосон"
-    return "\n".join(f"**{k}** x{v}" for k, v in inv.items() if v > 0) or "Хоосон"
 
-
-def parse_amount(text: str, max_amount: int):
-    text = text.lower()
-    if text == "all":
-        return max_amount
-    try:
-        amount = int(text)
-        return max(0, amount)
-    except ValueError:
-        return None
+    lines = []
+    for k, v in inv.items():
+        if v > 0:
+            lines.append(f"**{get_item_display(k)}** (`{k}`) x{v}")
+    return "\n".join(lines) or "Хоосон"
 
 
 def ensure_city_state():
@@ -283,6 +458,143 @@ def ensure_city_state():
 
 
 ensure_city_state()
+
+# ============================================================
+# OLD SAVE DATA CLEANUP
+# ============================================================
+try:
+    for uid_key, player in data.get("players", {}).items():
+        if isinstance(player, dict):
+            player.pop("energy", None)
+            ensure_player_upgrades(player)
+    save_data(data)
+except Exception:
+    pass
+
+# ============================================================
+# UPGRADED SHOP / WORK HELPERS
+# ============================================================
+def get_work_tier(level: int):
+    current = WORK_TIERS[0]
+    for tier in WORK_TIERS:
+        if level >= tier["min_level"]:
+            current = tier
+    return current
+
+
+def uid_hash(player: dict):
+    return f"{player.get('created_at', 0)}-{player.get('name', 'player')}"
+
+
+def get_dynamic_price(item_key: str, player: dict, market_type="shop"):
+    if item_key not in SHOP_ITEMS:
+        return 0
+
+    ensure_player_upgrades(player)
+
+    base = int(SHOP_ITEMS[item_key]["price"])
+    trade_bonus = player["skills"].get("trade", 0) * 0.01
+    charisma_bonus = player["skills"].get("charisma", 0) * 0.005
+    level_bonus = min(0.10, player["level"] * 0.001)
+
+    seed_day = datetime.utcnow().strftime("%Y%m%d")
+    rng = random.Random(f"{item_key}-{seed_day}-{market_type}")
+    fluctuation = rng.uniform(-0.18, 0.22)
+
+    item_type = SHOP_ITEMS[item_key].get("type", "misc")
+    if item_type == "food":
+        fluctuation += rng.uniform(-0.03, 0.04)
+    elif item_type == "weapon":
+        fluctuation += rng.uniform(0.00, 0.08)
+    elif item_type == "armor":
+        fluctuation += rng.uniform(0.01, 0.10)
+
+    if market_type == "buy":
+        modifier = 1.0 + fluctuation - trade_bonus - charisma_bonus - player.get("market_discount", 0)
+    elif market_type == "sell":
+        modifier = 0.60 + (trade_bonus * 0.8) + (charisma_bonus * 0.6) + max(-0.08, fluctuation * 0.35)
+    else:
+        modifier = 1.0 + fluctuation + level_bonus * 0.2
+
+    modifier = max(0.15, modifier)
+    return max(1, int(base * modifier))
+
+
+def get_blackmarket_price(item_key: str, player: dict):
+    if item_key not in BLACKMARKET_ITEMS:
+        return 0
+
+    ensure_player_upgrades(player)
+
+    base = int(BLACKMARKET_ITEMS[item_key]["price"])
+    seed_hour = datetime.utcnow().strftime("%Y%m%d%H")
+    rng = random.Random(f"bm-{uid_hash(player)}-{item_key}-{seed_hour}")
+
+    fluctuation = rng.uniform(-0.10, 0.22)
+    trade_bonus = player["skills"].get("trade", 0) * 0.008
+    charisma_bonus = player["skills"].get("charisma", 0) * 0.004
+
+    modifier = 1.0 + fluctuation - trade_bonus - charisma_bonus
+    modifier = max(0.40, modifier)
+
+    return max(1, int(base * modifier))
+
+
+def get_blackmarket_offers(player: dict):
+    ensure_player_upgrades(player)
+    seed_hour = datetime.utcnow().strftime("%Y%m%d%H")
+    rng = random.Random(f"blackmarket-{uid_hash(player)}-{seed_hour}")
+    keys = list(BLACKMARKET_ITEMS.keys())
+    rng.shuffle(keys)
+    return keys[:3]
+
+
+def format_shop_lines(player: dict):
+    ensure_player_upgrades(player)
+    grouped = {}
+
+    for item_key, meta in SHOP_ITEMS.items():
+        cat = meta.get("type", "other")
+        grouped.setdefault(cat, [])
+        buy_price = get_dynamic_price(item_key, player, "buy")
+        sell_price = get_dynamic_price(item_key, player, "sell")
+        grouped[cat].append(
+            f"**{item_key}** — {get_item_display(item_key)}\n"
+            f"Үнэ: **{buy_price}** | Буцаан зарах: **{sell_price}**"
+        )
+
+    parts = []
+    for cat, lines in grouped.items():
+        parts.append(f"**{SHOP_CATEGORIES.get(cat, cat)}**\n" + "\n".join(lines))
+    return "\n\n".join(parts)
+
+
+def get_work_cooldown(player: dict):
+    ensure_player_upgrades(player)
+    base = 300
+    logistics_reduce = player["tech"].get("logistics", 0) * 4
+    level_reduce = min(50, player["level"] // 3)
+    return max(120, base - logistics_reduce - level_reduce)
+
+
+def update_work_streak(player: dict):
+    ensure_player_upgrades(player)
+    today = datetime.utcnow().date()
+    last_day_raw = player.get("last_work_day")
+
+    try:
+        last_day = datetime.strptime(last_day_raw, "%Y-%m-%d").date() if last_day_raw else None
+    except Exception:
+        last_day = None
+
+    if last_day == today:
+        pass
+    elif last_day == (today - timedelta(days=1)):
+        player["work_streak"] = min(7, player.get("work_streak", 0) + 1)
+        player["last_work_day"] = today.strftime("%Y-%m-%d")
+    else:
+        player["work_streak"] = 1
+        player["last_work_day"] = today.strftime("%Y-%m-%d")
 
 # ============================================================
 # EMBEDS
@@ -407,7 +719,7 @@ async def start_game(ctx):
 @bot.command(name="help")
 async def help_command(ctx):
     categories = {
-        "👤 Суурь": "start, profile, stats, rank, xp, title, settitle, inventory, energy, heal",
+        "👤 Суурь": "start, profile, stats, rank, xp, title, settitle, inventory, heal",
         "💰 Эдийн засаг": "balance, bank, deposit, withdraw, work, daily, weekly, mine, hunt, farm, fish, tax, collecttax",
         "🛒 Дэлгүүр": "shop, buy, sell, market, blackmarket, price, craft",
         "⚔ Цэрэг": "recruit, army, disband, units, fortify, scout, train, garrison, patrol",
@@ -449,7 +761,6 @@ async def stats(ctx):
     atk, df = army_power(p)
     desc = (
         f"**HP:** {p['hp']}\n"
-        f"**Energy:** {p['energy']}\n"
         f"**Leadership:** {p['skills']['leadership']}\n"
         f"**Warfare:** {p['skills']['warfare']}\n"
         f"**Trade:** {p['skills']['trade']}\n"
@@ -496,12 +807,6 @@ async def settitle(ctx, *, title: str):
 async def inventory(ctx):
     p = get_player(ctx.author)
     await send_embed(ctx, "🎒 Агуулах", fmt_inventory(p), "shop", player=p)
-
-
-@bot.command(name="energy")
-async def energy(ctx):
-    p = get_player(ctx.author)
-    await send_embed(ctx, "🔋 Тамир", f"Одоогийн энерги: **{p['energy']} / 100**", "profile", player=p)
 
 
 @bot.command(name="heal")
@@ -556,31 +861,71 @@ async def withdraw(ctx, amount: str):
 
 
 @bot.command(name="work")
-async def work(ctx):
+async def upgraded_work(ctx):
     p = get_player(ctx.author)
-    ok, rem = cd_ready(p, "work", 300)
-    if not ok:
-        return await send_embed(ctx, "⏳ Хүлээ", f"Дахин ажиллах хүртэл **{rem} сек**.", "economy", player=p, color=0xCC8800)
+    ensure_player_upgrades(p)
 
-    jobs = [
-        ("татвар хураав", 120, 15),
-        ("тэрэг ачив", 110, 14),
-        ("хил хамгаалав", 140, 16),
-        ("ордонд зарлага хийв", 100, 13),
-        ("морь сургаж орлого оллоо", 160, 18),
-    ]
-    job, money, xp = random.choice(jobs)
-    p["money"] += money
-    levels = add_xp(p, xp)
+    cooldown = get_work_cooldown(p)
+    ok, rem = cd_ready(p, "work", cooldown)
+    if not ok:
+        return await send_embed(
+            ctx,
+            "⏳ Ажил Түр Хүлээгдэж Байна",
+            f"Дахин ажиллах хүртэл **{rem} сек**.\n"
+            f"Одоогийн cooldown: **{cooldown} сек**",
+            "economy",
+            player=p,
+            color=0xCC8800
+        )
+
+    tier = get_work_tier(p["level"])
+    update_work_streak(p)
+
+    job, base_money, base_xp = random.choice(tier["jobs"])
+
+    streak_bonus = 1 + (p["work_streak"] - 1) * 0.05
+    trade_bonus = 1 + p["skills"].get("trade", 0) * 0.015
+    level_bonus = 1 + min(0.35, p["level"] * 0.003)
+    random_bonus = random.uniform(0.92, 1.18)
+
+    final_money = int(base_money * streak_bonus * trade_bonus * level_bonus * random_bonus)
+    final_xp = int(base_xp * (1 + p["skills"].get("charisma", 0) * 0.01 + min(0.25, p["level"] * 0.002)))
+
+    special = []
+    roll = random.random()
+
+    if roll < 0.12:
+        bonus = random.randint(60, 180)
+        p["money"] += bonus
+        special.append(f"🎁 Тусгай шагнал: **+{bonus} мөнгө**")
+    elif roll < 0.22:
+        inf = random.randint(1, 3)
+        p["influence"] = p.get("influence", 0) + inf
+        special.append(f"👑 Нөлөө өсөв: **+{inf}**")
+    elif roll < 0.30:
+        item = random.choice(["airag", "mah", "guril", "mod", "aris"])
+        p["inventory"][item] = p["inventory"].get(item, 0) + 1
+        special.append(f"📦 Олдвор: **{get_item_display(item)} x1**")
+
+    p["money"] += final_money
+    levels = add_xp(p, final_xp)
     set_cd(p, "work")
     save_data(data)
+
     extra = f"\n🎖 Level up: {', '.join(map(str, levels))}" if levels else ""
+    specials = ("\n" + "\n".join(special)) if special else ""
+
     await ctx.send(
         embed=game_embed(
-            "🛠 Ажил",
-            f"Та **{job}**.\n**+{money} мөнгө**\n**+{xp} EXP**{extra}",
+            "🛠 Сайжруулсан Ажил",
+            f"**Ангилал:** {tier['name']}\n"
+            f"Та **{job}**.\n"
+            f"**+{final_money} мөнгө**\n"
+            f"**+{final_xp} EXP**\n"
+            f"**Streak:** {p['work_streak']}/7{extra}{specials}",
             category="economy",
             player=p,
+            color=0xC89B3C
         )
     )
 
@@ -703,63 +1048,311 @@ async def collecttax(ctx):
     await send_embed(ctx, "💰 Татвар Хураалаа", f"**+{income} мөнгө**\n**+{len(p['cities'])} нөлөө**", "economy", player=p)
 
 # ============================================================
-# SHOP / MARKET
+# SHOP / MARKET (UPGRADED)
 # ============================================================
 @bot.command(name="shop")
-async def shop(ctx):
+async def upgraded_shop(ctx):
     p = get_player(ctx.author)
-    lines = [f"**{k}** — {v['price']}" for k, v in SHOP_ITEMS.items()]
-    await send_embed(ctx, "🛒 Их Зах", "\n".join(lines), "shop", player=p)
+    ensure_player_upgrades(p)
 
-
-@bot.command(name="buy")
-async def buy(ctx, item: str, amount: int = 1):
-    p = get_player(ctx.author)
-    item = item.lower()
-    if item not in SHOP_ITEMS or amount <= 0:
-        return await send_embed(ctx, "❌ Алдаа", "Ийм бараа байхгүй.", "shop", player=p, color=0xB22222)
-    cost = SHOP_ITEMS[item]["price"] * amount
-    if p["money"] < cost:
-        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Нийт үнэ: **{cost}**", "shop", player=p, color=0xB22222)
-    p["money"] -= cost
-    p["inventory"][item] = p["inventory"].get(item, 0) + amount
-    save_data(data)
-    await send_embed(ctx, "✅ Худалдаж Авлаа", f"**{item} x{amount}**\n**-{cost} мөнгө**", "shop", player=p)
-
-
-@bot.command(name="sell")
-async def sell(ctx, item: str, amount: int = 1):
-    p = get_player(ctx.author)
-    item = item.lower()
-    have = p["inventory"].get(item, 0)
-    if have < amount or amount <= 0 or item not in SHOP_ITEMS:
-        return await send_embed(ctx, "❌ Алдаа", "Зарах бараа хүрэлцэхгүй байна.", "shop", player=p, color=0xB22222)
-    value = int(SHOP_ITEMS[item]["price"] * amount * 0.65)
-    p["inventory"][item] -= amount
-    p["money"] += value
-    save_data(data)
-    await send_embed(ctx, "💸 Зарлаа", f"**{item} x{amount}**\n**+{value} мөнгө**", "shop", player=p)
-
-
-@bot.command(name="market")
-async def market(ctx):
-    p = get_player(ctx.author)
-    await send_embed(ctx, "🏪 Зах Зээл", "Үнэ өдөр бүр хэлбэлзэх боломжтой өргөтгөлтэй суурь систем бэлэн.", "shop", player=p)
-
-
-@bot.command(name="blackmarket")
-async def blackmarket(ctx):
-    p = get_player(ctx.author)
-    await send_embed(ctx, "🕶 Хар Зах", "Энд ховор бараа, нууц наймаа, тусгай эд зүйлс нэмэх боломжтой.", "shop", player=p)
+    desc = format_shop_lines(p)
+    desc += (
+        f"\n\n**Таны хөнгөлөлт:** {int(p.get('market_discount', 0) * 100)}%"
+        f"\n**Trade skill:** {p['skills'].get('trade', 0)}"
+        f"\nХудалдаж авах: `{PREFIX}buy item amount`"
+        f"\nЗарах: `{PREFIX}sell item amount`"
+        f"\nҮнэ шалгах: `{PREFIX}price item`"
+        f"\nХар зах: `{PREFIX}blackmarket`"
+    )
+    await send_embed(ctx, "🛒 Их Захын Шинэчилсэн Дэлгүүр", desc, "shop", player=p)
 
 
 @bot.command(name="price")
-async def price(ctx, item: str):
+async def upgraded_price(ctx, item: str = None):
     p = get_player(ctx.author)
+    ensure_player_upgrades(p)
+
+    if not item:
+        return await send_embed(
+            ctx,
+            "❌ Ашиглалт",
+            f"`{PREFIX}price item` гэж ашиглана.",
+            "shop",
+            player=p,
+            color=0xB22222
+        )
+
     item = item.lower()
-    if item not in SHOP_ITEMS:
-        return await send_embed(ctx, "❌ Олдсонгүй", "Тэр бараа зах дээр алга.", "shop", player=p, color=0xB22222)
-    await send_embed(ctx, "💲 Үнэ", f"**{item}** үнэ: **{SHOP_ITEMS[item]['price']}**", "shop", player=p)
+
+    if item in SHOP_ITEMS:
+        buy_price = get_dynamic_price(item, p, "buy")
+        sell_price = get_dynamic_price(item, p, "sell")
+        await send_embed(
+            ctx,
+            "💲 Зах Зээлийн Үнэ",
+            f"**Бараа:** {get_item_display(item)} (`{item}`)\n"
+            f"**Худалдаж авах үнэ:** {buy_price}\n"
+            f"**Буцаан зарах үнэ:** {sell_price}\n"
+            f"**Суурь үнэ:** {SHOP_ITEMS[item]['price']}",
+            "shop",
+            player=p
+        )
+        return
+
+    if item in BLACKMARKET_ITEMS:
+        bm_price = get_blackmarket_price(item, p)
+        await send_embed(
+            ctx,
+            "🕶 Хар Захын Үнэ",
+            f"**{BLACKMARKET_ITEMS[item]['name']}**\n"
+            f"**Одоогийн үнэ:** **{bm_price}**\n"
+            f"**Суурь үнэ:** **{BLACKMARKET_ITEMS[item]['price']}**",
+            "shop",
+            player=p
+        )
+        return
+
+    await send_embed(ctx, "❌ Олдсонгүй", "Тэр бараа зах дээр алга.", "shop", player=p, color=0xB22222)
+
+
+@bot.command(name="buy")
+async def upgraded_buy(ctx, item: str = None, amount: int = 1):
+    p = get_player(ctx.author)
+    ensure_player_upgrades(p)
+
+    if not item:
+        return await send_embed(
+            ctx,
+            "❌ Ашиглалт",
+            f"`{PREFIX}buy item amount` гэж ашиглана.",
+            "shop",
+            player=p,
+            color=0xB22222
+        )
+
+    item = item.lower()
+
+    if amount <= 0:
+        return await send_embed(ctx, "❌ Алдаа", "Тоо хэмжээ буруу байна.", "shop", player=p, color=0xB22222)
+
+    if item in SHOP_ITEMS:
+        unit_price = get_dynamic_price(item, p, "buy")
+        total = unit_price * amount
+
+        if p["money"] < total:
+            return await send_embed(
+                ctx,
+                "❌ Мөнгө Хүрэлцэхгүй",
+                f"**{get_item_display(item)} x{amount}** авахад **{total} мөнгө** хэрэгтэй.",
+                "shop",
+                player=p,
+                color=0xB22222
+            )
+
+        p["money"] -= total
+        p["inventory"][item] = p["inventory"].get(item, 0) + amount
+        p["shop_stats"]["bought"] += amount
+
+        if random.random() < 0.10:
+            p["market_discount"] = min(0.15, p.get("market_discount", 0) + 0.01)
+
+        add_xp(p, max(4, amount * 2))
+        save_data(data)
+
+        return await send_embed(
+            ctx,
+            "✅ Амжилттай Худалдаж Авлаа",
+            f"**{get_item_display(item)} x{amount}**\n"
+            f"**Нэгж үнэ:** {unit_price}\n"
+            f"**Нийт:** -{total} мөнгө",
+            "shop",
+            player=p,
+            color=0x2E8B57
+        )
+
+    if item in BLACKMARKET_ITEMS:
+        if p["level"] < 25:
+            return await send_embed(
+                ctx,
+                "⛔ Хар Зах Хаалттай",
+                "Хар захаас авахын тулд дор хаяж **Level 25** хэрэгтэй.",
+                "shop",
+                player=p,
+                color=0xB22222
+            )
+
+        offers = get_blackmarket_offers(p)
+        if item not in offers:
+            return await send_embed(
+                ctx,
+                "🚫 Хар Захад Алга",
+                "Энэ цагт тэр бараа гарч ирээгүй байна.",
+                "shop",
+                player=p,
+                color=0xB22222
+            )
+
+        unit_price = get_blackmarket_price(item, p)
+        total = unit_price * amount
+
+        if p["money"] < total:
+            return await send_embed(
+                ctx,
+                "❌ Мөнгө Хүрэлцэхгүй",
+                f"Нийт үнэ: **{total}**",
+                "shop",
+                player=p,
+                color=0xB22222
+            )
+
+        p["money"] -= total
+        p["inventory"][item] = p["inventory"].get(item, 0) + amount
+        p["wanted"] = p.get("wanted", 0) + random.randint(0, amount)
+        p["shop_stats"]["bought"] += amount
+        add_xp(p, 10 + amount * 3)
+        save_data(data)
+
+        return await send_embed(
+            ctx,
+            "🕶 Хар Захын Наймаа Амжилттай",
+            f"**{BLACKMARKET_ITEMS[item]['name']} x{amount}**\n"
+            f"**Нэгж үнэ:** {unit_price}\n"
+            f"**Нийт:** -{total} мөнгө\n"
+            f"**Wanted:** {p['wanted']}",
+            "shop",
+            player=p,
+            color=0x6B2E8F
+        )
+
+    await send_embed(ctx, "❌ Алдаа", "Ийм бараа байхгүй.", "shop", player=p, color=0xB22222)
+
+
+@bot.command(name="sell")
+async def upgraded_sell(ctx, item: str = None, amount: str = "1"):
+    p = get_player(ctx.author)
+    ensure_player_upgrades(p)
+
+    if not item:
+        return await send_embed(
+            ctx,
+            "❌ Ашиглалт",
+            f"`{PREFIX}sell item amount` гэж ашиглана.",
+            "shop",
+            player=p,
+            color=0xB22222
+        )
+
+    item = item.lower()
+
+    if item not in p["inventory"] or p["inventory"].get(item, 0) <= 0:
+        return await send_embed(ctx, "❌ Алдаа", "Танд энэ бараа байхгүй.", "shop", player=p, color=0xB22222)
+
+    max_have = p["inventory"].get(item, 0)
+    amt = parse_amount(amount, max_have)
+
+    if amt is None or amt <= 0 or amt > max_have:
+        return await send_embed(ctx, "❌ Алдаа", "Зарах тоо хэмжээ буруу байна.", "shop", player=p, color=0xB22222)
+
+    if item in SHOP_ITEMS:
+        unit_price = get_dynamic_price(item, p, "sell")
+    elif item in BLACKMARKET_ITEMS:
+        unit_price = max(1, int(get_blackmarket_price(item, p) * 0.45))
+    else:
+        unit_price = 10
+
+    total = unit_price * amt
+    p["inventory"][item] -= amt
+    if p["inventory"][item] <= 0:
+        del p["inventory"][item]
+
+    p["money"] += total
+    p["shop_stats"]["sold"] += amt
+
+    if random.random() < 0.14:
+        bonus = random.randint(1, 2)
+        p["skills"]["trade"] = p["skills"].get("trade", 0) + bonus
+        trade_text = f"\n📈 Trade skill **+{bonus}**"
+    else:
+        trade_text = ""
+
+    save_data(data)
+
+    await send_embed(
+        ctx,
+        "💸 Амжилттай Зарлаа",
+        f"**{get_item_display(item)} x{amt}**\n"
+        f"**Нэгж үнэ:** {unit_price}\n"
+        f"**Нийт:** +{total} мөнгө{trade_text}",
+        "shop",
+        player=p,
+        color=0x2E8B57
+    )
+
+
+@bot.command(name="market")
+async def upgraded_market(ctx):
+    p = get_player(ctx.author)
+    ensure_player_upgrades(p)
+
+    hot_items = []
+    low_items = []
+
+    for item_key in SHOP_ITEMS.keys():
+        today_price = get_dynamic_price(item_key, p, "buy")
+        base = max(1, SHOP_ITEMS[item_key]["price"])
+        ratio = today_price / base
+
+        if ratio >= 1.10:
+            hot_items.append(f"**{get_item_display(item_key)}** — {today_price}")
+        elif ratio <= 0.92:
+            low_items.append(f"**{get_item_display(item_key)}** — {today_price}")
+
+    desc = (
+        f"**Өнөөдрийн зах зээл**\n"
+        f"Хямдарсан бараа:\n{chr(10).join(low_items[:5]) if low_items else 'Байхгүй'}\n\n"
+        f"Өссөн бараа:\n{chr(10).join(hot_items[:5]) if hot_items else 'Байхгүй'}\n\n"
+        f"**Таны наймааны үзүүлэлт**\n"
+        f"Авсан: {p['shop_stats']['bought']}\n"
+        f"Зарсан: {p['shop_stats']['sold']}\n"
+        f"Trade skill: {p['skills'].get('trade', 0)}\n"
+        f"Хөнгөлөлт: {int(p.get('market_discount', 0) * 100)}%"
+    )
+    await send_embed(ctx, "🏪 Зах Зээлийн Тайлан", desc, "shop", player=p)
+
+
+@bot.command(name="blackmarket")
+async def upgraded_blackmarket(ctx):
+    p = get_player(ctx.author)
+    ensure_player_upgrades(p)
+
+    if p["level"] < 25:
+        return await send_embed(
+            ctx,
+            "⛔ Хар Зах Нээгдээгүй",
+            "Хар зах ашиглахын тулд **Level 25** хүрэх хэрэгтэй.",
+            "shop",
+            player=p,
+            color=0xB22222
+        )
+
+    offers = get_blackmarket_offers(p)
+    lines = []
+
+    for key in offers:
+        item = BLACKMARKET_ITEMS[key]
+        dyn_price = get_blackmarket_price(key, p)
+        lines.append(
+            f"**{key}** — {item['name']}\n"
+            f"Үнэ: **{dyn_price}** | Төрөл: **{item['type']}**"
+        )
+
+    desc = (
+        "Эндхүү бараанууд цаг тутамд өөрчлөгдөнө.\n"
+        f"Худалдаж авах: `{PREFIX}buy item amount`\n\n"
+        + "\n\n".join(lines) +
+        f"\n\n**Wanted түвшин:** {p['wanted']}"
+    )
+    await send_embed(ctx, "🕶 Нууц Хар Зах", desc, "shop", player=p, color=0x5B2C6F)
 
 
 @bot.command(name="craft")
@@ -1013,9 +1606,18 @@ async def march(ctx):
 @bot.command(name="camp")
 async def camp(ctx):
     p = get_player(ctx.author)
-    p["energy"] = min(100, p["energy"] + 30)
+    max_hp = min(100 + p["level"], 300)
+    before = p["hp"]
+    p["hp"] = min(max_hp, p["hp"] + 35)
+    heal_amount = p["hp"] - before
     save_data(data)
-    await send_embed(ctx, "⛺ Хээрийн Отог", f"Энерги сэргэв.\n**Energy:** {p['energy']}/100", "travel", player=p)
+    await send_embed(
+        ctx,
+        "⛺ Хээрийн Отог",
+        f"Амарч хүчээ сэлбэв.\n**HP сэргэлт:** +{heal_amount}\n**Одоогийн HP:** {p['hp']}/{max_hp}",
+        "travel",
+        player=p
+    )
 
 
 @bot.command(name="attack")
@@ -1230,7 +1832,6 @@ async def setlevel(ctx, member: discord.Member, level: int):
     p["rank"] = get_rank(p["level"])
     p["xp"] = 0
     p["hp"] = min(100 + p["level"], 300)
-    p["energy"] = 100
     save_data(data)
     await send_embed(ctx, "🎖 Түвшин Тохирууллаа", f"**{member.display_name}** = Level **{p['level']}** ({p['rank']})", "admin", player=admin_p)
 
@@ -1340,6 +1941,14 @@ async def reloadgame(ctx):
     admin_p = get_player(ctx.author)
     data = load_data()
     ensure_city_state()
+    try:
+        for uid_key, player in data.get("players", {}).items():
+            if isinstance(player, dict):
+                player.pop("energy", None)
+                ensure_player_upgrades(player)
+        save_data(data)
+    except Exception:
+        pass
     await send_embed(ctx, "🔄 Өгөгдөл Дахин Ачааллаа", "Файл дахь мэдээлэл дахин уншигдлаа.", "admin", player=admin_p)
 
 # ============================================================
@@ -1437,18 +2046,23 @@ def register_extra_command(cmd_name: str, category: str, title: str, text: str):
         p = get_player(ctx.author)
         bonus_money = 0
         bonus_xp = 0
+
         if category == "economy":
             bonus_money = random.randint(20, 90)
             p["money"] += bonus_money
+
         if category in {"army", "battle", "conquest", "rank", "craft"}:
             bonus_xp = random.randint(4, 14)
             add_xp(p, bonus_xp)
+
         save_data(data)
+
         extra = []
         if bonus_money:
             extra.append(f"**+{bonus_money} мөнгө**")
         if bonus_xp:
             extra.append(f"**+{bonus_xp} EXP**")
+
         tail = "\n" + "\n".join(extra) if extra else ""
         await send_embed(ctx, title, text + tail, category, player=p)
 
