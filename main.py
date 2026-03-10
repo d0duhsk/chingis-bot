@@ -9,7 +9,7 @@ from discord.ext import commands
 
 # ============================================================
 # CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
-# FINAL MERGED VERSION - NO ENERGY
+# FINAL MERGED VERSION - NO ENERGY + IMPROVED UI
 # discord.py 2.x
 # ============================================================
 
@@ -41,6 +41,32 @@ IMAGES = {
     "craft": "https://images.unsplash.com/photo-1472851294608-062f824d29cc?q=80&w=1200&auto=format&fit=crop",
     "default": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
     "help": "https://cdn.discordapp.com/attachments/1479354971479609394/1480447298868871269/content.png",
+}
+
+EMOJIS = {
+    "money": "💰",
+    "bank": "🏦",
+    "xp": "✨",
+    "rank": "🎖",
+    "army": "⚔",
+    "defense": "🛡",
+    "city": "🏙",
+    "clan": "🐺",
+    "work": "🛠",
+    "shop": "🛒",
+    "market": "🏪",
+    "blackmarket": "🕶",
+    "inventory": "🎒",
+    "resource": "🪵",
+    "heal": "🩹",
+    "tax": "📜",
+    "crown": "👑",
+    "horse": "🐎",
+    "warning": "⚠",
+    "success": "✅",
+    "fail": "❌",
+    "fire": "🔥",
+    "star": "⭐",
 }
 
 # ============================================================
@@ -139,7 +165,6 @@ data = load_data()
 
 # ============================================================
 # WORK / SHOP SYSTEM UPGRADE
-# FINAL SAFETY PATCH - NO ENERGY VERSION
 # ============================================================
 for old_cmd in ["work", "shop", "buy", "sell", "market", "blackmarket", "price", "energy"]:
     try:
@@ -435,13 +460,13 @@ def fmt_army(player: dict) -> str:
 def fmt_inventory(player: dict) -> str:
     inv = player.get("inventory", {})
     if not inv:
-        return "Хоосон"
+        return "🎒 **Хоосон агуулах**"
 
     lines = []
     for k, v in inv.items():
         if v > 0:
-            lines.append(f"**{get_item_display(k)}** (`{k}`) x{v}")
-    return "\n".join(lines) or "Хоосон"
+            lines.append(f"• **{get_item_display(k)}** (`{k}`) × **{v}**")
+    return "\n".join(lines) or "🎒 **Хоосон агуулах**"
 
 
 def ensure_city_state():
@@ -558,9 +583,10 @@ def format_shop_lines(player: dict):
         grouped.setdefault(cat, [])
         buy_price = get_dynamic_price(item_key, player, "buy")
         sell_price = get_dynamic_price(item_key, player, "sell")
+
         grouped[cat].append(
-            f"**{item_key}** — {get_item_display(item_key)}\n"
-            f"Үнэ: **{buy_price}** | Буцаан зарах: **{sell_price}**"
+            f"• **{get_item_display(item_key)}** (`{item_key}`)\n"
+            f"　{EMOJIS['money']} Авах: **{buy_price}** | Буцааж зарах: **{sell_price}**"
         )
 
     parts = []
@@ -604,12 +630,39 @@ def image_for(category: str) -> str:
 
 
 def game_embed(title, description, category="default", player=None, color=0xA67C39):
-    em = discord.Embed(title=title, description=description, color=color)
+    em = discord.Embed(
+        title=title,
+        description=description,
+        color=color,
+        timestamp=datetime.utcnow()
+    )
 
     if player and player.get("rank") in RANK_IMAGES:
         em.set_image(url=RANK_IMAGES[player["rank"]])
     else:
         em.set_image(url=image_for(category))
+
+    em.set_footer(text="🐎 Chingis Empire RPG • Монгол Эзэнт Гүрэн")
+
+    if player:
+        em.add_field(
+            name="📌 Товч Мэдээлэл",
+            value=(
+                f"**{EMOJIS['rank']} Lv:** {player.get('level', 1)}\n"
+                f"**{EMOJIS['money']} Мөнгө:** {player.get('money', 0)}\n"
+                f"**{EMOJIS['xp']} EXP:** {player.get('xp', 0)}/{xp_to_next(player.get('level', 1))}"
+            ),
+            inline=True
+        )
+        em.add_field(
+            name="🏛 Байдал",
+            value=(
+                f"**{EMOJIS['crown']} Цол:** {player.get('rank', 'Малчин')}\n"
+                f"**{EMOJIS['clan']} Овог:** {player.get('clan') or 'Байхгүй'}\n"
+                f"**{EMOJIS['city']} Хот:** {len(player.get('cities', []))}"
+            ),
+            inline=True
+        )
 
     return em
 
@@ -707,28 +760,32 @@ async def start_game(ctx):
     await send_embed(
         ctx,
         "🐎 Эзэнт Гүрэнд Тавтай Морил",
-        f"**{ctx.author.display_name}** одооноос Монголын Их Эзэнт Гүрний замд орлоо.\n\n"
-        f"**Мөнгө:** {p['money']}\n"
-        f"**Түвшин:** {p['level']}\n"
-        f"**Цол:** {p['rank']}\n\n"
-        f"Тушаалын эхлэл: `{PREFIX}help`",
+        f"**{ctx.author.display_name}**, та одоо Монголын Их Эзэнт Гүрний шинэ иргэн боллоо.\n\n"
+        f"💰 **Эхлэх мөнгө:** {p['money']}\n"
+        f"🎖 **Түвшин:** {p['level']}\n"
+        f"👑 **Цол:** {p['rank']}\n\n"
+        f"📜 Эхлэх тушаал: `{PREFIX}help`",
         "start",
+        player=p
     )
 
 
 @bot.command(name="help")
 async def help_command(ctx):
     categories = {
-        "👤 Суурь": "start, profile, stats, rank, xp, title, settitle, inventory, heal",
-        "💰 Эдийн засаг": "balance, bank, deposit, withdraw, work, daily, weekly, mine, hunt, farm, fish, tax, collecttax",
-        "🛒 Дэлгүүр": "shop, buy, sell, market, blackmarket, price, craft",
-        "⚔ Цэрэг": "recruit, army, disband, units, fortify, scout, train, garrison, patrol",
-        "🏙 Дайн": "cities, city, conquer, invade, raid, defendcity, siege, march, camp, attack",
-        "👑 Овог": "clancreate, claninfo, clanjoin, clanleave, clandonate, clanvault, clanwar",
-        "📈 Удирдлага": "leaderboard, topmoney, toplevel, topwar, topcities, topclans",
-        "🛡 Админ": "adminhelp, give, setmoney, setlevel, addxp, resetplayer, wipecity, announce, settitleadmin, giveunit, takeunit, setcityowner, reloadgame",
+        "👤 Суурь Комманд": "`start`, `profile`, `stats`, `rank`, `xp`, `title`, `settitle`, `inventory`, `heal`",
+        "💰 Эдийн Засаг": "`balance`, `bank`, `deposit`, `withdraw`, `work`, `daily`, `weekly`, `mine`, `hunt`, `farm`, `fish`, `tax`, `collecttax`",
+        "🛒 Дэлгүүр / Зах": "`shop`, `buy`, `sell`, `market`, `blackmarket`, `price`, `craft`",
+        "⚔ Цэрэг / Арми": "`recruit`, `army`, `disband`, `units`, `fortify`, `scout`, `train`, `garrison`, `patrol`",
+        "🏙 Хот / Дайн": "`cities`, `city`, `conquer`, `invade`, `raid`, `defendcity`, `siege`, `march`, `camp`, `attack`",
+        "🐺 Овог": "`clancreate`, `claninfo`, `clanjoin`, `clanleave`, `clandonate`, `clanvault`, `clanwar`",
+        "🏆 Leaderboard": "`leaderboard`, `topmoney`, `toplevel`, `topwar`, `topcities`, `topclans`",
+        "🛡 Админ": "`adminhelp`, `give`, `setmoney`, `setlevel`, `addxp`, `resetplayer`, `wipecity`, `announce`, `settitleadmin`, `giveunit`, `takeunit`, `setcityowner`, `reloadgame`",
     }
-    desc = "\n\n".join(f"**{k}**\n{v}" for k, v in categories.items())
+
+    desc = "\n\n".join([f"**{k}**\n{v}" for k, v in categories.items()])
+    desc += f"\n\n**⚡ Эхлэх дараалал:** `{PREFIX}start` → `{PREFIX}work` → `{PREFIX}shop` → `{PREFIX}recruit` → `{PREFIX}conquer`"
+
     await send_embed(ctx, "📜 Их Тушаалын Жагсаалт", desc, "help")
 
 
@@ -737,21 +794,23 @@ async def profile(ctx, member: discord.Member = None):
     member = member or ctx.author
     p = get_player(member)
     atk, df = army_power(p)
+
     desc = (
-        f"**Нэр:** {member.display_name}\n"
-        f"**Түвшин:** {p['level']}\n"
-        f"**EXP:** {p['xp']}/{xp_to_next(p['level'])}\n"
-        f"**Цол:** {p['rank']}\n"
-        f"**Мөнгө:** {p['money']}\n"
-        f"**Банк:** {p['bank']}\n"
-        f"**Нөлөө:** {p['influence']}\n"
-        f"**Овог:** {p['clan'] or 'Байхгүй'}\n"
-        f"**Хот:** {len(p['cities'])}\n"
-        f"**Армийн Дайралт:** {atk}\n"
-        f"**Армийн Хамгаалалт:** {df}\n"
-        f"**Ялалт/Ялагдал:** {p['wins']}/{p['losses']}\n"
-        f"**Цол нэр:** {p['title']}"
+        f"**👤 Нэр:** {member.display_name}\n"
+        f"**🎖 Түвшин:** {p['level']}\n"
+        f"**✨ EXP:** {p['xp']}/{xp_to_next(p['level'])}\n"
+        f"**👑 Цол:** {p['rank']}\n"
+        f"**💰 Бэлэн мөнгө:** {p['money']}\n"
+        f"**🏦 Банк:** {p['bank']}\n"
+        f"**⭐ Нөлөө:** {p['influence']}\n"
+        f"**🐺 Овог:** {p['clan'] or 'Байхгүй'}\n"
+        f"**🏙 Хот:** {len(p['cities'])}\n"
+        f"**⚔ Дайралт:** {atk}\n"
+        f"**🛡 Хамгаалалт:** {df}\n"
+        f"**🏆 Ялалт / Ялагдал:** {p['wins']} / {p['losses']}\n"
+        f"**📜 Цол нэр:** {p['title']}"
     )
+
     await send_embed(ctx, f"👤 {member.display_name}-ийн Профайл", desc, "profile", player=p)
 
 
@@ -806,7 +865,7 @@ async def settitle(ctx, *, title: str):
 @bot.command(name="inventory", aliases=["bag"])
 async def inventory(ctx):
     p = get_player(ctx.author)
-    await send_embed(ctx, "🎒 Агуулах", fmt_inventory(p), "shop", player=p)
+    await send_embed(ctx, "🎒 Агуулах / Цүнх", fmt_inventory(p), "shop", player=p)
 
 
 @bot.command(name="heal")
@@ -919,10 +978,10 @@ async def upgraded_work(ctx):
         embed=game_embed(
             "🛠 Сайжруулсан Ажил",
             f"**Ангилал:** {tier['name']}\n"
-            f"Та **{job}**.\n"
-            f"**+{final_money} мөнгө**\n"
-            f"**+{final_xp} EXP**\n"
-            f"**Streak:** {p['work_streak']}/7{extra}{specials}",
+            f"**Үйлдэл:** Та **{job}**.\n\n"
+            f"💰 **+{final_money} мөнгө**\n"
+            f"✨ **+{final_xp} EXP**\n"
+            f"🔥 **Streak:** {p['work_streak']}/7{extra}{specials}",
             category="economy",
             player=p,
             color=0xC89B3C
@@ -1023,6 +1082,57 @@ async def fish(ctx):
     await send_embed(ctx, "🎣 Загасчлал", f"**+{money} мөнгө**\n**+12 EXP**", "craft", player=p)
 
 
+@bot.command(name="woodcut")
+async def woodcut(ctx):
+    p = get_player(ctx.author)
+    ok, rem = cd_ready(p, "woodcut", 420)
+    if not ok:
+        return await send_embed(ctx, "⏳ Мод Бэлтгэл", f"Дахин хийх хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
+
+    gain = random.randint(2, 6)
+    p["resources"]["мод"] += gain
+    p["money"] += 55
+    add_xp(p, 13)
+    set_cd(p, "woodcut")
+    save_data(data)
+    await send_embed(ctx, "🪓 Мод Бэлтгэл", f"**+{gain} мод**\n**+55 мөнгө**", "craft", player=p)
+
+
+@bot.command(name="quarry")
+async def quarry(ctx):
+    p = get_player(ctx.author)
+    ok, rem = cd_ready(p, "quarry", 450)
+    if not ok:
+        return await send_embed(ctx, "⏳ Чулуу Олборлолт", f"Дахин хийх хүртэл **{rem} сек**", "craft", player=p, color=0xCC8800)
+
+    gain = random.randint(2, 5)
+    p["resources"]["чулуу"] += gain
+    p["money"] += 65
+    add_xp(p, 14)
+    set_cd(p, "quarry")
+    save_data(data)
+    await send_embed(ctx, "🪨 Чулуу Олборлолт", f"**+{gain} чулуу**\n**+65 мөнгө**", "craft", player=p)
+
+
+@bot.command(name="resources")
+async def resources_cmd(ctx):
+    p = get_player(ctx.author)
+    res = p.get("resources", {})
+
+    lines = [
+        f"🪙 **Алт:** {res.get('алт', 0)}",
+        f"🪵 **Мод:** {res.get('мод', 0)}",
+        f"🪨 **Чулуу:** {res.get('чулуу', 0)}",
+        f"⛓ **Төмөр:** {res.get('төмөр', 0)}",
+        f"🧥 **Арьс:** {res.get('арьс', 0)}",
+        f"🐎 **Морь:** {res.get('морь', 0)}",
+        f"🌾 **Тариа:** {res.get('тариа', 0)}",
+        f"🍖 **Мах:** {res.get('мах', 0)}",
+    ]
+
+    await send_embed(ctx, "🪵 Түүхий Эдийн Нөөц", "\n".join(lines), "craft", player=p)
+
+
 @bot.command(name="tax")
 async def tax(ctx):
     p = get_player(ctx.author)
@@ -1048,7 +1158,7 @@ async def collecttax(ctx):
     await send_embed(ctx, "💰 Татвар Хураалаа", f"**+{income} мөнгө**\n**+{len(p['cities'])} нөлөө**", "economy", player=p)
 
 # ============================================================
-# SHOP / MARKET (UPGRADED)
+# SHOP / MARKET
 # ============================================================
 @bot.command(name="shop")
 async def upgraded_shop(ctx):
@@ -1057,14 +1167,17 @@ async def upgraded_shop(ctx):
 
     desc = format_shop_lines(p)
     desc += (
-        f"\n\n**Таны хөнгөлөлт:** {int(p.get('market_discount', 0) * 100)}%"
-        f"\n**Trade skill:** {p['skills'].get('trade', 0)}"
-        f"\nХудалдаж авах: `{PREFIX}buy item amount`"
-        f"\nЗарах: `{PREFIX}sell item amount`"
-        f"\nҮнэ шалгах: `{PREFIX}price item`"
-        f"\nХар зах: `{PREFIX}blackmarket`"
+        f"\n\n**🎯 Таны худалдааны урамшуулал**\n"
+        f"• Хөнгөлөлт: **{int(p.get('market_discount', 0) * 100)}%**\n"
+        f"• Trade skill: **{p['skills'].get('trade', 0)}**\n\n"
+        f"**Коммандууд**\n"
+        f"• Авах: `{PREFIX}buy item amount`\n"
+        f"• Зарах: `{PREFIX}sell item amount`\n"
+        f"• Үнэ шалгах: `{PREFIX}price item`\n"
+        f"• Зах тайлан: `{PREFIX}market`\n"
+        f"• Хар зах: `{PREFIX}blackmarket`"
     )
-    await send_embed(ctx, "🛒 Их Захын Шинэчилсэн Дэлгүүр", desc, "shop", player=p)
+    await send_embed(ctx, "🛒 Их Захын Дэлгүүр", desc, "shop", player=p)
 
 
 @bot.command(name="price")
@@ -1303,19 +1416,19 @@ async def upgraded_market(ctx):
         ratio = today_price / base
 
         if ratio >= 1.10:
-            hot_items.append(f"**{get_item_display(item_key)}** — {today_price}")
+            hot_items.append(f"🔥 **{get_item_display(item_key)}** — {today_price}")
         elif ratio <= 0.92:
-            low_items.append(f"**{get_item_display(item_key)}** — {today_price}")
+            low_items.append(f"💚 **{get_item_display(item_key)}** — {today_price}")
 
     desc = (
-        f"**Өнөөдрийн зах зээл**\n"
-        f"Хямдарсан бараа:\n{chr(10).join(low_items[:5]) if low_items else 'Байхгүй'}\n\n"
-        f"Өссөн бараа:\n{chr(10).join(hot_items[:5]) if hot_items else 'Байхгүй'}\n\n"
-        f"**Таны наймааны үзүүлэлт**\n"
-        f"Авсан: {p['shop_stats']['bought']}\n"
-        f"Зарсан: {p['shop_stats']['sold']}\n"
-        f"Trade skill: {p['skills'].get('trade', 0)}\n"
-        f"Хөнгөлөлт: {int(p.get('market_discount', 0) * 100)}%"
+        f"**{EMOJIS['market']} Өнөөдрийн Зах Зээл**\n\n"
+        f"**💚 Хямдарсан бараа:**\n{chr(10).join(low_items[:5]) if low_items else 'Одоогоор байхгүй'}\n\n"
+        f"**🔥 Өссөн бараа:**\n{chr(10).join(hot_items[:5]) if hot_items else 'Одоогоор байхгүй'}\n\n"
+        f"**📊 Таны худалдааны үзүүлэлт**\n"
+        f"• Авсан: **{p['shop_stats']['bought']}**\n"
+        f"• Зарсан: **{p['shop_stats']['sold']}**\n"
+        f"• Trade skill: **{p['skills'].get('trade', 0)}**\n"
+        f"• Хөнгөлөлт: **{int(p.get('market_discount', 0) * 100)}%**"
     )
     await send_embed(ctx, "🏪 Зах Зээлийн Тайлан", desc, "shop", player=p)
 
@@ -1512,16 +1625,35 @@ async def conquer(ctx, *, city_name: str):
     total = atk + bonus + random.randint(-80, 120)
 
     if total >= need:
+        old_owner = city["owner"]
         city["owner"] = ctx.author.display_name
+
+        if old_owner and old_owner != ctx.author.display_name:
+            for _, other_player in data["players"].items():
+                if other_player.get("name") == old_owner and city_name in other_player.get("cities", []):
+                    other_player["cities"].remove(city_name)
+                    break
+
         if city_name not in p["cities"]:
             p["cities"].append(city_name)
+
         city["defense"] = max(80, city["defense"] - random.randint(15, 40))
         p["wins"] += 1
         p["money"] += city["tax_base"]
         p["influence"] += 8
         add_xp(p, 80)
         save_data(data)
-        return await send_embed(ctx, "🏴 Хот Эзлэгдлээ", f"Та **{city_name}** хотыг эзэллээ!\n**+{city['tax_base']} мөнгө**\n**+8 нөлөө**", "conquest", player=p, color=0x2E8B57)
+
+        return await send_embed(
+            ctx,
+            "🏴 Хот Эзлэгдлээ",
+            f"Та **{city_name}** хотыг эзэллээ!\n"
+            f"💰 **+{city['tax_base']} мөнгө**\n"
+            f"⭐ **+8 нөлөө**",
+            "conquest",
+            player=p,
+            color=0x2E8B57
+        )
 
     p["losses"] += 1
     losses = {}
@@ -1530,8 +1662,9 @@ async def conquer(ctx, *, city_name: str):
         p["army"][u] -= lost
         if lost:
             losses[u] = lost
+
     save_data(data)
-    text = "\n".join(f"{k}: -{v}" for k, v in losses.items()) or "Хохирол бага байв."
+    text = "\n".join(f"• {UNIT_STATS[k]['name']}: -{v}" for k, v in losses.items()) or "Хохирол бага байв."
     await send_embed(ctx, "💥 Довтолгоо Амжилтгүй", f"**{city_name}** хамгаалалтыг нэвтэлж чадсангүй.\n\n{text}", "battle", player=p, color=0xB22222)
 
 
@@ -1924,12 +2057,24 @@ async def takeunit(ctx, member: discord.Member, unit: str, amount: int):
 async def setcityowner(ctx, city_name: str, member: discord.Member):
     admin_p = get_player(ctx.author)
     city_name = city_name.title()
+
     if city_name not in data["cities"]:
         return await send_embed(ctx, "❌ Хот Алга", "Ийм хот бүртгэлгүй.", "admin", player=admin_p, color=0xB22222)
+
+    old_owner = data["cities"][city_name]["owner"]
+
+    if old_owner and old_owner != member.display_name:
+        for _, other_player in data["players"].items():
+            if other_player.get("name") == old_owner and city_name in other_player.get("cities", []):
+                other_player["cities"].remove(city_name)
+                break
+
     p = get_player(member)
     data["cities"][city_name]["owner"] = member.display_name
+
     if city_name not in p["cities"]:
         p["cities"].append(city_name)
+
     save_data(data)
     await send_embed(ctx, "👑 Хот Эзэн Тохирууллаа", f"**{city_name}** → **{member.display_name}**", "admin", player=admin_p)
 
@@ -1960,9 +2105,6 @@ EXTRA_COMMANDS = {
     "bonus": ("economy", "💎 Урамшуулал", "Таны хүчинд урамшуулал олгов."),
     "salary": ("economy", "📜 Цалин", "Албаны цалингаа авлаа."),
     "warehouse": ("shop", "📦 Агуулах", "Бараа, нөөцийн төв агуулахын тойм."),
-    "resources": ("craft", "🪵 Нөөц", "Таны түүхий эдийн жагсаалт."),
-    "woodcut": ("craft", "🪓 Мод Бэлтгэл", "Та ойгоос мод бэлтгэлээ."),
-    "quarry": ("craft", "🪨 Чулуу", "Та чулуу олборлов."),
     "smelt": ("craft", "🔥 Хайлуулах", "Төмөр хайлуулах ажлыг эхлүүлэв."),
     "forge": ("craft", "⚒ Дархан", "Дархны газар зэвсэг цутгаж байна."),
     "stable": ("army", "🐴 Адууны Хашаа", "Морьдын бэлэн байдлыг шалгав."),
