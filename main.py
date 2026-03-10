@@ -5,7 +5,7 @@ import random
 from datetime import datetime, timedelta
 
 import discord
-from discord.ext import command
+from discord.ext import commands
 
 # ============================================================
 # CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
