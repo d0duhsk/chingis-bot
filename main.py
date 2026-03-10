@@ -158,7 +158,7 @@ def load_data():
 
 def save_data(data_obj):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data_obj, f, ensure_ascii=False, indent=2)
+        json.dump(data_obj, f, ensure_ascii=False, indent=2) 
 
 
 data = load_data()
@@ -483,6 +483,97 @@ def ensure_city_state():
 
 
 ensure_city_state()
+
+# ============================================================
+# BUILDINGS (BIG EMPIRE BALANCE)
+# ============================================================
+
+BUILDINGS = {
+
+    "ger": {
+        "name": "Гэр",
+        "price": 300,
+        "desc": "Иргэдийн амьдрах байр. Хүн ам өсөх суурь.",
+        "income": 10,
+        "power": 0,
+        "defense": 0,
+        "limit": 500,
+        "emoji": "⛺",
+        "build_time": 0
+    },
+
+    "farm": {
+        "name": "Ферм",
+        "price": 700,
+        "desc": "Хүнс үйлдвэрлэнэ. Орлого нэмэгдэнэ.",
+        "income": 35,
+        "power": 0,
+        "defense": 0,
+        "limit": 350,
+        "emoji": "🌾",
+        "build_time": 3
+    },
+
+    "stable": {
+        "name": "Морин Хашаа",
+        "price": 1200,
+        "desc": "Морь, цэргийн хүчийг нэмэгдүүлнэ.",
+        "income": 15,
+        "power": 20,
+        "defense": 5,
+        "limit": 250,
+        "emoji": "🐎",
+        "build_time": 4
+    },
+
+    "forge": {
+        "name": "Дархны Газар",
+        "price": 1800,
+        "desc": "Зэвсэг, хуяг үйлдвэрлэнэ. Mine bonus өгнө.",
+        "income": 20,
+        "power": 35,
+        "defense": 10,
+        "limit": 200,
+        "emoji": "⚒️",
+        "build_time": 5
+    },
+
+    "wall": {
+        "name": "Хэрэм",
+        "price": 2500,
+        "desc": "Хотын хамгаалалтыг ихэсгэнэ.",
+        "income": 0,
+        "power": 0,
+        "defense": 40,
+        "limit": 300,
+        "emoji": "🧱",
+        "build_time": 6
+    },
+
+    "market": {
+        "name": "Зах",
+        "price": 2200,
+        "desc": "Арилжаа, наймааг хөгжүүлнэ.",
+        "income": 60,
+        "power": 0,
+        "defense": 0,
+        "limit": 180,
+        "emoji": "🏪",
+        "build_time": 4
+    },
+
+    "temple": {
+        "name": "Сүм",
+        "price": 3200,
+        "desc": "Эзэнт гүрний нэр хүнд, хамгаалалтыг өсгөнө.",
+        "income": 25,
+        "power": 10,
+        "defense": 20,
+        "limit": 100,
+        "emoji": "🏯",
+        "build_time": 6
+    }
+}
 
 # ============================================================
 # OLD SAVE DATA CLEANUP
