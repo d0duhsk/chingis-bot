@@ -2,13 +2,14 @@ import os
 import json
 import math
 import random
+import tempfile
 from datetime import datetime, timedelta
 
 import discord
 from discord.ext import commands
 
 # ============================================================
-# CHINGIS EMPIRE BOT - CLEANED CORE VERSION
+# CHINGIS EMPIRE BOT - RAILWAY SAFE FINAL VERSION
 # NO ENERGY + IMPROVED UI + BUILDINGS
 # discord.py 2.x
 # ============================================================
@@ -21,7 +22,13 @@ MAX_LEVEL = 200
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
+
+bot = commands.Bot(
+    command_prefix=PREFIX,
+    intents=intents,
+    help_command=None,
+    allowed_mentions=discord.AllowedMentions.none(),
+)
 
 # ============================================================
 # IMAGE PACK
@@ -238,6 +245,12 @@ BUILDING_ALIASES = {
 # ============================================================
 # STORAGE
 # ============================================================
+def ensure_data_dir():
+    directory = os.path.dirname(DATA_FILE)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
+
 def now_ts() -> float:
     return datetime.utcnow().timestamp()
 
@@ -245,28 +258,52 @@ def now_ts() -> float:
 def load_data():
     default_data = {"players": {}, "clans": {}, "cities": {}, "wars": [], "settings": {}}
 
-    if not os.path.exists(DATA_FILE):
-        return default_data
-
     try:
+        ensure_data_dir()
+
+        if not os.path.exists(DATA_FILE):
+            return default_data
+
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             loaded = json.load(f)
-            if not isinstance(loaded, dict):
-                return default_data
 
-            loaded.setdefault("players", {})
-            loaded.setdefault("clans", {})
-            loaded.setdefault("cities", {})
-            loaded.setdefault("wars", [])
-            loaded.setdefault("settings", {})
-            return loaded
-    except Exception:
+        if not isinstance(loaded, dict):
+            return default_data
+
+        loaded.setdefault("players", {})
+        loaded.setdefault("clans", {})
+        loaded.setdefault("cities", {})
+        loaded.setdefault("wars", [])
+        loaded.setdefault("settings", {})
+        return loaded
+
+    except Exception as e:
+        print(f"[load_data] failed: {e}")
         return default_data
 
 
 def save_data(data_obj):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data_obj, f, ensure_ascii=False, indent=2)
+    try:
+        ensure_data_dir()
+        directory = os.path.dirname(DATA_FILE) or "."
+        fd, temp_path = tempfile.mkstemp(prefix="chingis_", suffix=".json", dir=directory)
+
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(data_obj, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+
+            os.replace(temp_path, DATA_FILE)
+        finally:
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except Exception:
+                    pass
+
+    except Exception as e:
+        print(f"[save_data] failed: {e}")
 
 
 data = load_data()
@@ -630,8 +667,8 @@ try:
             player.pop("energy", None)
             ensure_player_upgrades(player)
     save_data(data)
-except Exception:
-    pass
+except Exception as e:
+    print(f"[startup_cleanup] failed: {e}")
 
 # ============================================================
 # HELPERS
@@ -904,7 +941,16 @@ def is_admin():
 # ============================================================
 @bot.event
 async def on_ready():
-    print(f"{bot.user} online.")
+    try:
+        print("===================================================")
+        print(f"Logged in as: {bot.user}")
+        print(f"Bot ID: {bot.user.id if bot.user else 'unknown'}")
+        print(f"Prefix: {PREFIX!r}")
+        print(f"Data file: {DATA_FILE}")
+        print("Bot is online.")
+        print("===================================================")
+    except Exception as e:
+        print(f"[on_ready] error: {e}")
 
 
 @bot.event
@@ -912,24 +958,29 @@ async def on_message(message: discord.Message):
     if message.author.bot:
         return
 
-    player = get_player(message.author)
-    gain = random.randint(2, 5)
-    levels = add_xp(player, gain)
+    try:
+        player = get_player(message.author)
+        gain = random.randint(2, 5)
+        levels = add_xp(player, gain)
 
-    if levels:
-        await message.channel.send(
-            embed=game_embed(
-                "🏇 Цол Дэвшлээ",
-                f"**{message.author.display_name}** шинэ түвшинд хүрлээ!\n"
-                f"**Level:** {player['level']}\n"
-                f"**Цол:** {player['rank']}",
-                category="rank",
-                player=player,
-                color=0xE0B84D,
+        if levels:
+            await message.channel.send(
+                embed=game_embed(
+                    "🏇 Цол Дэвшлээ",
+                    f"**{message.author.display_name}** шинэ түвшинд хүрлээ!\n"
+                    f"**Level:** {player['level']}\n"
+                    f"**Цол:** {player['rank']}",
+                    category="rank",
+                    player=player,
+                    color=0xE0B84D,
+                )
             )
-        )
 
-    save_data(data)
+        save_data(data)
+
+    except Exception as e:
+        print(f"[on_message] error: {e}")
+
     await bot.process_commands(message)
 
 
@@ -2697,8 +2748,9 @@ async def reloadgame(ctx):
                 player.pop("energy", None)
                 ensure_player_upgrades(player)
         save_data(data)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[reloadgame] cleanup failed: {e}")
+
     await send_embed(ctx, "🔄 Өгөгдөл Дахин Ачааллаа", "Файл дахь мэдээлэл дахин уншигдлаа.", "admin", player=admin_p)
 
 # ============================================================
