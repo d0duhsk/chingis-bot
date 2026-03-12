@@ -8,8 +8,8 @@ import discord
 from discord.ext import commands
 
 # ============================================================
-# CHINGIS EMPIRE BOT - LARGE SCALE MONGOL STRATEGY RPG
-# FINAL MERGED VERSION - NO ENERGY + IMPROVED UI + BUILDINGS
+# CHINGIS EMPIRE BOT - CLEANED CORE VERSION
+# NO ENERGY + IMPROVED UI + BUILDINGS
 # discord.py 2.x
 # ============================================================
 
@@ -225,7 +225,6 @@ BUILDINGS = {
     }
 }
 
-# alias for easier build commands
 BUILDING_ALIASES = {
     "ger": "ger",
     "farm": "farm_building",
@@ -273,7 +272,7 @@ def save_data(data_obj):
 data = load_data()
 
 # ============================================================
-# WORK / SHOP SYSTEM UPGRADE
+# WORK / SHOP SYSTEM
 # ============================================================
 for old_cmd in ["work", "shop", "buy", "sell", "market", "blackmarket", "price", "energy"]:
     try:
@@ -635,7 +634,7 @@ except Exception:
     pass
 
 # ============================================================
-# UPGRADED SHOP / WORK HELPERS
+# HELPERS
 # ============================================================
 def get_work_tier(level: int):
     current = WORK_TIERS[0]
@@ -832,9 +831,7 @@ def format_building_queue(player: dict):
         meta = BUILDINGS.get(bkey)
 
         if meta:
-            lines.append(
-                f"{meta['emoji']} **{meta['name']} x{amount}** — дуусахад **{remain} сек**"
-            )
+            lines.append(f"{meta['emoji']} **{meta['name']} x{amount}** — дуусахад **{remain} сек**")
 
     return "\n".join(lines) if lines else "🏗 Одоогоор баригдаж буй барилга алга."
 
@@ -1001,11 +998,7 @@ async def help_command(ctx):
 
     em = discord.Embed(
         title="📜 CHINGIS EMPIRE • HELP",
-        description=(
-            f"**{ctx.author.display_name}**, доорх нь тоглоомын үндсэн тушаалууд.\n\n"
-            f"🗺 Заавар: `{PREFIX}guide`\n"
-            f"✨ Нэмэлт команд: `{PREFIX}extras`"
-        ),
+        description=f"**{ctx.author.display_name}**, доорх нь тоглоомын үндсэн тушаалууд.\n\n🗺 Заавар: `{PREFIX}guide`",
         color=0xD4AF37,
         timestamp=datetime.utcnow()
     )
@@ -1109,11 +1102,7 @@ async def help_command(ctx):
     )
 
     if ctx.author.guild_permissions.administrator:
-        em.add_field(
-            name="🛡 Админ",
-            value="`adminhelp`",
-            inline=False
-        )
+        em.add_field(name="🛡 Админ", value="`adminhelp`", inline=False)
 
     if p.get("rank") in RANK_IMAGES:
         em.set_image(url=RANK_IMAGES[p["rank"]])
@@ -1220,71 +1209,6 @@ async def guide_command(ctx):
     await ctx.send(embed=em)
 
 
-@bot.command(name="extras", aliases=["extra", "fun"])
-async def extras_command(ctx):
-    p = get_player(ctx.author)
-
-    em = discord.Embed(
-        title="✨ CHINGIS EMPIRE • EXTRA COMMANDS",
-        description=(
-            f"Эдгээр нь нэмэлт, roleplay, fun төрлийн командууд.\n"
-            f"Үндсэн командуудыг харах бол `{PREFIX}help`."
-        ),
-        color=0x8F6BC1,
-        timestamp=datetime.utcnow()
-    )
-
-    em.add_field(
-        name="💰 Economy Extras",
-        value="`beg`, `gift`, `bonus`, `salary`, `caravan`, `merchant`, `coin`, `treasury`",
-        inline=False
-    )
-
-    em.add_field(
-        name="⚔ Army Extras",
-        value="`stable`, `inspect`, `banner`, `drill`, `tactics`, `supply`, `medic`, `horsearcher`, `cavalry`, `kheshig`, `horse`, `bannerup`, `horn`",
-        inline=False
-    )
-
-    em.add_field(
-        name="🏙 Conquest Extras",
-        value="`province`, `frontier`, `border`, `expand`, `govern`, `prosperity`, `census`, `law`, `decree`, `tribute`",
-        inline=False
-    )
-
-    em.add_field(
-        name="🐺 Clan / RP Extras",
-        value="`alliance`, `diplomacy`, `treaty`, `envoy`, `respect`, `feast`, `marry`, `heir`, `bloodline`, `oath`",
-        inline=False
-    )
-
-    em.add_field(
-        name="👑 Rank / Story Extras",
-        value="`crown`, `throne`, `palace`, `council`, `minister`, `judge`, `scribe`, `honor`, `glory`, `bannerlord`",
-        inline=False
-    )
-
-    em.add_field(
-        name="🌍 World / Travel Extras",
-        value="`messenger`, `road`, `campfire`, `steppe`, `weather`, `oracle`, `legend`, `story`, `empire`, `homeland`",
-        inline=False
-    )
-
-    em.add_field(
-        name="📘 Info",
-        value="`about`, `version`, `server`, `rules`, `faq`, `news`, `event`, `season`, `ping`",
-        inline=False
-    )
-
-    if p.get("rank") in RANK_IMAGES:
-        em.set_image(url=RANK_IMAGES[p["rank"]])
-    else:
-        em.set_image(url=image_for("help"))
-
-    em.set_footer(text="🐎 Chingis Empire RPG • Нэмэлт Тушаалууд")
-    await ctx.send(embed=em)
-
-
 @bot.command(name="profile", aliases=["me"])
 async def profile(ctx, member: discord.Member = None):
     member = member or ctx.author
@@ -1313,13 +1237,7 @@ async def profile(ctx, member: discord.Member = None):
 
     save_data(data)
 
-    await send_embed(
-        ctx,
-        f"👤 {member.display_name}-ийн Профайл",
-        desc,
-        "profile",
-        player=p
-    )
+    await send_embed(ctx, f"👤 {member.display_name}-ийн Профайл", desc, "profile", player=p)
 
 
 @bot.command(name="stats")
@@ -1438,8 +1356,7 @@ async def upgraded_work(ctx):
         return await send_embed(
             ctx,
             "⏳ Ажил Түр Хүлээгдэж Байна",
-            f"Дахин ажиллах хүртэл **{rem} сек**.\n"
-            f"Одоогийн cooldown: **{cooldown} сек**",
+            f"Дахин ажиллах хүртэл **{rem} сек**.\nОдоогийн cooldown: **{cooldown} сек**",
             "economy",
             player=p,
             color=0xCC8800
@@ -1537,7 +1454,6 @@ async def mine(ctx):
     gain = random.randint(2, 6)
     iron = random.randint(1, 4)
 
-    b_income, b_power, b_def = building_stats(p)
     forge_bonus = p["buildings"].get("forge_building", 0)
     iron += min(6, forge_bonus // 8)
 
@@ -1704,14 +1620,7 @@ async def upgraded_price(ctx, item: str = None):
     ensure_player_upgrades(p)
 
     if not item:
-        return await send_embed(
-            ctx,
-            "❌ Ашиглалт",
-            f"`{PREFIX}price item` гэж ашиглана.",
-            "shop",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "❌ Ашиглалт", f"`{PREFIX}price item` гэж ашиглана.", "shop", player=p, color=0xB22222)
 
     item = item.lower()
 
@@ -1752,14 +1661,7 @@ async def upgraded_buy(ctx, item: str = None, amount: int = 1):
     ensure_player_upgrades(p)
 
     if not item:
-        return await send_embed(
-            ctx,
-            "❌ Ашиглалт",
-            f"`{PREFIX}buy item amount` гэж ашиглана.",
-            "shop",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "❌ Ашиглалт", f"`{PREFIX}buy item amount` гэж ашиглана.", "shop", player=p, color=0xB22222)
 
     item = item.lower()
 
@@ -1814,27 +1716,13 @@ async def upgraded_buy(ctx, item: str = None, amount: int = 1):
 
         offers = get_blackmarket_offers(p)
         if item not in offers:
-            return await send_embed(
-                ctx,
-                "🚫 Хар Захад Алга",
-                "Энэ цагт тэр бараа гарч ирээгүй байна.",
-                "shop",
-                player=p,
-                color=0xB22222
-            )
+            return await send_embed(ctx, "🚫 Хар Захад Алга", "Энэ цагт тэр бараа гарч ирээгүй байна.", "shop", player=p, color=0xB22222)
 
         unit_price = get_blackmarket_price(item, p)
         total = unit_price * amount
 
         if p["money"] < total:
-            return await send_embed(
-                ctx,
-                "❌ Мөнгө Хүрэлцэхгүй",
-                f"Нийт үнэ: **{total}**",
-                "shop",
-                player=p,
-                color=0xB22222
-            )
+            return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"Нийт үнэ: **{total}**", "shop", player=p, color=0xB22222)
 
         p["money"] -= total
         p["inventory"][item] = p["inventory"].get(item, 0) + amount
@@ -1864,14 +1752,7 @@ async def upgraded_sell(ctx, item: str = None, amount: str = "1"):
     ensure_player_upgrades(p)
 
     if not item:
-        return await send_embed(
-            ctx,
-            "❌ Ашиглалт",
-            f"`{PREFIX}sell item amount` гэж ашиглана.",
-            "shop",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "❌ Ашиглалт", f"`{PREFIX}sell item amount` гэж ашиглана.", "shop", player=p, color=0xB22222)
 
     item = item.lower()
 
@@ -1957,14 +1838,7 @@ async def upgraded_blackmarket(ctx):
     ensure_player_upgrades(p)
 
     if p["level"] < 25:
-        return await send_embed(
-            ctx,
-            "⛔ Хар Зах Нээгдээгүй",
-            "Хар зах ашиглахын тулд **Level 25** хүрэх хэрэгтэй.",
-            "shop",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "⛔ Хар Зах Нээгдээгүй", "Хар зах ашиглахын тулд **Level 25** хүрэх хэрэгтэй.", "shop", player=p, color=0xB22222)
 
     offers = get_blackmarket_offers(p)
     lines = []
@@ -2019,13 +1893,7 @@ async def buildings(ctx):
             f"{meta['desc']}"
         )
 
-    await send_embed(
-        ctx,
-        "🏗 Барилгын Жагсаалт",
-        "\n\n".join(lines),
-        "conquest",
-        player=p
-    )
+    await send_embed(ctx, "🏗 Барилгын Жагсаалт", "\n\n".join(lines), "conquest", player=p)
 
 
 @bot.command(name="mybuildings")
@@ -2046,10 +1914,7 @@ async def mybuildings(ctx):
     built_text = "\n".join(built_lines) if built_lines else "Одоогоор барьсан барилга алга."
 
     if finished:
-        done_text = "\n".join(
-            f"{BUILDINGS[b]['emoji']} **{BUILDINGS[b]['name']} x{amt}**"
-            for b, amt in finished
-        )
+        done_text = "\n".join(f"{BUILDINGS[b]['emoji']} **{BUILDINGS[b]['name']} x{amt}**" for b, amt in finished)
         done_text = f"\n\n✅ **Шинээр дууссан:**\n{done_text}"
     else:
         done_text = ""
@@ -2072,14 +1937,7 @@ async def build(ctx, building_key: str = None, amount: int = 1):
     process_building_queue(p)
 
     if not building_key:
-        return await send_embed(
-            ctx,
-            "❌ Ашиглалт",
-            f"`{PREFIX}build ger 1` эсвэл `{PREFIX}build farm 2`",
-            "conquest",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "❌ Ашиглалт", f"`{PREFIX}build ger 1` эсвэл `{PREFIX}build farm 2`", "conquest", player=p, color=0xB22222)
 
     building_key = building_key.lower()
     real_key = BUILDING_ALIASES.get(building_key)
@@ -2107,14 +1965,7 @@ async def build(ctx, building_key: str = None, amount: int = 1):
 
     total_cost = meta["price"] * amount
     if p["money"] < total_cost:
-        return await send_embed(
-            ctx,
-            "❌ Мөнгө Хүрэлцэхгүй",
-            f"**{meta['name']} x{amount}** барихад **{total_cost}** мөнгө хэрэгтэй.",
-            "conquest",
-            player=p,
-            color=0xB22222
-        )
+        return await send_embed(ctx, "❌ Мөнгө Хүрэлцэхгүй", f"**{meta['name']} x{amount}** барихад **{total_cost}** мөнгө хэрэгтэй.", "conquest", player=p, color=0xB22222)
 
     p["money"] -= total_cost
 
@@ -2168,26 +2019,13 @@ async def collectincome(ctx):
     if income <= 0:
         if finished:
             save_data(data)
-        return await send_embed(
-            ctx,
-            "🏛 Орлого Алга",
-            "Танд орлого өгдөг барилга алга.",
-            "conquest",
-            player=p
-        )
+        return await send_embed(ctx, "🏛 Орлого Алга", "Танд орлого өгдөг барилга алга.", "conquest", player=p)
 
     ok, rem = cd_ready(p, "collectincome", 3600)
     if not ok:
         if finished:
             save_data(data)
-        return await send_embed(
-            ctx,
-            "⏳ Орлого Бэлэн Биш",
-            f"Дахин авах хүртэл **{rem // 60} мин**",
-            "conquest",
-            player=p,
-            color=0xCC8800
-        )
+        return await send_embed(ctx, "⏳ Орлого Бэлэн Биш", f"Дахин авах хүртэл **{rem // 60} мин**", "conquest", player=p, color=0xCC8800)
 
     bonus = 1 + (p["tech"].get("economy", 0) * 0.03)
     total_income = int(income * bonus)
@@ -2367,7 +2205,7 @@ async def conquer(ctx, *, city_name: str):
         return await send_embed(ctx, "❌ Хот Олдсонгүй", "Ийм хот байхгүй.", "conquest", player=p, color=0xB22222)
 
     atk, _ = army_power(p)
-    b_income, b_power, b_def = building_stats(p)
+    _, b_power, _ = building_stats(p)
 
     city = data["cities"][city_name]
     need = city["defense"]
@@ -2399,9 +2237,7 @@ async def conquer(ctx, *, city_name: str):
         return await send_embed(
             ctx,
             "🏴 Хот Эзлэгдлээ",
-            f"Та **{city_name}** хотыг эзэллээ!\n"
-            f"💰 **+{city['tax_base']} мөнгө**\n"
-            f"⭐ **+8 нөлөө**",
+            f"Та **{city_name}** хотыг эзэллээ!\n💰 **+{city['tax_base']} мөнгө**\n⭐ **+8 нөлөө**",
             "conquest",
             player=p,
             color=0x2E8B57
@@ -2864,124 +2700,6 @@ async def reloadgame(ctx):
     except Exception:
         pass
     await send_embed(ctx, "🔄 Өгөгдөл Дахин Ачааллаа", "Файл дахь мэдээлэл дахин уншигдлаа.", "admin", player=admin_p)
-
-# ============================================================
-# EXTRA COMMAND PACK
-# ============================================================
-EXTRA_COMMANDS = {
-    "beg": ("economy", "🙏 Өршөөл", "Та замаар өнгөрөгчдөөс багахан хандив авлаа."),
-    "gift": ("economy", "🎁 Бэлэг", "Ордноос танд өчүүхэн бэлэг ирэв."),
-    "bonus": ("economy", "💎 Урамшуулал", "Таны хүчинд урамшуулал олгов."),
-    "salary": ("economy", "📜 Цалин", "Албаны цалингаа авлаа."),
-    "warehouse": ("shop", "📦 Агуулах", "Бараа, нөөцийн төв агуулахын тойм."),
-    "smelt": ("craft", "🔥 Хайлуулах", "Төмөр хайлуулах ажлыг эхлүүлэв."),
-    "forge": ("craft", "⚒ Дархан", "Дархны газар зэвсэг цутгаж байна."),
-    "stable": ("army", "🐴 Адууны Хашаа", "Морьдын бэлэн байдлыг шалгав."),
-    "inspect": ("army", "🧐 Үзлэг", "Армийн эгнээг шалгалаа."),
-    "banner": ("army", "🚩 Туг", "Таны тугийн сүр жавхаа өсөв."),
-    "drill": ("army", "🏇 Дасгал", "Цэргүүд жагсаалын бэлтгэл хийв."),
-    "tactics": ("army", "🗺 Тактик", "Та тулалдааны шинэ тактик боловсруулав."),
-    "supply": ("army", "📦 Хангамж", "Армийн хүнс, сум зэвсгийг нөхөв."),
-    "medic": ("army", "🩺 Эмч", "Шархдагсдад тусламж үзүүлэв."),
-    "horsearcher": ("army", "🏹 Морин Харваач", "Морин харваачдын сургуулилтыг ажиглав."),
-    "cavalry": ("army", "🐎 Морин Цэрэг", "Морин цэргийн бэлэн байдал хэвийн байна."),
-    "kheshig": ("army", "👑 Хишигтэн", "Хишигтэн хамгаалалт ордныг манаж байна."),
-    "province": ("conquest", "🗺 Муж", "Таны хилийн мужуудын байдал."),
-    "frontier": ("conquest", "🏔 Хил", "Хилийн байдал тайван байна."),
-    "border": ("conquest", "🚧 Хил Хязгаар", "Хилийн харуул нэмэгдэв."),
-    "expand": ("conquest", "📍 Тэлэлт", "Эзэнт гүрний нөлөө өргөжив."),
-    "govern": ("conquest", "🏛 Засаглал", "Хот, мужийн засаг захиргааг шалгав."),
-    "prosperity": ("conquest", "🌟 Цэцэглэлт", "Хотын хөгжил өсөх шинжтэй байна."),
-    "census": ("conquest", "📋 Тооллого", "Хүн ам, алба татварын тооллого хийгдэв."),
-    "law": ("conquest", "⚖ Их Засаг", "Хууль цаазыг шинээр тунхаглав."),
-    "decree": ("conquest", "📜 Зарлиг", "Төрийн зарлиг нийтэд хүрэв."),
-    "tribute": ("conquest", "🏺 Алба", "Захирагдсан нутгаас алба ирэв."),
-    "alliance": ("clan", "🤝 Холбоо", "Холбоотны талаар хэлэлцэв."),
-    "diplomacy": ("clan", "🕊 Дипломат", "Элч нарыг илгээв."),
-    "treaty": ("clan", "📜 Гэрээ", "Энхийн гэрээний төсөл бэлэн болов."),
-    "envoy": ("clan", "✉ Элч", "Элч мордов."),
-    "respect": ("clan", "⭐ Нэр Хүнд", "Таны овгийн нэр хүнд өсөж байна."),
-    "feast": ("clan", "🍖 Найр", "Их найр зохион байгууллаа."),
-    "marry": ("clan", "💍 Гэрлэлт", "Улс төрийн гэрлэлт бол холбооны хэрэгсэл юм."),
-    "heir": ("clan", "👶 Залгамжлагч", "Удам залгах асуудлыг хэлэлцэв."),
-    "bloodline": ("clan", "🩸 Удам", "Таны угсаа гарлын сүр хүч нэмэгдэв."),
-    "oath": ("clan", "🛡 Тангараг", "Тангараг өргөсөн цэргүүд үнэнч байна."),
-    "ping": ("default", "🏓 Ping", "Ботын хариу хэвийн байна."),
-    "about": ("default", "📖 Тухай", "Chingis Empire RPG бол Монгол эзэнт гүрний сэдэвт стратеги бот юм."),
-    "version": ("default", "🧩 Version", "Starter mega build v1."),
-    "server": ("default", "🏰 Сервер", "Энэ сервер дээр эзэнт гүрний дайн өрнөж байна."),
-    "rules": ("default", "📘 Дүрэм", "Серверийн дүрэм, шударга тоглоомыг мөрд."),
-    "faq": ("default", "❓ FAQ", "Хамгийн түгээмэл асуултын хариултууд энд байна."),
-    "news": ("default", "📰 Мэдээ", "Өнөөдрийн эзэнт гүрний мэдээ ирлээ."),
-    "event": ("default", "🎉 Event", "Түр хугацааны арга хэмжээ идэвхжиж болно."),
-    "season": ("default", "🍂 Улирал", "Тал нутгийн улирал дайнд нөлөөлнө."),
-    "horse": ("army", "🐴 Морь", "Таны шилдэг хүлгүүд аянд бэлэн."),
-    "caravan": ("economy", "🐪 Жин Тэрэг", "Худалдааны жин ачаагаа хөдөлгөв."),
-    "merchant": ("economy", "🧿 Наймаачин", "Наймаачид таны ордонд бараа дэлгэлээ."),
-    "bazaar": ("shop", "🏪 Базар", "Өргөн зах ажиллаж байна."),
-    "coin": ("economy", "🪙 Зоос", "Эргэлт дэх мөнгөн тэмдэгтийн байдал тогтвортой байна."),
-    "treasury": ("economy", "🏛 Сангийн Яам", "Улсын сангийн тайланг үзлээ."),
-    "crown": ("rank", "👑 Титэм", "Дээд эрх мэдлийн бэлгэдэл."),
-    "throne": ("rank", "🪑 Сэнтий", "Сэнтийн төлөө өрсөлдөөн ширүүснэ."),
-    "palace": ("rank", "🏯 Ордон", "Ордны амьдрал үргэлжилж байна."),
-    "council": ("rank", "🧠 Зөвлөл", "Их зөвлөл хуралдав."),
-    "minister": ("rank", "📜 Сайд", "Төрийн сайд нарын асуудал өрнөв."),
-    "judge": ("rank", "⚖ Шүүлт", "Шихихутаг маягийн шүүн таслах ажил өрнөв."),
-    "scribe": ("rank", "✒ Бичээч", "Төрийн бичээч зарлиг тэмдэглэв."),
-    "messenger": ("travel", "📯 Элч Мордов", "Алс хязгаар руу элч илгээлээ."),
-    "road": ("travel", "🛤 Зам", "Их зам дагуух хөдөлгөөн идэвхжив."),
-    "campfire": ("travel", "🔥 Түүдэг", "Шөнийн отог тайван байна."),
-    "steppe": ("travel", "🌾 Тал Нутгийн Салхи", "Тал нутгийн сүр хүч мэдрэгдэнэ."),
-    "weather": ("travel", "☁ Цаг Агаар", "Цаг агаар аян дайнд нөлөөлж болно."),
-    "oracle": ("default", "🔮 Зөн", "Ирээдүйд их дайн ирж болзошгүй."),
-    "legend": ("default", "📚 Домог", "Чингисийн үеийн домог, сүр хүчний түүх үргэлжилнэ."),
-    "story": ("default", "📖 Түүх", "Таны эзэнт гүрний түүх бичигдсээр байна."),
-    "honor": ("rank", "🏅 Нэр Төр", "Нэр төр цусаар бус үйл хэргээр тогтдог."),
-    "glory": ("rank", "✨ Алдар", "Ялалт алдар хүндийг авчирна."),
-    "destiny": ("default", "🌌 Хувь Тавилан", "Их хааны зам хэцүү ч сүрлэг."),
-    "bannerup": ("army", "🚩 Туг Өргөв", "Туг намирч, цэргүүдийн зориг өсөв."),
-    "horn": ("army", "📯 Бүрээ", "Дайны бүрээ хангинав."),
-    "charge": ("battle", "⚡ Дайралт", "Шуурхай дайралтын бэлтгэл хангагдав."),
-    "retreat": ("battle", "↩ Ухралт", "Ухаалаг ухралт ч ялалтын нэг хэлбэр."),
-    "ambush": ("battle", "🌫 Отолт", "Отолтын байршлыг тагнав."),
-    "duel": ("battle", "🗡 Халз", "Ноёдын халз тулаан эхлэх дөхөв."),
-    "bannerlord": ("rank", "🏇 Тугт Ноён", "Тугт ноёдын сүр хүчийг дурсав."),
-    "empire": ("default", "🌍 Эзэнт Гүрэн", "Таны ирээдүйн зорилго бол дэлхийг нэгтгэх."),
-    "homeland": ("default", "🏕 Эх Нутаг", "Эх нутгийн хүч таны сэтгэлд байна."),
-}
-
-
-def register_extra_command(cmd_name: str, category: str, title: str, text: str):
-    async def _cmd(ctx):
-        p = get_player(ctx.author)
-        bonus_money = 0
-        bonus_xp = 0
-
-        if category == "economy":
-            bonus_money = random.randint(20, 90)
-            p["money"] += bonus_money
-
-        if category in {"army", "battle", "conquest", "rank", "craft"}:
-            bonus_xp = random.randint(4, 14)
-            add_xp(p, bonus_xp)
-
-        save_data(data)
-
-        extra = []
-        if bonus_money:
-            extra.append(f"**+{bonus_money} мөнгө**")
-        if bonus_xp:
-            extra.append(f"**+{bonus_xp} EXP**")
-
-        tail = "\n" + "\n".join(extra) if extra else ""
-        await send_embed(ctx, title, text + tail, category, player=p)
-
-    _cmd.__name__ = f"cmd_{cmd_name}"
-    bot.command(name=cmd_name)(_cmd)
-
-
-for _name, (_cat, _title, _text) in EXTRA_COMMANDS.items():
-    register_extra_command(_name, _cat, _title, _text)
 
 # ============================================================
 # FINAL SAFETY
