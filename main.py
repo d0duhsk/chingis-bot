@@ -1041,18 +1041,16 @@ async def start_game(ctx):
         player=p
     )
 
-@bot.command(name="help", aliases=["commands", "cmd"])
+@bot.command(name="help", aliases=["commands", "cmd", "menu"])
 async def help_command(ctx):
-
     em = discord.Embed(
-        title="📜 CHINGIS EMPIRE • COMMAND CENTER",
+        title="⚜ CHINGIS EMPIRE • ИХ ТУШААЛЫН ТӨВ ⚜",
         description=(
-            "⚔ **Чингисийн эзэнт гүрэнд тавтай морил!**\n"
-            "Доорх тушаалуудыг ашиглан хүчирхэг хаант улс байгуул.\n\n"
-            "💰 Эдийн засгаа босго\n"
-            "⚔ Арми байгуул\n"
-            "🏙 Хот эзэл\n"
-            "👑 Домог бол"
+            f"👑 **{ctx.author.display_name}**, Чингисийн эзэнт гүрний тушаалын төвд тавтай морил.\n\n"
+            "💰 **Эдийн засгаа босго**\n"
+            "⚔ **Армиа хүчирхэг болго**\n"
+            "🏯 **Хот, барилгаа хөгжүүл**\n"
+            "👑 **Эцэст нь домог болон манд**"
         ),
         color=0xD4AF37
     )
@@ -1062,8 +1060,8 @@ async def help_command(ctx):
         value=(
             "`start` → тоглоом эхлэх\n"
             "`profile` / `me` → профайл харах\n"
-            "`stats` → тоглогчийн статистик\n"
-            "`rank` → ранк харах"
+            "`stats` → статистик харах\n"
+            "`rank` → зэрэглэл харах"
         ),
         inline=False
     )
@@ -1072,7 +1070,7 @@ async def help_command(ctx):
         name="💰 Эдийн засаг",
         value=(
             "`work` → мөнгө олох\n"
-            "`shop` → дэлгүүр\n"
+            "`shop` → дэлгүүр үзэх\n"
             "`buy <item>` → зүйл худалдаж авах\n"
             "`sell <item>` → зүйл зарах"
         ),
@@ -1080,25 +1078,38 @@ async def help_command(ctx):
     )
 
     em.add_field(
-        name="⚔ Арми",
+        name="⚔ Арми ба тулаан",
         value=(
             "`army` → армийн мэдээлэл\n"
             "`train` → цэрэг сургах\n"
-            "`attack` → тулалдах\n"
+            "`attack` → дайрах\n"
             "`raid` → довтлох"
         ),
         inline=False
     )
 
     em.add_field(
-        name="🏙 Барилга",
+        name="🏯 Барилга ба хөгжил",
         value=(
             "`build` → барилга барих\n"
-            "`buildings` → барилгууд харах\n"
+            "`buildings` → барилгуудаа харах\n"
             "`mine` → нөөц олборлох"
         ),
         inline=False
     )
+
+    em.add_field(
+        name="👑 Нэмэлт",
+        value=(
+            "`title` → цол харах\n"
+            "`settitle` → цол тохируулах\n"
+            "`help` → энэ цэсийг дахин харах"
+        ),
+        inline=False
+    )
+
+    em.set_footer(text="⚜ Rise of the Great Khan ⚜")
+    await ctx.send(embed=em)
 
     em.set_footer(text="⚜ Rise of the Great Khan ⚜")
 
