@@ -1042,116 +1042,133 @@ async def start_game(ctx):
     )
 
 
-@bot.command(name="help", aliases=["commands", "cmd", "menu"])
-async def help_command(ctx):
+@bot.command(name="help")
+async def help_command(ctx, section: str = None):
     p = get_player(ctx.author)
-    atk, df = army_power(p)
+
+    if section is None:
+
+        em = discord.Embed(
+            title="📜 CHINGIS EMPIRE • HELP",
+            description="Доорх төрлөөс сонгож командуудаа хараарай.",
+            color=0xD4AF37
+        )
+
+        em.add_field(
+            name="👤 Player",
+            value=f"`{PREFIX}help player`",
+            inline=True
+        )
+
+        em.add_field(
+            name="💰 Economy",
+            value=f"`{PREFIX}help economy`",
+            inline=True
+        )
+
+        em.add_field(
+            name="⚔ War",
+            value=f"`{PREFIX}help war`",
+            inline=True
+        )
+
+        em.add_field(
+            name="🏗 Build",
+            value=f"`{PREFIX}help build`",
+            inline=True
+        )
+
+        em.add_field(
+            name="🐺 Clan",
+            value=f"`{PREFIX}help clan`",
+            inline=True
+        )
+
+        await ctx.send(embed=em)
+        return
+
+    section = section.lower()
+
+    if section == "player":
+
+        text = """
+`start` – тоглоом эхлүүлэх  
+`profile` – өөрийн мэдээлэл  
+`inventory` – агуулах  
+`rank` – цол  
+`stats` – үзүүлэлт
+"""
+
+    elif section == "economy":
+
+        text = """
+`work` – ажил хийх  
+`daily` – өдөр тутмын шагнал  
+`weekly` – долоо хоногийн шагнал  
+
+`mine` – уурхай  
+`hunt` – ан хийх  
+`farm` – тариа тарих  
+
+`shop` – дэлгүүр  
+`buy` – авах  
+`sell` – зарах  
+`market` – зах
+"""
+
+    elif section == "war":
+
+        text = """
+`units` – цэргүүд харах  
+`recruit` – цэрэг авах  
+`army` – армийн хүч  
+
+`cities` – хотууд  
+`scout` – тагнах  
+`conquer` – хот эзлэх  
+
+`raid` – дээрэм  
+`attack` – тоглогч дайрах
+"""
+
+    elif section == "build":
+
+        text = """
+`buildings` – барилга харах  
+`mybuildings` – өөрийн барилга  
+
+`build` – барилга барих  
+`collectincome` – орлого авах
+"""
+
+    elif section == "clan":
+
+        text = """
+`clancreate` – овог байгуулах  
+`clanjoin` – овогт нэгдэх  
+`clanleave` – овгоос гарах  
+
+`clandonate` – сан нэмэх  
+`clanvault` – овгийн сан
+"""
+
+    else:
+        return await ctx.send("❌ Unknown help section")
 
     em = discord.Embed(
-        title="📜 CHINGIS EMPIRE • HELP",
-        description=f"**{ctx.author.display_name}**, доорх нь тоглоомын үндсэн тушаалууд.\n\n🗺 Заавар: `{PREFIX}guide`",
-        color=0xD4AF37,
-        timestamp=datetime.utcnow()
+        title=f"📜 HELP • {section.upper()}",
+        description=text,
+        color=0xC89B3C
     )
 
-    em.add_field(
-        name="👤 Суурь",
-        value=(
-            "`start`, `profile`, `me`, `stats`, `rank`, `xp`\n"
-            "`title`, `settitle`, `inventory`, `bag`, `heal`"
-        ),
-        inline=False
-    )
+    if p.get("rank") in RANK_IMAGES:
+        em.set_image(url=RANK_IMAGES[p["rank"]])
+    else:
+        em.set_image(url=image_for("help"))
 
-    em.add_field(
-        name="💰 Эдийн засаг",
-        value=(
-            "`balance`, `bal`, `money`, `bank`\n"
-            "`deposit`, `withdraw`, `work`, `daily`, `weekly`\n"
-            "`mine`, `hunt`, `farm`, `fish`, `woodcut`, `quarry`\n"
-            "`resources`, `tax`, `collecttax`"
-        ),
-        inline=False
-    )
+    await ctx.send(embed=em)
 
-    em.add_field(
-        name="🛒 Худалдаа",
-        value=(
-            "`shop`, `price`, `buy`, `sell`\n"
-            "`market`, `blackmarket`, `craft`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="⚔ Арми",
-        value=(
-            "`units`, `recruit`, `army`, `disband`\n"
-            "`fortify`, `scout`, `train`, `garrison`, `patrol`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="🏙 Хот / Дайн",
-        value=(
-            "`cities`, `city`, `conquer`, `invade`, `raid`\n"
-            "`defendcity`, `siege`, `march`, `camp`, `attack`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="🏗 Барилга",
-        value=(
-            "`buildings`, `mybuildings`, `build`, `collectincome`\n"
-            "`build farm 2`, `build wall 1`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="🐺 Овог",
-        value=(
-            "`clancreate`, `claninfo`, `clanjoin`\n"
-            "`clanleave`, `clandonate`, `clanvault`, `clanwar`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="🏆 Шилдгүүд",
-        value=(
-            "`leaderboard`, `topmoney`, `toplevel`\n"
-            "`topwar`, `topcities`, `topclans`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="⚡ Түргэн эхлэх",
-        value=(
-            f"`{PREFIX}start` → `{PREFIX}work` → `{PREFIX}shop`\n"
-            f"`{PREFIX}recruit ywgan 5` → `{PREFIX}conquer Хархорум`"
-        ),
-        inline=False
-    )
-
-    em.add_field(
-        name="👑 Таны байдал",
-        value=(
-            f"**🎖 Level:** {p['level']}\n"
-            f"**👑 Цол:** {p['rank']}\n"
-            f"**💰 Мөнгө:** {p['money']}\n"
-            f"**🏦 Банк:** {p['bank']}\n"
-            f"**🏙 Хот:** {len(p['cities'])}\n"
-            f"**🐺 Овог:** {p['clan'] or 'Байхгүй'}\n"
-            f"**⚔ Attack:** {atk}\n"
-            f"**🛡 Defense:** {df}"
-        ),
-        inline=False
-    )
-
+    
     if ctx.author.guild_permissions.administrator:
         em.add_field(name="🛡 Админ", value="`adminhelp`", inline=False)
 
